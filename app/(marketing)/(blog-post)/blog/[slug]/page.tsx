@@ -131,11 +131,11 @@ export default async function PostPage({
             <BlurImage
               alt={post.title}
               blurDataURL={thumbnailBlurhash ?? placeholderBlurhash}
-              className="aspect-[1200/630] border-b object-cover md:rounded-t-xl"
+              className="aspect-1200/630 border-b object-cover md:rounded-t-xl"
               width={1200}
               height={630}
               priority
-              placeholder="blur"
+              placeholder="blur-sm"
               src={post.image}
               sizes="(max-width: 768px) 770px, 1000px"
             />

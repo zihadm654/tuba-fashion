@@ -38,7 +38,7 @@ export function BlogCard({
             width={800}
             height={400}
             priority={priority}
-            placeholder="blur"
+            placeholder="blur-sm"
             src={data.image}
             sizes="(max-width: 768px) 750px, 600px"
           />

@@ -20,7 +20,7 @@ export default async function Author({
       width={32}
       height={32}
       priority
-      placeholder="blur"
+      placeholder="blur-sm"
       blurDataURL={await getBlurDataURL(authors[username].image!)}
       className="size-8 rounded-full transition-all group-hover:brightness-90"
     />
@@ -37,7 +37,7 @@ export default async function Author({
         width={40}
         height={40}
         priority
-        placeholder="blur"
+        placeholder="blur-sm"
         blurDataURL={await getBlurDataURL(authors[username].image!)}
         className="size-8 rounded-full transition-all group-hover:brightness-90 md:size-10"
       />

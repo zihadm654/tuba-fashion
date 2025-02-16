@@ -43,7 +43,7 @@ export function UserAccountNav() {
         </Drawer.Trigger>
         <Drawer.Portal>
           <Drawer.Overlay
-            className="fixed inset-0 z-40 h-full bg-background/80 backdrop-blur-sm"
+            className="fixed inset-0 z-40 h-full bg-background/80 backdrop-blur-xs"
             onClick={closeDrawer}
           />
           <Drawer.Content className="fixed inset-x-0 bottom-0 z-50 mt-24 overflow-hidden rounded-t-[10px] border bg-background px-3 text-sm">

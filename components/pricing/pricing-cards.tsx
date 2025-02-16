@@ -36,7 +36,7 @@ export function PricingCards({ userId, subscriptionPlan }: PricingCardsProps) {
     return (
       <div
         className={cn(
-          "relative flex flex-col overflow-hidden rounded-3xl border shadow-sm",
+          "relative flex flex-col overflow-hidden rounded-3xl border shadow-xs",
           offer.title.toLocaleLowerCase() === "pro"
             ? "-m-0.5 border-2 border-purple-400"
             : "",
@@ -152,14 +152,14 @@ export function PricingCards({ userId, subscriptionPlan }: PricingCardsProps) {
           >
             <ToggleGroupItem
               value="yearly"
-              className="rounded-full px-5 data-[state=on]:!bg-primary data-[state=on]:!text-primary-foreground"
+              className="rounded-full px-5 data-[state=on]:bg-primary! data-[state=on]:text-primary-foreground!"
               aria-label="Toggle yearly billing"
             >
               Yearly (-20%)
             </ToggleGroupItem>
             <ToggleGroupItem
               value="monthly"
-              className="rounded-full px-5 data-[state=on]:!bg-primary data-[state=on]:!text-primary-foreground"
+              className="rounded-full px-5 data-[state=on]:bg-primary! data-[state=on]:text-primary-foreground!"
               aria-label="Toggle monthly billing"
             >
               Monthly
