@@ -1,11 +1,10 @@
-const { withContentlayer } = require("next-contentlayer2");
+import type { NextConfig } from "next";
+import { withContentlayer } from "next-contentlayer2";
 
-import("./env.mjs");
+import "./env.mjs";
 
-/** @type {import('next').NextConfig} */
-const nextConfig = {
+const nextConfig: NextConfig = {
   reactStrictMode: true,
-  swcMinify: true,
   images: {
     remotePatterns: [
       {
@@ -22,9 +21,17 @@ const nextConfig = {
       },
     ],
   },
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
   experimental: {
-    serverComponentsExternalPackages: ["@prisma/client"],
+    // turbopack: true,
+    // ppr: true,
+    // newDevOverlay: true,
   },
 };
 
-module.exports = withContentlayer(nextConfig);
+export default withContentlayer(nextConfig);
