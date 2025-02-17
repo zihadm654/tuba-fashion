@@ -104,15 +104,15 @@ export default async function PostPage({
             </Link>
             <time
               dateTime={post.date}
-              className="text-sm font-medium text-muted-foreground"
+              className="text-muted-foreground text-sm font-medium"
             >
               {formatDate(post.date)}
             </time>
           </div>
-          <h1 className="font-heading text-3xl text-foreground sm:text-4xl">
+          <h1 className="font-heading text-foreground text-3xl sm:text-4xl">
             {post.title}
           </h1>
-          <p className="text-base text-muted-foreground md:text-lg">
+          <p className="text-muted-foreground text-base md:text-lg">
             {post.description}
           </p>
           <div className="flex flex-nowrap items-center space-x-5 pt-1 md:space-x-8">
@@ -127,7 +127,7 @@ export default async function PostPage({
         <div className="absolute top-52 w-full border-t" />
 
         <MaxWidthWrapper className="grid grid-cols-4 gap-10 pt-8 max-md:px-0">
-          <div className="relative col-span-4 mb-10 flex flex-col space-y-8 border-y bg-background md:rounded-xl md:border lg:col-span-3">
+          <div className="bg-background relative col-span-4 mb-10 flex flex-col space-y-8 border-y md:rounded-xl md:border lg:col-span-3">
             <BlurImage
               alt={post.title}
               blurDataURL={thumbnailBlurhash ?? placeholderBlurhash}
@@ -135,7 +135,7 @@ export default async function PostPage({
               width={1200}
               height={630}
               priority
-              placeholder="blur-sm"
+              placeholder="blur"
               src={post.image}
               sizes="(max-width: 768px) 770px, 1000px"
             />
@@ -144,7 +144,7 @@ export default async function PostPage({
             </div>
           </div>
 
-          <div className="sticky top-20 col-span-1 mt-52 hidden flex-col divide-y divide-muted self-start pb-24 lg:flex">
+          <div className="divide-muted sticky top-20 col-span-1 mt-52 hidden flex-col divide-y self-start pb-24 lg:flex">
             <DashboardTableOfContents toc={toc} />
           </div>
         </MaxWidthWrapper>
@@ -153,7 +153,7 @@ export default async function PostPage({
       <MaxWidthWrapper>
         {relatedArticles.length > 0 && (
           <div className="flex flex-col space-y-4 pb-16">
-            <p className="font-heading text-2xl text-foreground">
+            <p className="font-heading text-foreground text-2xl">
               More Articles
             </p>
 
@@ -162,15 +162,15 @@ export default async function PostPage({
                 <Link
                   key={post.slug}
                   href={post.slug}
-                  className="flex flex-col space-y-2 rounded-xl border p-5 transition-colors duration-300 hover:bg-muted/80"
+                  className="hover:bg-muted/80 flex flex-col space-y-2 rounded-xl border p-5 transition-colors duration-300"
                 >
-                  <h3 className="font-heading text-xl text-foreground">
+                  <h3 className="font-heading text-foreground text-xl">
                     {post.title}
                   </h3>
-                  <p className="line-clamp-2 text-[15px] text-muted-foreground">
+                  <p className="text-muted-foreground line-clamp-2 text-[15px]">
                     {post.description}
                   </p>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-muted-foreground text-sm">
                     {formatDate(post.date)}
                   </p>
                 </Link>
