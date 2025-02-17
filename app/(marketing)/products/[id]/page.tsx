@@ -1,3 +1,5 @@
+import Client from "./Client";
+
 const page = async ({ params }: { params: Promise<{ id: string }> }) => {
   const id = (await params).id;
   const res = await fetch("https://fakestoreapi.com/products/" + id);
@@ -45,12 +47,7 @@ const page = async ({ params }: { params: Promise<{ id: string }> }) => {
             </div>
           </div>
           <p className="text-gray-600">{products.description}</p>
-
-          <div className="pt-4">
-            <button className="bg-primary text-primary-foreground hover:bg-primary/90 w-full rounded-md px-6 py-3">
-              Add to Cart
-            </button>
-          </div>
+          <Client product={products} />
         </div>
       </div>
     </div>

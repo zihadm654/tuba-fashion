@@ -2,7 +2,7 @@
 
 import { useContext } from "react";
 import Link from "next/link";
-import { useSelectedLayoutSegment } from "next/navigation";
+import { useRouter, useSelectedLayoutSegment } from "next/navigation";
 import useCartStore from "@/utilities/cart";
 import { ShoppingCart } from "lucide-react";
 import { useSession } from "next-auth/react";
@@ -35,6 +35,18 @@ interface NavBarProps {
   large?: boolean;
 }
 
+const AnnouncementBar = () => {
+  return (
+    <div className="w-full bg-black py-2">
+      <div className="container mx-auto flex items-center justify-center px-8">
+        <span className="text-center text-sm font-medium tracking-wide text-white">
+          FREE SHIPPING ON ORDERS OVER $15.00 • FREE RETURNS
+        </span>
+      </div>
+    </div>
+  );
+};
+
 export function NavBar({ scroll = false }: NavBarProps) {
   const scrolled = useScroll(50);
   const { data: session, status } = useSession();
@@ -51,11 +63,11 @@ export function NavBar({ scroll = false }: NavBarProps) {
     (selectedLayout && selectedLayout === "docs"
       ? configMap[selectedLayout]
       : null) || marketingConfig.mainNav;
-
+  const router = useRouter();
   const items = useCartStore((state) => state.items);
   return (
     <header
-      className={`bg-background/60 sticky top-0 z-40 flex w-full justify-center backdrop-blur-xl transition-all ${
+      className={`bg-background/60 sticky top-0 z-40 flex w-full flex-col justify-center backdrop-blur-xl transition-all ${
         scroll ? (scrolled ? "border-b" : "bg-transparent") : "border-b"
       }`}
     >
@@ -146,7 +158,10 @@ export function NavBar({ scroll = false }: NavBarProps) {
         </div>
         <div className="flex items-center space-x-6">
           {/* right header for docs */}
-          <div className="relative max-md:mr-8">
+          <div
+            onClick={() => router.push("/cart")}
+            className="relative cursor-pointer max-md:mr-8"
+          >
             <ShoppingCart className="size-6" />
             <span className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white">
               {items.reduce((sum, item) => sum + item.quantity, 0)}
@@ -203,6 +218,7 @@ export function NavBar({ scroll = false }: NavBarProps) {
           )}
         </div>
       </MaxWidthWrapper>
+      <AnnouncementBar />
     </header>
   );
 }

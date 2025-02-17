@@ -1,28 +1,27 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import useCartStore from "@/utilities/cart";
-import { Star } from "lucide-react";
+import { ArrowRight, Star } from "lucide-react";
 
 import BlurImage from "../shared/blur-image";
 import MaxWidthWrapper from "../shared/max-width-wrapper";
 import { Button } from "../ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardTitle,
-} from "../ui/card";
+import { Card, CardContent, CardFooter, CardTitle } from "../ui/card";
 
 const Products = ({ products }: any) => {
   const router = useRouter();
-  const addToCart = useCartStore((state) => state.addToCart);
   return (
     <section className="py-10">
       <MaxWidthWrapper>
-        {/* {categories?.map((category: any) => <span>{category}</span>)} */}
-        <h2 className="pb-3 text-3xl font-bold">Featured Products</h2>
+        <div className="mb-6 flex items-center justify-between">
+          <h2 className="pb-3 text-3xl font-bold">Featured Products</h2>
+          <Button
+            onClick={() => router.push("/products")}
+            className="hover:cursor-pointer"
+          >
+            View all <ArrowRight className="ml-1 size-4" />
+          </Button>
+        </div>
         <section className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           {products?.map((product: any) => (
             <Card
@@ -39,9 +38,6 @@ const Products = ({ products }: any) => {
               />
               <CardContent className="py-4">
                 <CardTitle>{product.title}</CardTitle>
-                <CardDescription className="py-2">
-                  {product.description.substring(0, 50)}...
-                </CardDescription>
               </CardContent>
               <CardFooter className="w-full flex-col justify-between">
                 <div className="space-between flex w-full items-center">
@@ -56,11 +52,8 @@ const Products = ({ products }: any) => {
                   </div>
                   <span className="text-lg font-bold">${product.price}</span>
                 </div>
-                <Button
-                  onClick={() => addToCart(product)}
-                  className="mt-6 w-full hover:cursor-pointer"
-                >
-                  Add to Cart
+                <Button className="mt-6 w-full hover:cursor-pointer">
+                  Learn more
                 </Button>
               </CardFooter>
             </Card>
