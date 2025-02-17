@@ -61,16 +61,20 @@ export default async function PostPage({
     notFound();
   }
 
-  const category = BLOG_CATEGORIES.find(
-    (category) => category.slug === post.categories[0],
-  )!;
+  const defaultCategory = BLOG_CATEGORIES[0];
+  const categorySlug =
+    post.categories && post.categories.length > 0
+      ? post.categories[0]
+      : defaultCategory.slug;
+  const category =
+    BLOG_CATEGORIES.find((category) => category.slug === categorySlug) ??
+    defaultCategory;
 
-  const relatedArticles =
-    (post.related &&
-      post.related.map(
-        (slug) => allPosts.find((post) => post.slugAsParams === slug)!,
-      )) ||
-    [];
+  const relatedArticles = post.related
+    ? post.related
+        .map((slug) => allPosts.find((post) => post.slugAsParams === slug))
+        .filter((post): post is NonNullable<typeof post> => post !== undefined)
+    : [];
 
   const toc = await getTableOfContents(post.body.raw);
 
@@ -160,8 +164,8 @@ export default async function PostPage({
             <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:gap-6">
               {relatedArticles.map((post) => (
                 <Link
-                  key={post.slug}
-                  href={post.slug}
+                  key={post.slugAsParams}
+                  href={`/blog/${post.slugAsParams}`}
                   className="hover:bg-muted/80 flex flex-col space-y-2 rounded-xl border p-5 transition-colors duration-300"
                 >
                   <h3 className="font-heading text-foreground text-xl">

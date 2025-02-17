@@ -1,0 +1,88 @@
+/* Base styling for Rehype Pretty Code */
+[data-rehype-pretty-code-figure] {
+  position: relative;
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+}
+[data-rehype-pretty-code-figure] code {
+  display: grid;
+  min-width: 100%;
+  border-radius: 0;
+  border-width: 0;
+  background-color: transparent;
+  padding: 0;
+  word-break: break-words;
+  counter-reset: line;
+  box-decoration-break: clone;
+}
+
+/* Styling for individual lines */
+[data-line] {
+  display: inline-block;
+  min-height: 1rem;
+  width: 100%;
+  padding: 0.125rem 1rem;
+}
+
+/* Line numbering */
+[data-line-numbers] > [data-line]::before {
+  font-size: 0.75rem;
+  color: hsl(var(--muted-foreground));
+  counter-increment: line;
+  content: counter(line);
+  display: inline-block;
+  width: 1rem;
+  margin-right: 1.5rem;
+  text-align: right;
+}
+
+/* Highlighted lines and characters */
+[data-highlighted-line] {
+  background-color: hsl(var(--muted) / 0.5);
+}
+[data-highlighted-chars] span {
+  position: relative;
+}
+[data-highlighted-chars] {
+  border-radius: calc(var(--radius) / 2);
+  background-color: hsl(var(--muted) / 0.5);
+  padding: 0.25rem;
+  color: hsl(var(--foreground));
+}
+.dark [data-highlighted-chars] {
+  color: hsl(var(--foreground));
+}
+
+/* Title styling for code blocks */
+[data-rehype-pretty-code-title] {
+  margin-top: 0.75rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+/* Steps styling */
+.mdx > .steps:first-child > h3:first-child {
+  margin-top: 0;
+}
+.steps > h3 {
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+/* Code theme and colors */
+code[data-theme*=" "],
+code[data-theme*=" "] span {
+  color: var(--shiki-light);
+  background-color: var(--shiki-light-bg);
+}
+
+@media (prefers-color-scheme: dark) {
+  code[data-theme*=" "],
+  code[data-theme*=" "] span {
+    color: var(--shiki-dark);
+    background-color: var(--shiki-dark-bg);
+  }
+}
