@@ -1,13 +1,12 @@
 import type { Config } from "tailwindcss";
+import defaultTheme from "tailwindcss/defaultTheme";
 
-const { fontFamily } = require("tailwindcss/defaultTheme");
-
-const config = {
-  darkMode: ["class"],
+const config: Config = {
+  darkMode: "class",
   content: [
-    "./app/**/*.{ts,tsx}",
-    "./components/**/*.{ts,tsx}",
-    "./ui/**/*.{ts,tsx}",
+    "./app/**/*.{ts,tsx,js,jsx}",
+    "./components/**/*.{ts,tsx,js,jsx}",
+    "./ui/**/*.{ts,tsx,js,jsx}",
     "./content/**/*.{md,mdx}",
   ],
   future: {
@@ -17,7 +16,7 @@ const config = {
   theme: {
     container: {
       center: true,
-      padding: ".8rem",
+      padding: "0.8rem",
     },
     extend: {
       colors: {
@@ -61,10 +60,10 @@ const config = {
         sm: "calc(var(--radius) - 4px)",
       },
       fontFamily: {
-        sans: ["var(--font-sans)", ...fontFamily.sans],
-        urban: ["var(--font-urban)", ...fontFamily.sans],
-        heading: ["var(--font-heading)", ...fontFamily.sans],
-        geist: ["var(--font-geist)", ...fontFamily.sans],
+        sans: ["var(--font-sans)", ...defaultTheme.fontFamily.sans],
+        urban: ["var(--font-urban)", ...defaultTheme.fontFamily.sans],
+        heading: ["var(--font-heading)", ...defaultTheme.fontFamily.sans],
+        geist: ["var(--font-geist)", ...defaultTheme.fontFamily.sans],
       },
       keyframes: {
         "accordion-down": {
@@ -75,66 +74,32 @@ const config = {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: "0" },
         },
-        // Fade up and down
         "fade-up": {
-          "0%": {
-            opacity: "0",
-            transform: "translateY(10px)",
-          },
-          "80%": {
-            opacity: "0.7",
-          },
-          "100%": {
-            opacity: "1",
-            transform: "translateY(0px)",
-          },
+          "0%": { opacity: "0", transform: "translateY(10px)" },
+          "80%": { opacity: "0.7" },
+          "100%": { opacity: "1", transform: "translateY(0px)" },
         },
         "fade-down": {
-          "0%": {
-            opacity: "0",
-            transform: "translateY(-10px)",
-          },
-          "80%": {
-            opacity: "0.6",
-          },
-          "100%": {
-            opacity: "1",
-            transform: "translateY(0px)",
-          },
+          "0%": { opacity: "0", transform: "translateY(-10px)" },
+          "80%": { opacity: "0.6" },
+          "100%": { opacity: "1", transform: "translateY(0px)" },
         },
-        // Fade in and out
         "fade-in": {
-          "0%": {
-            opacity: "0",
-          },
-          "50%": {
-            opacity: "0.6",
-          },
-          "100%": {
-            opacity: "1",
-          },
+          "0%": { opacity: "0" },
+          "50%": { opacity: "0.6" },
+          "100%": { opacity: "1" },
         },
         "fade-out": {
-          "0%": {
-            opacity: "0",
-          },
-          "50%": {
-            opacity: "0.6",
-          },
-          "100%": {
-            opacity: "1",
-          },
+          "0%": { opacity: "0" },
+          "50%": { opacity: "0.6" },
+          "100%": { opacity: "1" },
         },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
-
-        // Fade up and down
         "fade-up": "fade-up 0.5s",
         "fade-down": "fade-down 0.5s",
-
-        // Fade in and out
         "fade-in": "fade-in 0.4s",
         "fade-out": "fade-out 0.4s",
       },

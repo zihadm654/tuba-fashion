@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
+import { auth } from "@/auth";
 
 import { sidebarLinks } from "@/config/dashboard";
-import { getCurrentUser } from "@/lib/session";
 import { SearchCommand } from "@/components/dashboard/search-command";
 import {
   DashboardSidebar,
@@ -16,14 +16,14 @@ interface ProtectedLayoutProps {
 }
 
 export default async function Dashboard({ children }: ProtectedLayoutProps) {
-  const user = await getCurrentUser();
+  const user = await auth();
 
   if (!user) redirect("/login");
 
   const filteredLinks = sidebarLinks.map((section) => ({
     ...section,
     items: section.items.filter(
-      ({ authorizeOnly }) => !authorizeOnly || authorizeOnly === user.role,
+      ({ authorizeOnly }) => !authorizeOnly || authorizeOnly === user.user.role,
     ),
   }));
 
@@ -32,7 +32,7 @@ export default async function Dashboard({ children }: ProtectedLayoutProps) {
       <DashboardSidebar links={filteredLinks} />
 
       <div className="flex flex-1 flex-col">
-        <header className="sticky top-0 z-50 flex h-14 bg-background px-4 lg:h-[60px] xl:px-8">
+        <header className="bg-background sticky top-0 z-50 flex h-14 px-4 lg:h-[60px] xl:px-8">
           <MaxWidthWrapper className="flex max-w-7xl items-center gap-x-3 px-0">
             <MobileSheetSidebar links={filteredLinks} />
 

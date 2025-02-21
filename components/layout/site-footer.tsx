@@ -14,7 +14,7 @@ export function SiteFooter({ className }: React.HTMLAttributes<HTMLElement>) {
       <div className="container grid max-w-6xl grid-cols-2 gap-6 py-14 md:grid-cols-5">
         {footerLinks.map((section) => (
           <div key={section.title}>
-            <span className="text-sm font-medium text-foreground">
+            <span className="text-foreground text-sm font-medium">
               {section.title}
             </span>
             <ul className="mt-4 list-inside space-y-3">
@@ -22,7 +22,7 @@ export function SiteFooter({ className }: React.HTMLAttributes<HTMLElement>) {
                 <li key={link.title}>
                   <Link
                     href={link.href}
-                    className="text-sm text-muted-foreground hover:text-primary"
+                    className="text-muted-foreground hover:text-primary text-sm"
                   >
                     {link.title}
                   </Link>
@@ -38,10 +38,10 @@ export function SiteFooter({ className }: React.HTMLAttributes<HTMLElement>) {
 
       <div className="border-t py-4">
         <div className="container flex max-w-6xl items-center justify-between">
-          {/* <span className="text-muted-foreground text-sm">
-            Copyright &copy; 2024. All rights reserved.
-          </span> */}
-          <p className="text-left text-sm text-muted-foreground">
+          <span className="text-muted-foreground text-sm">
+            Copyright &copy; 2025. All rights reserved.
+          </span>
+          {/* <p className="text-muted-foreground text-left text-sm">
             Built by{" "}
             <Link
               href={siteConfig.links.twitter}
@@ -69,7 +69,7 @@ export function SiteFooter({ className }: React.HTMLAttributes<HTMLElement>) {
             >
               Popsy
             </Link>
-          </p>
+          </p> */}
 
           <div className="flex items-center gap-3">
             <Link

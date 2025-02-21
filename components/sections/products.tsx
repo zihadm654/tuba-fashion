@@ -1,14 +1,27 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { Product } from "@prisma/client";
 import { ArrowRight, Star } from "lucide-react";
 
 import BlurImage from "../shared/blur-image";
 import MaxWidthWrapper from "../shared/max-width-wrapper";
+import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
-import { Card, CardContent, CardFooter, CardTitle } from "../ui/card";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "../ui/carosuel";
 
-const Products = ({ products }: any) => {
+interface ProductPros {
+  products: Product[];
+}
+
+const Products = ({ products }: ProductPros) => {
   const router = useRouter();
   return (
     <section className="py-10">
@@ -19,44 +32,12 @@ const Products = ({ products }: any) => {
             onClick={() => router.push("/products")}
             className="hover:cursor-pointer"
           >
-            View all <ArrowRight className="ml-1 size-4" />
+            Browse all Products &rarr;
           </Button>
         </div>
         <section className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {products?.map((product: any) => (
-            <Card
-              onClick={() => router.push("/products/" + product.id)}
-              key={product.id}
-              className="cursor-pointer"
-            >
-              <BlurImage
-                src={product?.image}
-                alt={product.title}
-                width={500}
-                height={400}
-                className="h-64 w-full rounded-t-lg object-contain"
-              />
-              <CardContent className="py-4">
-                <CardTitle>{product.title}</CardTitle>
-              </CardContent>
-              <CardFooter className="w-full flex-col justify-between">
-                <div className="space-between flex w-full items-center">
-                  <div className="space-between flex w-full items-center">
-                    <span className="flex items-center space-x-1">
-                      <Star className="mr-1.5 size-6 text-amber-500" />
-                      {product.rating.rate}
-                    </span>
-                    <span className="ml-1 text-sm text-gray-500">
-                      {product.rating.count} reviews
-                    </span>
-                  </div>
-                  <span className="text-lg font-bold">${product.price}</span>
-                </div>
-                <Button className="mt-6 w-full hover:cursor-pointer">
-                  Learn more
-                </Button>
-              </CardFooter>
-            </Card>
+          {products?.map((product: Product) => (
+            <ProductCard key={product.id} product={product} />
           ))}
         </section>
       </MaxWidthWrapper>
@@ -65,3 +46,47 @@ const Products = ({ products }: any) => {
 };
 
 export default Products;
+
+export const ProductCard = ({ product }: { product: Product }) => {
+  return (
+    <div className="relative rounded-lg">
+      <Badge
+        className={`absolute top-2 right-2 z-20 ${product.quantity > 0 ? "bg-green-500" : "bg-red-500"}`}
+      >
+        {product.quantity > 0 ? "In Stock" : "Out of Stock"}
+      </Badge>
+      <Carousel className="mx-auto w-full">
+        <CarouselContent>
+          {product.images?.map((item, index) => (
+            <CarouselItem key={index}>
+              <div className="relative h-[330px]">
+                <BlurImage
+                  src={item}
+                  alt="Product Image"
+                  fill
+                  className="h-full w-full rounded-lg object-cover object-center"
+                />
+              </div>
+            </CarouselItem>
+          ))}
+        </CarouselContent>
+        <CarouselPrevious className="ml-16" />
+        <CarouselNext className="mr-16" />
+      </Carousel>
+
+      <div className="mt-2 flex items-center justify-between">
+        <h1 className="text-xl font-semibold">{product.title}</h1>
+        <h3 className="bg-primary/10 text-primary ring-primary/10 inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset">
+          ${product.price}
+        </h3>
+      </div>
+      <p className="mt-2 line-clamp-2 text-sm text-gray-600">
+        {product.description}
+      </p>
+
+      <Button asChild className="mt-5 w-full cursor-pointer">
+        <Link href={`/products/${product.id}`}>Learn More!</Link>
+      </Button>
+    </div>
+  );
+};

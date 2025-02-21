@@ -1,37 +1,37 @@
+import { getProduct } from "@/actions/product";
+
+import BreadcrumbSection from "@/components/layout/breadcrumb-section";
+import { ImageSlider } from "@/components/shared/image-slider";
+import MaxWidthWrapper from "@/components/shared/max-width-wrapper";
+
 import Client from "./Client";
 
 const page = async ({ params }: { params: Promise<{ id: string }> }) => {
   const id = (await params).id;
-  const res = await fetch("https://fakestoreapi.com/products/" + id);
-  const products = await res.json();
-  console.log(products);
+  const res = await getProduct(id);
+  const product = res.data;
+  if (!res && product) return <div>Loading...</div>;
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="grid gap-8 md:grid-cols-2">
-        {/* Product Image */}
-        <div className="overflow-hidden rounded-lg">
-          <img
-            src={products.image}
-            alt={products.title}
-            className="h-[400px] w-full bg-white object-contain"
-          />
-        </div>
-
-        {/* Product Details */}
-        <div className="space-y-4">
-          <h1 className="text-3xl font-bold tracking-tight">
-            {products.title}
-          </h1>
-          <p className="text-primary text-2xl font-semibold">
-            ${products.price.toFixed(2)}
-          </p>
-          <div className="flex items-center gap-2">
-            <div className="flex items-center">
+    <section className="py-10">
+      <MaxWidthWrapper>
+        <BreadcrumbSection end={product?.title} />
+        <div className="grid gap-8 md:grid-cols-2">
+          <ImageSlider images={product?.images ?? []} />
+          {/* Product Details */}
+          <div className="space-y-4">
+            <h1 className="text-3xl font-bold tracking-tight">
+              {product?.title}
+            </h1>
+            <p className="text-primary text-2xl font-semibold">
+              ${product?.price.toFixed(2)}
+            </p>
+            <div className="flex items-center gap-2">
+              {/* <div className="flex items-center">
               {[...Array(5)].map((_, i) => (
                 <svg
                   key={i}
                   className={`h-4 w-4 ${
-                    i < Math.round(products.rating.rate)
+                    i < Math.round(product?.rating.rate)
                       ? "text-yellow-400"
                       : "text-gray-300"
                   }`}
@@ -42,15 +42,16 @@ const page = async ({ params }: { params: Promise<{ id: string }> }) => {
                 </svg>
               ))}
               <span className="ml-2 text-sm text-gray-600">
-                ({products.rating.count} reviews)
+                ({product?.rating.count} reviews)
               </span>
+            </div> */}
             </div>
+            <p className="text-gray-600">{product?.description}</p>
+            <Client product={product} />
           </div>
-          <p className="text-gray-600">{products.description}</p>
-          <Client product={products} />
         </div>
-      </div>
-    </div>
+      </MaxWidthWrapper>
+    </section>
   );
 };
 

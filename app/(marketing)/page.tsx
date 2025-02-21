@@ -1,7 +1,9 @@
 import { Suspense } from "react";
+import { getProducts } from "@/actions/product";
 
 import { infos } from "@/config/landing";
 import BentoGrid from "@/components/sections/bentogrid";
+import { CategoriesSelection } from "@/components/sections/category-section";
 import Features from "@/components/sections/features";
 import HeroLanding from "@/components/sections/hero-landing";
 import InfoLanding from "@/components/sections/info-landing";
@@ -9,15 +11,18 @@ import Powered from "@/components/sections/powered";
 import PreviewLanding from "@/components/sections/preview-landing";
 import Products from "@/components/sections/products";
 import Testimonials from "@/components/sections/testimonials";
+import { SkeletonSection } from "@/components/shared/section-skeleton";
 
 export default async function IndexPage() {
-  const res = await fetch("https://fakestoreapi.com/products");
-  const products = await res.json();
+  const products = await getProducts();
   console.log(products);
   return (
     <>
-      <Suspense fallback={<div>Loading...</div>}>
-        <Products products={products} />
+      <Suspense fallback={<SkeletonSection />}>
+        <Products products={products.data ?? []} />
+      </Suspense>
+      <Suspense fallback={<SkeletonSection />}>
+        <CategoriesSelection />
       </Suspense>
       {/* <HeroLanding />
       <PreviewLanding />

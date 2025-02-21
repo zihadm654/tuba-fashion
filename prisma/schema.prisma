@@ -61,11 +61,13 @@ model User {
 
   accounts Account[]
   sessions Session[]
+  Order    Order[]
 
   stripeCustomerId       String?   @unique @map(name: "stripe_customer_id")
   stripeSubscriptionId   String?   @unique @map(name: "stripe_subscription_id")
   stripePriceId          String?   @map(name: "stripe_price_id")
   stripeCurrentPeriodEnd DateTime? @map(name: "stripe_current_period_end")
+  Product                Product[]
 
   @@map(name: "users")
 }
@@ -77,4 +79,44 @@ model VerificationToken {
 
   @@unique([identifier, token])
   @@map(name: "verification_tokens")
+}
+
+model Product {
+  id          String        @id @default(uuid())
+  userId      String
+  title       String
+  description String
+  status      ProductStatus
+  price       Int
+  images      String[]
+  category    Category
+  isFeatured  Boolean       @default(false)
+  quantity    Int           @default(0)
+
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Order {
+  id     String @id @default(uuid())
+  status String @default("pending")
+  amount Int
+
+  User   User?   @relation(fields: [userId], references: [id])
+  userId String?
+
+  createdAt DateTime @default(now())
+}
+
+enum ProductStatus {
+  draft
+  published
+  archived
+}
+
+enum Category {
+  men
+  women
+  kids
 }

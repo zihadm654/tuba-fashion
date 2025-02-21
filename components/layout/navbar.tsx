@@ -3,8 +3,8 @@
 import { useContext } from "react";
 import Link from "next/link";
 import { useRouter, useSelectedLayoutSegment } from "next/navigation";
-import useCartStore from "@/utilities/cart";
-import { ShoppingCart } from "lucide-react";
+import useCartStore from "@/utils/cart";
+import { ShoppingBagIcon } from "lucide-react";
 import { useSession } from "next-auth/react";
 
 import { docsConfig } from "@/config/docs";
@@ -37,7 +37,7 @@ interface NavBarProps {
 
 const AnnouncementBar = () => {
   return (
-    <div className="w-full bg-black py-2">
+    <div className="w-full bg-emerald-600 py-2">
       <div className="container mx-auto flex items-center justify-center px-8">
         <span className="text-center text-sm font-medium tracking-wide text-white">
           FREE SHIPPING ON ORDERS OVER $15.00 • FREE RETURNS
@@ -63,7 +63,6 @@ export function NavBar({ scroll = false }: NavBarProps) {
     (selectedLayout && selectedLayout === "docs"
       ? configMap[selectedLayout]
       : null) || marketingConfig.mainNav;
-  const router = useRouter();
   const items = useCartStore((state) => state.items);
   return (
     <header
@@ -158,15 +157,24 @@ export function NavBar({ scroll = false }: NavBarProps) {
         </div>
         <div className="flex items-center space-x-6">
           {/* right header for docs */}
-          <div
+          {/* <div
             onClick={() => router.push("/cart")}
             className="relative cursor-pointer max-md:mr-8"
           >
-            <ShoppingCart className="size-6" />
+            <ShoppingBag className="mr-2 size-6" />
             <span className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white">
               {items.reduce((sum, item) => sum + item.quantity, 0)}
             </span>
-          </div>
+          </div> */}
+          <Link
+            href="/cart"
+            className="group mr-2 flex items-center p-2 max-md:mr-6"
+          >
+            <ShoppingBagIcon className="h-6 w-6 text-gray-400 group-hover:text-gray-500" />
+            <span className="ml-0.5 text-sm font-medium text-gray-700 group-hover:text-gray-800 dark:text-white">
+              {items.reduce((sum, item) => sum + item.quantity, 0)}
+            </span>
+          </Link>
           {documentation ? (
             <div className="hidden flex-1 items-center space-x-4 sm:justify-end lg:flex">
               <div className="hidden lg:flex lg:grow-0">
