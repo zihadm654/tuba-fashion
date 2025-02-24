@@ -9,10 +9,11 @@ import { UploadDropzone } from "@/utils/uploadthing";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Product } from "@prisma/client";
 import { Loader2, PencilLine, X, XIcon } from "lucide-react";
+import { DateRange } from "react-day-picker";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
-import { categories } from "@/config/categories";
+import { categories, colors, sizes } from "@/config/categories";
 import { productSchema, TProduct } from "@/lib/validations/product";
 import { Button } from "@/components/ui/button";
 import {
@@ -27,6 +28,7 @@ import {
 import { Input } from "@/components/ui/input";
 
 import { Checkbox } from "../ui/checkbox";
+import { DatePickerWithRange } from "../ui/date-range-picker";
 import {
   Select,
   SelectContent,
@@ -44,28 +46,41 @@ export function AddProduct({ product, userId }: AddProductProps) {
   const [images, setImages] = useState<string[]>(product?.images || []);
   //   const [imageKey, setImageKey] = useState<string>("");
   const [loading, setLoading] = useState(false);
+  // const [date, setDate] = useState<DateRange | undefined>();
+  // const [days, setDays] = useState(0);
 
   const form = useForm<TProduct>({
     resolver: zodResolver(productSchema),
-    defaultValues: product || {
-      title: "",
-      description: "",
-      images: [],
-      price: 0,
-      quantity: 0,
-      isFeatured: false,
-      status: "draft",
-      category: "men",
-    },
+    defaultValues: product
+      ? {
+          title: product.title,
+          description: product.description,
+          images: product.images,
+          price: product.price,
+          quantity: product.quantity,
+          status: product.status,
+          category: product.category,
+          color: product.color,
+          size: product.size,
+          isFeatured: product.isFeatured,
+          discountPercentage: product.discountPercentage || 0,
+          discountStart: product.discountStart || undefined,
+          discountEnd: product.discountEnd || undefined,
+          febric: product.febric || undefined,
+        }
+      : {
+          title: "",
+          description: "",
+          images: [],
+          price: 0,
+          quantity: 0,
+          status: "draft",
+          category: "men",
+          color: ["red", "blue"],
+          size: ["m", "l"],
+          isFeatured: false,
+        },
   });
-  //   const handleRemove = async () => {
-  //     const res = await imageRemove(imageKey);
-  //     if (res.status === 401) {
-  //       setImages([]);
-  //       setImageKey("");
-  //       toast.success("image removed successfully");
-  //     }
-  //   };
   const router = useRouter();
   async function onSubmit(data: TProduct) {
     if (product) {
@@ -177,12 +192,12 @@ export function AddProduct({ product, userId }: AddProductProps) {
                   onClientUploadComplete={(res) => {
                     // Do something with the response
                     console.log("Files: ", res);
-                    setImages(res.map((item) => item.url));
+                    setImages(res.map((item) => item.ufsUrl));
                     form.setValue(
                       "images",
-                      res.map((item) => item.url),
+                      res.map((item) => item.ufsUrl),
                     );
-                    toast.success("Upload Completed" + res[0].url);
+                    toast.success("Upload Completed" + res[0].ufsUrl);
                   }}
                   onUploadError={(error: Error) => {
                     // Do something with the error.
@@ -207,6 +222,29 @@ export function AddProduct({ product, userId }: AddProductProps) {
             </FormItem>
           )}
         />
+        <FormField
+          control={form.control}
+          name="discountPercentage"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Discount percentage</FormLabel>
+              <FormControl>
+                <Input
+                  type="number"
+                  placeholder="discount percentage"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        {/* discountStart and discountEnd are the dates when the discount will start and end respectivel. with date range */}
+        {/* <DatePickerWithRange
+          date={date}
+          setDate={setDate}
+          disabledDates={disabledDates}
+        /> */}
         <FormField
           control={form.control}
           name="quantity"
@@ -241,13 +279,13 @@ export function AddProduct({ product, userId }: AddProductProps) {
             </FormItem>
           )}
         />
-        <div className="flex items-start justify-between space-x-3">
+        <div className="flex w-full items-center justify-between space-x-3">
           <FormField
             control={form.control}
             name="status"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Published</FormLabel>
+                <FormLabel>Status</FormLabel>
                 <FormControl>
                   <Select
                     onValueChange={field.onChange}
@@ -295,6 +333,119 @@ export function AddProduct({ product, userId }: AddProductProps) {
             )}
           />
         </div>
+        <FormField
+          control={form.control}
+          name="febric"
+          render={({ field }) => (
+            <>
+              <FormItem>
+                <FormLabel>Febric</FormLabel>
+                <FormControl>
+                  <Input placeholder="febric" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            </>
+          )}
+        />
+        {/* size for the product example: m, l, xl,xxl */}
+        <FormField
+          control={form.control}
+          name="color"
+          render={() => (
+            <FormItem>
+              <div className="mb-4">
+                <FormLabel className="text-base">Available color</FormLabel>
+                <FormDescription>
+                  Select the available colors you want to display in the
+                  product.
+                </FormDescription>
+              </div>
+              {colors.map((item) => (
+                <FormField
+                  key={item.id}
+                  control={form.control}
+                  name="color"
+                  render={({ field }) => {
+                    return (
+                      <FormItem
+                        key={item.id}
+                        className="flex flex-row items-start space-y-0 space-x-3"
+                      >
+                        <FormControl>
+                          <Checkbox
+                            checked={field.value?.includes(item.id)}
+                            onCheckedChange={(checked) => {
+                              return checked
+                                ? field.onChange([...field.value, item.id])
+                                : field.onChange(
+                                    field.value?.filter(
+                                      (value) => value !== item.id,
+                                    ),
+                                  );
+                            }}
+                          />
+                        </FormControl>
+                        <FormLabel className="text-sm font-normal">
+                          {item.title}
+                        </FormLabel>
+                      </FormItem>
+                    );
+                  }}
+                />
+              ))}
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="size"
+          render={() => (
+            <FormItem>
+              <div className="mb-4">
+                <FormLabel className="text-base">Available Sizes</FormLabel>
+                <FormDescription>
+                  Select the available sizes you want to display in the product.
+                </FormDescription>
+              </div>
+              {sizes.map((item) => (
+                <FormField
+                  key={item.id}
+                  control={form.control}
+                  name="size"
+                  render={({ field }) => {
+                    return (
+                      <FormItem
+                        key={item.id}
+                        className="flex flex-row items-start space-y-0 space-x-3"
+                      >
+                        <FormControl>
+                          <Checkbox
+                            checked={field.value?.includes(item.id)}
+                            onCheckedChange={(checked) => {
+                              return checked
+                                ? field.onChange([...field.value, item.id])
+                                : field.onChange(
+                                    field.value?.filter(
+                                      (value) => value !== item.id,
+                                    ),
+                                  );
+                            }}
+                          />
+                        </FormControl>
+                        <FormLabel className="text-sm font-normal">
+                          {item.title}
+                        </FormLabel>
+                      </FormItem>
+                    );
+                  }}
+                />
+              ))}
+              <FormMessage />
+            </FormItem>
+          )}
+        />
         {product ? (
           <Button disabled={loading} className="max-w-[150px]">
             {loading ? (

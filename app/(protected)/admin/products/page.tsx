@@ -26,6 +26,3 @@ export default async function ChartsPage() {
     </>
   );
 }
-function getUserListings(arg0: string) {
-  throw new Error("Function not implemented.");
-}

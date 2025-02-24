@@ -1,4 +1,5 @@
 import { getProduct } from "@/actions/product";
+import { calculateDiscountedPrice } from "@/utils/calculateDiscount";
 
 import BreadcrumbSection from "@/components/layout/breadcrumb-section";
 import { ImageSlider } from "@/components/shared/image-slider";
@@ -10,21 +11,38 @@ const page = async ({ params }: { params: Promise<{ id: string }> }) => {
   const id = (await params).id;
   const res = await getProduct(id);
   const product = res.data;
-  if (!res && product) return <div>Loading...</div>;
+  if (!res && !product) return <div>Loading...</div>;
+
+  const discountedPrice = calculateDiscountedPrice(
+    product?.price ?? 0,
+    product?.discountPercentage ?? undefined,
+    product?.discountStart ? new Date(product.discountStart) : undefined,
+    product?.discountEnd ? new Date(product.discountEnd) : undefined,
+  );
   return (
-    <section className="py-10">
+    <section className="py-6">
+      <BreadcrumbSection end={product?.title} />
       <MaxWidthWrapper>
-        <BreadcrumbSection end={product?.title} />
-        <div className="grid gap-8 md:grid-cols-2">
+        <div className="grid gap-8 py-4 md:grid-cols-2">
           <ImageSlider images={product?.images ?? []} />
           {/* Product Details */}
           <div className="space-y-4">
             <h1 className="text-3xl font-bold tracking-tight">
               {product?.title}
             </h1>
-            <p className="text-primary text-2xl font-semibold">
-              ${product?.price.toFixed(2)}
-            </p>
+            <p className="text-gray-600">{product?.description}</p>
+            {product?.discountPercentage ? (
+              <div>
+                <span className="text-xl">${discountedPrice.toFixed(2)}</span>
+                <span className="ml-2 text-gray-500 line-through">
+                  ${product.price.toFixed(2)}
+                </span>
+              </div>
+            ) : (
+              <h3 className="bg-primary/10 text-primary ring-primary/10 inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset">
+                ${product?.price.toFixed(2)}
+              </h3>
+            )}
             <div className="flex items-center gap-2">
               {/* <div className="flex items-center">
               {[...Array(5)].map((_, i) => (
@@ -46,7 +64,22 @@ const page = async ({ params }: { params: Promise<{ id: string }> }) => {
               </span>
             </div> */}
             </div>
-            <p className="text-gray-600">{product?.description}</p>
+            <h5 className="text-xl uppercase">
+              color:{" "}
+              {product?.color.map((item) => (
+                <span key={item} className="space-x-2 text-gray-500">
+                  {item},
+                </span>
+              ))}
+            </h5>
+            <h5 className="text-xl uppercase">
+              sizes:{" "}
+              {product?.size.map((item) => (
+                <span key={item} className="space-x-2 text-gray-500">
+                  {item},
+                </span>
+              ))}
+            </h5>
             <Client product={product} />
           </div>
         </div>

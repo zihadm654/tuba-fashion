@@ -15,3 +15,39 @@ export const categories = [
     name: "kids",
   },
 ] as const;
+export const sizes = [
+  {
+    title: "M",
+    id: "m",
+  },
+  {
+    title: "L",
+    id: "l",
+  },
+  {
+    title: "XL",
+    id: "xl",
+  },
+  {
+    title: "XXL",
+    id: "xxl",
+  },
+] as const;
+export const colors = [
+  {
+    title: "RED",
+    id: "red",
+  },
+  {
+    title: "GREEN",
+    id: "green",
+  },
+  {
+    title: "YELLOW",
+    id: "yellow",
+  },
+  {
+    title: "BLUE",
+    id: "blue",
+  },
+] as const;

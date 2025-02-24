@@ -1,6 +1,6 @@
 "use client";
 
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSelectedLayoutSegment } from "next/navigation";
 import useCartStore from "@/utils/cart";
@@ -20,6 +20,12 @@ import { ModalContext } from "@/components/modals/providers";
 import { Icons } from "@/components/shared/icons";
 import MaxWidthWrapper from "@/components/shared/max-width-wrapper";
 
+import {
+  CommandDialog,
+  CommandEmpty,
+  CommandInput,
+  CommandList,
+} from "../ui/command";
 import { Input } from "../ui/input";
 import {
   NavigationMenu,
@@ -35,23 +41,13 @@ interface NavBarProps {
   large?: boolean;
 }
 
-const AnnouncementBar = () => {
-  return (
-    <div className="w-full bg-emerald-600 py-2">
-      <div className="container mx-auto flex items-center justify-center px-8">
-        <span className="text-center text-sm font-medium tracking-wide text-white">
-          FREE SHIPPING ON ORDERS OVER $15.00 • FREE RETURNS
-        </span>
-      </div>
-    </div>
-  );
-};
-
 export function NavBar({ scroll = false }: NavBarProps) {
   const scrolled = useScroll(50);
+  const router = useRouter();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [open, setOpen] = useState(false);
   const { data: session, status } = useSession();
   const { setShowSignInModal } = useContext(ModalContext);
-
   const selectedLayout = useSelectedLayoutSegment();
   const documentation = selectedLayout === "docs";
 
@@ -64,6 +60,13 @@ export function NavBar({ scroll = false }: NavBarProps) {
       ? configMap[selectedLayout]
       : null) || marketingConfig.mainNav;
   const items = useCartStore((state) => state.items);
+
+  function handleSearchKeyDown(e: React.KeyboardEvent<HTMLInputElement>): void {
+    if (e.key === "Enter" && searchQuery.trim() !== "") {
+      router.push(`/search?query=${encodeURIComponent(searchQuery.trim())}`);
+    }
+  }
+
   return (
     <header
       className={`bg-background/60 sticky top-0 z-40 flex w-full flex-col justify-center backdrop-blur-xl transition-all ${
@@ -75,15 +78,14 @@ export function NavBar({ scroll = false }: NavBarProps) {
         large={documentation}
       >
         <div className="flex gap-6 md:gap-10">
-          <Link href="/" className="flex items-center space-x-1.5">
+          <Link href="/" className="flex items-center space-x-2.5">
             <Icons.logo />
             <span className="font-urban text-xl font-bold">
               {siteConfig.name}
             </span>
           </Link>
-
           {links && links.length > 0 ? (
-            <NavigationMenu>
+            <NavigationMenu className="hidden md:flex">
               <NavigationMenuList>
                 <NavigationMenuItem>
                   <NavigationMenuTrigger>Men</NavigationMenuTrigger>
@@ -151,21 +153,31 @@ export function NavBar({ scroll = false }: NavBarProps) {
             </NavigationMenu>
           ) : null}
         </div>
-        <div className="relative mx-8 hidden cursor-pointer items-center overflow-hidden md:flex md:grow-1">
-          <Input className="h-full" placeholder="search product" />
-          <Icons.search className="text-muted-foreground absolute top-0 right-0 mt-1.5 mr-1.5 size-8" />
+        <div className="flex w-full items-center justify-center max-md:ml-2">
+          <Button
+            variant="outline"
+            className="text-muted-foreground relative h-9 w-full justify-start rounded-[0.5rem] text-sm sm:pr-12 md:w-40 lg:w-64"
+            onClick={() => setOpen(true)}
+          >
+            <span className="hidden lg:inline-flex">Search products...</span>
+            <span className="inline-flex lg:hidden">Search...</span>
+            <kbd className="bg-muted pointer-events-none absolute top-2 right-1.5 hidden h-5 items-center gap-1 rounded border px-1.5 font-mono text-[10px] font-medium opacity-100 select-none sm:flex">
+              <span className="text-xs">⌘</span>K
+            </kbd>
+          </Button>
+          <CommandDialog open={open} onOpenChange={setOpen}>
+            <CommandInput
+              value={searchQuery}
+              onValueChange={setSearchQuery}
+              placeholder="Type to search..."
+            />
+            <CommandList>
+              <CommandEmpty>No results found.</CommandEmpty>
+              {/* Add CommandGroup and CommandItem here for search results */}
+            </CommandList>
+          </CommandDialog>
         </div>
         <div className="flex items-center space-x-6">
-          {/* right header for docs */}
-          {/* <div
-            onClick={() => router.push("/cart")}
-            className="relative cursor-pointer max-md:mr-8"
-          >
-            <ShoppingBag className="mr-2 size-6" />
-            <span className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white">
-              {items.reduce((sum, item) => sum + item.quantity, 0)}
-            </span>
-          </div> */}
           <Link
             href="/cart"
             className="group mr-2 flex items-center p-2 max-md:mr-6"
@@ -195,7 +207,6 @@ export function NavBar({ scroll = false }: NavBarProps) {
               </div>
             </div>
           ) : null}
-
           {session ? (
             <Link
               href={session.user.role === "ADMIN" ? "/admin" : "/dashboard"}
@@ -226,7 +237,6 @@ export function NavBar({ scroll = false }: NavBarProps) {
           )}
         </div>
       </MaxWidthWrapper>
-      <AnnouncementBar />
     </header>
   );
 }

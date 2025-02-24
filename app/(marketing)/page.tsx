@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { getProducts } from "@/actions/product";
 
 import { infos } from "@/config/landing";
+import { PricingFaq } from "@/components/pricing/pricing-faq";
 import BentoGrid from "@/components/sections/bentogrid";
 import { CategoriesSelection } from "@/components/sections/category-section";
 import Features from "@/components/sections/features";
@@ -24,6 +25,7 @@ export default async function IndexPage() {
       <Suspense fallback={<SkeletonSection />}>
         <CategoriesSelection />
       </Suspense>
+      <PricingFaq />
       {/* <HeroLanding />
       <PreviewLanding />
       <Powered />

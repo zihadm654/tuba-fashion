@@ -1,18 +1,21 @@
+import { Product } from "@prisma/client";
 import { toast } from "sonner";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 interface CartItem {
   quantity: number;
-  id: number;
+  id: string;
   title: string;
   price: number;
   image: string;
+  color: string;
+  size: string;
 }
 
 interface CartSate {
-  items: any[];
-  addToCart: (product: any) => void;
+  items: CartItem[];
+  addToCart: (product: Product) => void;
   removeFromCart: (id: string) => void;
   updateQty: (type: "increment" | "decrement", id: string) => void;
 }
@@ -35,7 +38,9 @@ const useCartStore = create<CartSate>()(
                   id: product.id,
                   title: product.title,
                   price: product.price,
-                  image: product.image,
+                  image: product.images[0],
+                  size: product.size[0],
+                  color: product.color[0],
                 },
               ],
         });

@@ -10,7 +10,7 @@ import {
 
 const BreadcrumbSection = ({ end }: { end: string | undefined }) => {
   return (
-    <div className="container mx-auto px-4">
+    <div className="bg-accent container w-full max-w-6xl border-b border-gray-200">
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>

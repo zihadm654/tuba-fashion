@@ -9,13 +9,12 @@ const page = async () => {
   const products = await getProducts();
   console.log(products);
   return (
-    <div className="container mx-auto px-4">
-      <BreadcrumbSection end="Products" />
-      <h1 className="text-2xl capitalize">Featured Products</h1>
+    <>
+      <BreadcrumbSection end="products" />
       <Suspense fallback={<SkeletonSection />}>
         <Products products={products?.data ?? []} />
       </Suspense>
-    </div>
+    </>
   );
 };
 

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { calculateDiscountedPrice } from "@/utils/calculateDiscount";
 import { Product } from "@prisma/client";
 import { ArrowRight, Star } from "lucide-react";
 
@@ -27,12 +28,14 @@ const Products = ({ products }: ProductPros) => {
     <section className="py-10">
       <MaxWidthWrapper>
         <div className="mb-6 flex items-center justify-between">
-          <h2 className="pb-3 text-3xl font-bold">Featured Products</h2>
+          <h2 className="pb-3 text-2xl font-bold capitalize">
+            Featured Products
+          </h2>
           <Button
             onClick={() => router.push("/products")}
             className="hover:cursor-pointer"
           >
-            Browse all Products &rarr;
+            Browse Products &rarr;
           </Button>
         </div>
         <section className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -48,10 +51,16 @@ const Products = ({ products }: ProductPros) => {
 export default Products;
 
 export const ProductCard = ({ product }: { product: Product }) => {
+  const discountedPrice = calculateDiscountedPrice(
+    product.price,
+    product.discountPercentage ?? undefined,
+    product.discountStart ? new Date(product.discountStart) : undefined,
+    product.discountEnd ? new Date(product.discountEnd) : undefined,
+  );
   return (
     <div className="relative rounded-lg">
       <Badge
-        className={`absolute top-2 right-2 z-20 ${product.quantity > 0 ? "bg-green-500" : "bg-red-500"}`}
+        className={`absolute top-2 right-2 z-10 ${product.quantity > 0 ? "bg-green-500" : "bg-red-500"}`}
       >
         {product.quantity > 0 ? "In Stock" : "Out of Stock"}
       </Badge>
@@ -76,9 +85,18 @@ export const ProductCard = ({ product }: { product: Product }) => {
 
       <div className="mt-2 flex items-center justify-between">
         <h1 className="text-xl font-semibold">{product.title}</h1>
-        <h3 className="bg-primary/10 text-primary ring-primary/10 inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset">
-          ${product.price}
-        </h3>
+        {product.discountPercentage ? (
+          <div>
+            <span className="text-xl">${discountedPrice.toFixed(2)}</span>
+            <span className="ml-2 text-gray-500 line-through">
+              ${product.price.toFixed(2)}
+            </span>
+          </div>
+        ) : (
+          <h3 className="bg-primary/10 text-primary ring-primary/10 inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset">
+            ${product.price.toFixed(2)}
+          </h3>
+        )}
       </div>
       <p className="mt-2 line-clamp-2 text-sm text-gray-600">
         {product.description}
