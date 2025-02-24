@@ -18,7 +18,7 @@ const page = () => {
   const tax = subtotal * 0.1; // Assuming 10% tax
   const total = subtotal + tax;
   return (
-    <section className="py-6">
+    <section className="py-2">
       {/* <BreadcrumbSection end={product?.title} /> */}
       <MaxWidthWrapper>
         <h1 className="text-center text-3xl font-semibold">Cart Summary</h1>

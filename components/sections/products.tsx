@@ -25,7 +25,7 @@ interface ProductPros {
 const Products = ({ products }: ProductPros) => {
   const router = useRouter();
   return (
-    <section className="py-10">
+    <section className="py-4">
       <MaxWidthWrapper>
         <div className="mb-6 flex items-center justify-between">
           <h2 className="pb-3 text-2xl font-bold capitalize">
@@ -35,7 +35,7 @@ const Products = ({ products }: ProductPros) => {
             onClick={() => router.push("/products")}
             className="hover:cursor-pointer"
           >
-            Browse Products &rarr;
+            All Products &rarr;
           </Button>
         </div>
         <section className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">

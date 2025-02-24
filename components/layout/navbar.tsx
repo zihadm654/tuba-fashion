@@ -85,72 +85,24 @@ export function NavBar({ scroll = false }: NavBarProps) {
             </span>
           </Link>
           {links && links.length > 0 ? (
-            <NavigationMenu className="hidden md:flex">
-              <NavigationMenuList>
-                <NavigationMenuItem>
-                  <NavigationMenuTrigger>Men</NavigationMenuTrigger>
-                  <NavigationMenuContent>
-                    <ul className="grid gap-3 p-4 md:w-[300px] lg:w-[400px] lg:grid-cols-[.75fr_1fr]">
-                      <li className="row-span-3">
-                        {links.map((item: any) => (
-                          <Link
-                            legacyBehavior
-                            passHref
-                            key={item.href}
-                            href={item.disabled ? "#" : item.href}
-                            prefetch={true}
-                            className={cn(
-                              "hover:text-foreground/80 flex items-center text-lg font-medium transition-colors sm:text-sm",
-                              item.href.startsWith(`/${selectedLayout}`)
-                                ? "text-foreground"
-                                : "text-foreground/60",
-                              item.disabled && "cursor-not-allowed opacity-80",
-                            )}
-                          >
-                            <NavigationMenuLink
-                              className={navigationMenuTriggerStyle()}
-                            >
-                              {item.title}
-                            </NavigationMenuLink>
-                          </Link>
-                        ))}
-                      </li>
-                    </ul>
-                  </NavigationMenuContent>
-                </NavigationMenuItem>
-                <NavigationMenuItem>
-                  <NavigationMenuTrigger>Women</NavigationMenuTrigger>
-                  <NavigationMenuContent>
-                    <ul className="grid gap-3 p-4 md:w-[300px] lg:w-[400px] lg:grid-cols-[.75fr_1fr]">
-                      <li className="row-span-3">
-                        {links.map((item: any) => (
-                          <Link
-                            legacyBehavior
-                            passHref
-                            key={item.href}
-                            href={item.disabled ? "#" : item.href}
-                            prefetch={true}
-                            className={cn(
-                              "hover:text-foreground/80 flex items-center text-lg font-medium transition-colors sm:text-sm",
-                              item.href.startsWith(`/${selectedLayout}`)
-                                ? "text-foreground"
-                                : "text-foreground/60",
-                              item.disabled && "cursor-not-allowed opacity-80",
-                            )}
-                          >
-                            <NavigationMenuLink
-                              className={navigationMenuTriggerStyle()}
-                            >
-                              {item.title}
-                            </NavigationMenuLink>
-                          </Link>
-                        ))}
-                      </li>
-                    </ul>
-                  </NavigationMenuContent>
-                </NavigationMenuItem>
-              </NavigationMenuList>
-            </NavigationMenu>
+            <nav className="hidden gap-6 md:flex">
+              {links.map((item, index) => (
+                <Link
+                  key={index}
+                  href={item.disabled ? "#" : item.href}
+                  prefetch={true}
+                  className={cn(
+                    "hover:text-foreground/80 flex items-center text-lg font-medium transition-colors sm:text-sm",
+                    item.href.startsWith(`/${selectedLayout}`)
+                      ? "text-foreground"
+                      : "text-foreground/60",
+                    item.disabled && "cursor-not-allowed opacity-80",
+                  )}
+                >
+                  {item.title}
+                </Link>
+              ))}
+            </nav>
           ) : null}
         </div>
         <div className="flex w-full items-center justify-center max-md:ml-2">

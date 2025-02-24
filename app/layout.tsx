@@ -9,6 +9,7 @@ import { extractRouterConfig } from "uploadthing/server";
 import { cn, constructMetadata } from "@/lib/utils";
 import { Toaster } from "@/components/ui/sonner";
 import { Analytics } from "@/components/analytics";
+import ContactBtn from "@/components/layout/contact-btn";
 import ModalProvider from "@/components/modals/providers";
 import { TailwindIndicator } from "@/components/tailwind-indicator";
 
@@ -26,7 +27,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
       <head />
       <body
         className={cn(
-          "bg-background min-h-screen font-sans antialiased",
+          "bg-background relative min-h-screen font-sans antialiased",
           fontSans.variable,
           fontUrban.variable,
           fontHeading.variable,
@@ -45,6 +46,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
             <Analytics />
             <Toaster richColors closeButton />
             <TailwindIndicator />
+            <ContactBtn />
           </ThemeProvider>
         </SessionProvider>
       </body>

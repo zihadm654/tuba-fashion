@@ -1,3 +1,4 @@
+import type { Metadata, ResolvingMetadata } from "next";
 import { getProduct } from "@/actions/product";
 import { calculateDiscountedPrice } from "@/utils/calculateDiscount";
 
@@ -7,6 +8,33 @@ import MaxWidthWrapper from "@/components/shared/max-width-wrapper";
 
 import Client from "./Client";
 
+type Props = {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+};
+
+export async function generateMetadata(
+  { params, searchParams }: Props,
+  parent: ResolvingMetadata,
+): Promise<Metadata> {
+  // read route params
+  const id = (await params).id;
+
+  // fetch data
+  const res = await getProduct(id);
+  const product = res.data;
+
+  // optionally access and extend (rather than replace) parent metadata
+  const previousImages = (await parent).openGraph?.images || [];
+
+  return {
+    title: product?.title,
+    description: product?.description,
+    openGraph: {
+      images: [product?.images[0] || "", ...previousImages],
+    },
+  };
+}
 const page = async ({ params }: { params: Promise<{ id: string }> }) => {
   const id = (await params).id;
   const res = await getProduct(id);
@@ -20,7 +48,7 @@ const page = async ({ params }: { params: Promise<{ id: string }> }) => {
     product?.discountEnd ? new Date(product.discountEnd) : undefined,
   );
   return (
-    <section className="py-6">
+    <section className="py-2">
       <BreadcrumbSection end={product?.title} />
       <MaxWidthWrapper>
         <div className="grid gap-8 py-4 md:grid-cols-2">

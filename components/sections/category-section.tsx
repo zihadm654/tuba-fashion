@@ -20,7 +20,7 @@ export function CategoriesSelection() {
             className="text-primary hover:text-primary/80 text-sm font-semibold"
             href="/products"
           >
-            Browse all Products &rarr;
+            All Products &rarr;
           </Link>
         </div>
 
