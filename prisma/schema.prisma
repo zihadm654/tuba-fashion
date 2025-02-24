@@ -62,12 +62,12 @@ model User {
   accounts Account[]
   sessions Session[]
   Order    Order[]
+  Product  Product[]
 
   stripeCustomerId       String?   @unique @map(name: "stripe_customer_id")
   stripeSubscriptionId   String?   @unique @map(name: "stripe_subscription_id")
   stripePriceId          String?   @map(name: "stripe_price_id")
   stripeCurrentPeriodEnd DateTime? @map(name: "stripe_current_period_end")
-  Product                Product[]
 
   @@map(name: "users")
 }
@@ -82,20 +82,39 @@ model VerificationToken {
 }
 
 model Product {
-  id          String        @id @default(uuid())
-  userId      String
+  id                 String        @id @default(uuid())
+  userId             String
+  title              String
+  description        String
+  status             ProductStatus
+  price              Int
+  discountPercentage Float? // discount rate in percentage (e.g. 20 means 20% off)
+  discountStart      DateTime? // optional start date for discount
+  discountEnd        DateTime? // optional end date for discount
+  images             String[]
+  category           Category
+  isFeatured         Boolean       @default(false)
+  quantity           Int           @default(0)
+  color              String[]
+  size               String[]
+  febric             String?
+  createdAt          DateTime      @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  Order Order[]
+
+  @@map(name: "products")
+}
+
+model Banner {
+  id          String @id @default(uuid())
   title       String
-  description String
-  status      ProductStatus
-  price       Int
-  images      String[]
-  category    Category
-  isFeatured  Boolean       @default(false)
-  quantity    Int           @default(0)
+  imageString String
 
   createdAt DateTime @default(now())
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@map(name: "banners")
 }
 
 model Order {
@@ -103,10 +122,15 @@ model Order {
   status String @default("pending")
   amount Int
 
-  User   User?   @relation(fields: [userId], references: [id])
-  userId String?
+  User      User?   @relation(fields: [userId], references: [id])
+  userId    String?
+  product   Product @relation(fields: [productId], references: [id])
+  productId String
 
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map(name: "orders")
 }
 
 enum ProductStatus {

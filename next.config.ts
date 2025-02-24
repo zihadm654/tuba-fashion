@@ -21,11 +21,11 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
-        hostname: "fakestoreapi.com",
+        hostname: "utfs.io",
       },
       {
         protocol: "https",
-        hostname: "utfs.io",
+        hostname: "qlm69u2hgc.ufs.sh",
       },
     ],
   },

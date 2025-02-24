@@ -4,7 +4,7 @@ Every time you choose to apply a rule(s), explicitly state the rule(s) in the ou
 
 ## An modern Ecommerce website with ai functionality
 
-This include all the functionality of airbnb and additional modern services like personalized chat, recommendations, shoping cart, authentication, purchase etc
+This include all the functionality of Ecommerce website and additional modern services like personalized chat, recommendations, shoping cart, authentication, purchase etc
 
 - [more description]
 - [more description]
