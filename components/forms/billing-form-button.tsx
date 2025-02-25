@@ -19,13 +19,15 @@ export function BillingFormButton({
   subscriptionPlan,
 }: BillingFormButtonProps) {
   let [isPending, startTransition] = useTransition();
-  const generateUserStripeSession = generateUserStripe.bind(
-    null,
-    offer.stripeIds[year ? "yearly" : "monthly"],
-  );
+  const stripeId = offer.stripeIds[year ? "yearly" : "monthly"];
+  if (!stripeId) throw new Error("No stripe ID found for this plan");
+
+  const generateUserStripeSession = generateUserStripe.bind(null, stripeId);
 
   const stripeSessionAction = () =>
-    startTransition(async () => await generateUserStripeSession());
+    startTransition(async () => {
+      await generateUserStripeSession();
+    });
 
   const userOffer =
     subscriptionPlan.stripePriceId ===
