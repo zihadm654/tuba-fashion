@@ -26,7 +26,7 @@ export default async function HeroLanding() {
         <h1 className="font-urban text-4xl font-extrabold tracking-tight text-balance sm:text-5xl md:text-6xl lg:text-[66px]">
           Kick off with a bang with{" "}
           <span className="text-gradient_indigo-purple font-extrabold">
-            SaaS Starter
+            Tuba Fashion
           </span>
         </h1>
 

@@ -7,7 +7,7 @@ const ContactBtn = () => {
   return (
     <div className="bg-primary justify-right fixed right-3 bottom-3 z-50 m-2 flex cursor-pointer items-center rounded-full p-2 text-black shadow-lg">
       <Link
-        href={"https://wa.me/88001576926487?text=Hey+there,+I+have+a+question!"}
+        href={"https://wa.me/88001776708038?text=Hey+there,+I+have+a+question!"}
         target="_blank"
         rel="noreferrer"
       >

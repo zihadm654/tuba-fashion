@@ -7,7 +7,7 @@ import { stripe } from "@/lib/stripe";
 
 export async function POST(req: Request) {
   const body = await req.text();
-  const signature = headers().get("Stripe-Signature") as string;
+  const signature = (await headers()).get("Stripe-Signature") as string;
 
   let event: Stripe.Event;
 
@@ -17,7 +17,7 @@ export async function POST(req: Request) {
       signature,
       env.STRIPE_WEBHOOK_SECRET,
     );
-  } catch (error) {
+  } catch (error: any) {
     return new Response(`Webhook Error: ${error.message}`, { status: 400 });
   }
 

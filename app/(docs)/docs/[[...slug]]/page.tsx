@@ -38,7 +38,7 @@ export async function generateMetadata({
   const { title, description } = doc;
 
   return constructMetadata({
-    title: `${title} – SaaS Starter`,
+    title: `${title} – Tuba Fashion`,
     description: description,
   });
 }
@@ -71,7 +71,7 @@ export default async function DocPage({ params }: DocPageProps) {
     <main className="relative py-6 lg:gap-10 lg:py-8 xl:grid xl:grid-cols-[1fr_300px]">
       <div className="mx-auto w-full min-w-0">
         <DocsPageHeader heading={doc.title} text={doc.description} />
-        <div className="pb-4 pt-11">
+        <div className="pt-11 pb-4">
           <Mdx code={doc.body.code} images={images} />
         </div>
         <hr className="my-4 md:my-6" />

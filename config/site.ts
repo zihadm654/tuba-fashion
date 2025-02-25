@@ -4,7 +4,7 @@ import { env } from "@/env.mjs";
 const site_url = env.NEXT_PUBLIC_APP_URL;
 
 export const siteConfig: SiteConfig = {
-  name: "Tuba_Fasion",
+  name: "Tuba Fasion",
   description:
     "Tuba Fasion is a fashion store that sells clothes, tshirt, pants, and more.And it includes kids sections",
   url: site_url,
@@ -20,11 +20,11 @@ export const footerLinks: SidebarNavItem[] = [
   {
     title: "Company",
     items: [
-      { title: "About", href: "#" },
+      { title: "About", href: "/about" },
       { title: "Enterprise", href: "#" },
       { title: "Terms", href: "/terms" },
       { title: "Privacy", href: "/privacy" },
-      { title: "Contact Us", href: "/" },
+      { title: "Contact Us", href: "/contact" },
     ],
   },
   {
@@ -39,8 +39,8 @@ export const footerLinks: SidebarNavItem[] = [
     title: "Others",
     items: [
       { title: "My Profile", href: "#" },
-      { title: "Sitemap", href: "#" },
-      { title: "Blog Post", href: "#" },
+      { title: "Sitemap", href: "/sitemap.xml" },
+      { title: "Blog Post", href: "/blogs" },
       { title: "How to order & Get offer", href: "#" },
     ],
   },

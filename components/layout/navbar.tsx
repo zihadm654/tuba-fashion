@@ -13,7 +13,6 @@ import { siteConfig } from "@/config/site";
 import { cn } from "@/lib/utils";
 import { useScroll } from "@/hooks/use-scroll";
 import { Button } from "@/components/ui/button";
-import { navigationMenuTriggerStyle } from "@/components/ui/navigation-menu";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DocsSearch } from "@/components/docs/search";
 import { ModalContext } from "@/components/modals/providers";
@@ -26,15 +25,6 @@ import {
   CommandInput,
   CommandList,
 } from "../ui/command";
-import { Input } from "../ui/input";
-import {
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  NavigationMenuTrigger,
-} from "../ui/navigation-menu";
 
 interface NavBarProps {
   scroll?: boolean;
@@ -43,11 +33,13 @@ interface NavBarProps {
 
 export function NavBar({ scroll = false }: NavBarProps) {
   const scrolled = useScroll(50);
+  const { data: session, status } = useSession();
+  const { setShowSignInModal } = useContext(ModalContext);
+
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [open, setOpen] = useState(false);
-  const { data: session, status } = useSession();
-  const { setShowSignInModal } = useContext(ModalContext);
+
   const selectedLayout = useSelectedLayoutSegment();
   const documentation = selectedLayout === "docs";
 
@@ -78,7 +70,7 @@ export function NavBar({ scroll = false }: NavBarProps) {
         large={documentation}
       >
         <div className="flex gap-6 md:gap-10">
-          <Link href="/" className="flex items-center space-x-2.5">
+          <Link href="/" className="flex items-center space-x-1.5">
             <Icons.logo />
             <span className="font-urban text-xl font-bold">
               {siteConfig.name}

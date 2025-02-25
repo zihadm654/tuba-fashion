@@ -9,7 +9,7 @@ import { PricingCards } from "@/components/pricing/pricing-cards";
 import { PricingFaq } from "@/components/pricing/pricing-faq";
 
 export const metadata = constructMetadata({
-  title: "Pricing – SaaS Starter",
+  title: "Pricing – Tuba Fashion",
   description: "Explore our subscription plans.",
 });
 
@@ -27,7 +27,7 @@ export default async function PricingPage() {
           height={560}
           className="pointer-events-none -my-20 dark:invert"
         />
-        <p className="text-balance px-4 text-center text-2xl font-medium">
+        <p className="px-4 text-center text-2xl font-medium text-balance">
           You are an {user.role}. Back to{" "}
           <Link
             href="/admin"
