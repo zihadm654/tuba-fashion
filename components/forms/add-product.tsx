@@ -44,7 +44,7 @@ interface AddProductProps {
 }
 export function AddProduct({ product, userId }: AddProductProps) {
   const [images, setImages] = useState<string[]>(product?.images || []);
-  //   const [imageKey, setImageKey] = useState<string>("");
+  const [imageKeys, setImageKeys] = useState<string[]>([]); // Remove product?.imageKeys
   const [loading, setLoading] = useState(false);
   // const [date, setDate] = useState<DateRange | undefined>();
   // const [days, setDays] = useState(0);
@@ -111,10 +111,35 @@ export function AddProduct({ product, userId }: AddProductProps) {
       }
     }
   }
-  const handleDelete = (index: number) => {
-    setImages(images?.filter((_, i) => i !== index));
-  };
+  // const handleDelete = (index: number) => {
+  //   setImages(images?.filter((_, i) => i !== index));
+  // };
+  const handleRemove = async (index: number) => {
+    try {
+      // For existing products, we might not have imageKeys stored
+      // So we'll just remove the image from UI and update the form
+      const imageKeyToRemove = imageKeys[index];
+      const newImages = images.filter((_, i) => i !== index);
 
+      // Update UI first
+      setImages(newImages);
+      form.setValue("images", newImages);
+
+      // If we have the key, try to remove from uploadthing
+      if (imageKeyToRemove) {
+        const newImageKeys = imageKeys.filter((_, i) => i !== index);
+        setImageKeys(newImageKeys);
+
+        const res = await imageRemove(imageKeyToRemove);
+        if (res.success) {
+          toast.success("Image removed successfully");
+        }
+      }
+    } catch (error) {
+      console.error("Error removing image:", error);
+      toast.error("Failed to remove image");
+    }
+  };
   useEffect(() => {
     const subscription = form.watch((value, { name, type }) =>
       console.log(value, name, type),
@@ -175,7 +200,7 @@ export function AddProduct({ product, userId }: AddProductProps) {
                       />
                       <Button
                         className="absolute top-0 right-0"
-                        onClick={() => handleDelete(index)}
+                        onClick={() => handleRemove(index)}
                         type="button"
                         size="icon"
                         variant="ghost"
@@ -193,6 +218,7 @@ export function AddProduct({ product, userId }: AddProductProps) {
                     // Do something with the response
                     console.log("Files: ", res);
                     setImages(res.map((item) => item.ufsUrl));
+                    setImageKeys(res.map((item) => item.key));
                     form.setValue(
                       "images",
                       res.map((item) => item.ufsUrl),

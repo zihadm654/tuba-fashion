@@ -6,8 +6,8 @@ interface ProtectedLayoutProps {
 }
 
 export default async function Dashboard({ children }: ProtectedLayoutProps) {
-  const user = await auth();
-  if (!user || user.user.role !== "ADMIN") redirect("/login");
+  const session = await auth();
+  if (!session || session.user.role !== "ADMIN") redirect("/login");
 
   return <>{children}</>;
 }

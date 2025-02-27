@@ -2,8 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { deleteBanner } from "@/actions/banner";
-import { imageRemove } from "@/actions/image-remove";
-import { deleteProduct } from "@/actions/product";
+import { imgRemove } from "@/actions/image-remove";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import { Row } from "@tanstack/react-table";
 import { toast } from "sonner";
@@ -28,26 +27,23 @@ export function DataTableRowActions<TData>({
   // const task = taskSchema.parse(row.original);
   const router = useRouter();
 
-  //delete product and image
-  const handleDeleteListing = async (id: string, images: string[]) => {
+  //delete hotel and image
+  const handleDeleteListing = async (id: string, imageString: string) => {
     const getImageKey = (src: string) =>
       src.substring(src.lastIndexOf("/") + 1);
     try {
-      // Delete all associated images first
-      for (const image of images) {
-        const imageKey = getImageKey(image);
-        const res = await imageRemove(imageKey);
-        if (res.success) {
-          toast.success(`Image ${imageKey} removed successfully`);
-        }
+      const imageKey = getImageKey(imageString);
+      const res = await imgRemove(imageKey);
+      if (res.status === 401) {
+        toast.success("image removed successfully");
       }
-
-      // Delete the product after all images are removed
-      await deleteProduct(id);
-      toast.success("Product deleted successfully");
+      await deleteBanner(id);
+      // setIsHotelDeleting(false);
+      toast.success("banner deleted successfully");
     } catch (error) {
       console.log(error);
-      toast.error("Error deleting product and associated images");
+      toast.error("Error deleting product");
+      // setIsHotelDeleting(false);
     }
   };
   return (
@@ -63,7 +59,7 @@ export function DataTableRowActions<TData>({
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-[160px]">
         <DropdownMenuItem
-          onClick={() => router.push(`/admin/products/${row.getValue("id")}`)}
+          onClick={() => router.push(`/admin/banner/${row.getValue("id")}`)}
         >
           Edit
         </DropdownMenuItem>
@@ -72,7 +68,7 @@ export function DataTableRowActions<TData>({
         <DropdownMenuSeparator />
         <DropdownMenuItem
           onClick={() =>
-            handleDeleteListing(row.getValue("id"), row.getValue("images"))
+            handleDeleteListing(row.getValue("id"), row.getValue("imageString"))
           }
         >
           Delete

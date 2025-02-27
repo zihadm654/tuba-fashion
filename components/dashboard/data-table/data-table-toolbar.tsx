@@ -15,10 +15,12 @@ import { DataTableViewOptions } from "./data-table-view-options";
 
 interface DataTableToolbarProps<TData> {
   table: Table<TData>;
+  link: string;
 }
 
 export function DataTableToolbar<TData>({
   table,
+  link,
 }: DataTableToolbarProps<TData>) {
   const isFiltered = table.getState().columnFilters.length > 0;
 
@@ -44,7 +46,7 @@ export function DataTableToolbar<TData>({
           }}
           className="h-8 w-[150px] lg:w-[250px]"
         />
-        {table.getColumn("category") && (
+        {link === "products" && table.getColumn("category") && (
           <DataTableFacetedFilter
             column={table.getColumn("category")}
             title="Category"
@@ -69,7 +71,7 @@ export function DataTableToolbar<TData>({
         />
       </div>
       <Button className="mr-4 h-8 lg:flex">
-        <Link href={"/admin/products/create"}>Add Product</Link>
+        <Link href={`/admin/${link}/create`}>Add {link}</Link>
       </Button>
       <DataTableViewOptions table={table} />
     </div>

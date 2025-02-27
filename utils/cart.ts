@@ -8,6 +8,7 @@ interface CartItem {
   id: string;
   title: string;
   price: number;
+  discountPercentage: number | null;
   image: string;
   color: string;
   size: string;
@@ -38,6 +39,7 @@ const useCartStore = create<CartSate>()(
                   id: product.id,
                   title: product.title,
                   price: product.price,
+                  discountPercentage: product.discountPercentage || null,
                   image: product.images[0],
                   size: product.size[0],
                   color: product.color[0],

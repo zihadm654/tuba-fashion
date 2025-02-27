@@ -16,14 +16,14 @@ interface ProtectedLayoutProps {
 }
 
 export default async function Dashboard({ children }: ProtectedLayoutProps) {
-  const user = await auth();
-
-  if (!user) redirect("/login");
+  const session = await auth();
+  if (!session) redirect("/login");
 
   const filteredLinks = sidebarLinks.map((section) => ({
     ...section,
     items: section.items.filter(
-      ({ authorizeOnly }) => !authorizeOnly || authorizeOnly === user.user.role,
+      ({ authorizeOnly }) =>
+        !authorizeOnly || authorizeOnly === session.user.role,
     ),
   }));
 

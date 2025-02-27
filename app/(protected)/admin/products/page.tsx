@@ -1,28 +1,30 @@
 import { getUserProducts } from "@/actions/product";
+import { auth } from "@/auth";
 
-import { getCurrentUser } from "@/lib/session";
 import { constructMetadata } from "@/lib/utils";
 import { columns } from "@/components/dashboard/data-table/columns";
 import { DataTable } from "@/components/dashboard/data-table/data-table";
 import { DashboardHeader } from "@/components/dashboard/header";
 
 export const metadata = constructMetadata({
-  title: "Listings - Advanture",
-  description: "creation of hotel and rooms",
+  title: "Products - Tuba Fasion",
+  description: "products list",
 });
 
 export default async function ChartsPage() {
-  const currentUser = await getCurrentUser();
-  const products = await getUserProducts(currentUser?.id!);
+  const session = await auth();
+  const products = await getUserProducts(session?.user?.id!);
   console.log(products, "products");
-  if (!products) return <div>hotels not found</div>;
+  if (!products) return <div>products not found</div>;
   if ("error" in products) {
-    return <div>Error loading listings: {String(products.error)}</div>;
+    return <div>Error loading products: {String(products.error)}</div>;
   }
   return (
     <>
       <DashboardHeader heading="Listings" text="List of listings." />
-      {products && <DataTable columns={columns} data={products.data} />}
+      {products && (
+        <DataTable columns={columns} data={products.data} link="products" />
+      )}
     </>
   );
 }

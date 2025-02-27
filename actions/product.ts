@@ -140,7 +140,7 @@ export const updateProduct = async (
   }
   revalidatePath("/admin/products");
 };
-export const deleteProduct = async (id: string, userId: string) => {
+export const deleteProduct = async (id: string) => {
   const session = await auth();
   if (session?.user.role !== "ADMIN") return { message: "unauthorized" };
 
@@ -148,7 +148,6 @@ export const deleteProduct = async (id: string, userId: string) => {
     const res = await prisma.product.delete({
       where: {
         id: id,
-        userId,
       },
     });
     revalidatePath("/admin/products");

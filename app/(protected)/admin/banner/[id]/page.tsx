@@ -1,20 +1,20 @@
-import { getProduct } from "@/actions/product";
+import { getBanner } from "@/actions/banner";
 import { auth } from "@/auth";
 
 import { DashboardHeader } from "@/components/dashboard/header";
-import { AddProduct } from "@/components/forms/add-product";
+import { AddBanner } from "@/components/forms/add-banner";
 
 const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
   const id = (await params).id;
   const session = await auth();
-  if (!session || !session.user?.id) {
+  if (!session || !session.user.id) {
     return null; // or redirect to login  // Fix this
   }
-  const product = await getProduct(id);
+  const banner = await getBanner(id);
   return (
     <>
-      <DashboardHeader heading="Add project" text="Create new project" />
-      <AddProduct product={product.data} userId={session.user?.id} />
+      <DashboardHeader heading="Add banner" text="Create new banner" />
+      <AddBanner banner={banner.data} />
     </>
   );
 };

@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
+import { auth } from "@/auth";
 
-import { getCurrentUser } from "@/lib/session";
 import { constructMetadata } from "@/lib/utils";
 import { DashboardHeader } from "@/components/dashboard/header";
 import InfoCard from "@/components/dashboard/info-card";
@@ -12,8 +12,8 @@ export const metadata = constructMetadata({
 });
 
 export default async function AdminPage() {
-  const user = await getCurrentUser();
-  if (!user || user.role !== "ADMIN") redirect("/login");
+  const session = await auth();
+  if (!session?.user || session.user.role !== "ADMIN") redirect("/login");
 
   return (
     <>

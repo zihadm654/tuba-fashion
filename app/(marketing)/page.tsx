@@ -6,6 +6,7 @@ import { PricingFaq } from "@/components/pricing/pricing-faq";
 import BentoGrid from "@/components/sections/bentogrid";
 import { CategoriesSelection } from "@/components/sections/category-section";
 import Features from "@/components/sections/features";
+import { Hero } from "@/components/sections/hero";
 import HeroLanding from "@/components/sections/hero-landing";
 import InfoLanding from "@/components/sections/info-landing";
 import Powered from "@/components/sections/powered";
@@ -19,6 +20,7 @@ export default async function IndexPage() {
   console.log(products);
   return (
     <>
+      <Hero />
       <Suspense fallback={<SkeletonSection />}>
         <Products products={products.data ?? []} />
       </Suspense>
