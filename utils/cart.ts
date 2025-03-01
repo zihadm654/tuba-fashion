@@ -3,7 +3,7 @@ import { toast } from "sonner";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-interface CartItem {
+export interface CartItem {
   quantity: number;
   id: string;
   title: string;

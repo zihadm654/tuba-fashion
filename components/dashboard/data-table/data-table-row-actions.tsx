@@ -1,7 +1,6 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { deleteBanner } from "@/actions/banner";
 import { imageRemove } from "@/actions/image-remove";
 import { deleteProduct } from "@/actions/product";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";

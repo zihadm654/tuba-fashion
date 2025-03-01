@@ -17,6 +17,9 @@ export const env = createEnv({
     STRIPE_API_KEY: z.string().min(1),
     STRIPE_WEBHOOK_SECRET: z.string().min(1),
     UPLOADTHING_TOKEN: z.string().min(1),
+    //sslcommerce
+    STORE_ID: z.string().min(1),
+    STORE_PASSWORD: z.string().min(1),
   },
   client: {
     NEXT_PUBLIC_APP_URL: z.string().min(1),
@@ -48,5 +51,9 @@ export const env = createEnv({
       process.env.NEXT_PUBLIC_STRIPE_BUSINESS_MONTHLY_PLAN_ID,
     NEXT_PUBLIC_STRIPE_BUSINESS_YEARLY_PLAN_ID:
       process.env.NEXT_PUBLIC_STRIPE_BUSINESS_YEARLY_PLAN_ID,
+
+    //sslcommerce
+    STORE_ID: process.env.STORE_ID,
+    STORE_PASSWORD: process.env.STORE_PASSWORD,
   },
 });
