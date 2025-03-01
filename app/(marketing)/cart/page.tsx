@@ -27,12 +27,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
+import { Textarea } from "@/components/ui/textarea";
 import BlurImage from "@/components/shared/blur-image";
 import { Icons } from "@/components/shared/icons";
 import MaxWidthWrapper from "@/components/shared/max-width-wrapper";
 
 const shippingFormSchema = z.object({
-  name: z.string().min(2, { message: "Name must be at least 2 characters" }),
   city: z.string().min(2, { message: "City is required" }),
   phone: z.coerce
     .number()
@@ -71,11 +71,10 @@ const page = () => {
   const form = useForm<z.infer<typeof shippingFormSchema>>({
     resolver: zodResolver(shippingFormSchema),
     defaultValues: {
-      name: "",
+      address: "",
       city: "",
       phone: 0,
       postcode: 0,
-      address: "",
     },
   });
 
@@ -144,7 +143,7 @@ const page = () => {
               </Button>
             </div>
             <Separator />
-            <ScrollArea className="h-[600px] pr-4">
+            <ScrollArea className="max-h-[600px] pr-4">
               {items.length === 0 ? (
                 <div className="flex h-40 items-center justify-center rounded-lg border-2 border-dashed border-gray-300">
                   <p className="text-lg">Your cart is empty</p>
@@ -237,7 +236,7 @@ const page = () => {
 
           <div className="md:col-span-5">
             <Card>
-              <CardHeader className="px-0 pt-2">
+              <CardHeader className="p-3">
                 <CardTitle className="mb-2 text-center text-2xl font-semibold">
                   Order Summary
                 </CardTitle>
@@ -247,13 +246,13 @@ const page = () => {
                   <form className="space-y-4">
                     <FormField
                       control={form.control}
-                      name="name"
+                      name="address"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Full Name</FormLabel>
+                          <FormLabel>Full address</FormLabel>
                           <FormControl>
-                            <Input
-                              placeholder="Enter your full name"
+                            <Textarea
+                              placeholder="Enter your full address"
                               {...field}
                             />
                           </FormControl>
@@ -308,23 +307,6 @@ const page = () => {
                         </FormItem>
                       )}
                     />
-
-                    <FormField
-                      control={form.control}
-                      name="address"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Address</FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder="Enter your complete address"
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
                   </form>
                 </Form>
 
@@ -369,11 +351,11 @@ const page = () => {
           </div>
         </div>
         <Dialog open={showPaymentDialog} onOpenChange={handleCloseDialog}>
-          <DialogContent className="sm:max-w-md">
+          <DialogContent className="max-w-5xl max-md:max-w-md">
             <DialogHeader>
               <DialogTitle>Select Payment Method</DialogTitle>
             </DialogHeader>
-            <div className="grid grid-cols-5 gap-4 p-4 sm:grid-cols-4">
+            <div className="grid grid-cols-7 gap-4 p-4 max-md:grid-cols-4">
               {method?.map((item, i) => (
                 <Card
                   key={i}

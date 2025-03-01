@@ -36,10 +36,10 @@ export async function POST(request: Request) {
         transactionId: tran_id,
         amount: total_amount,
         status: "PENDING",
-        customerName: shippingDetails.name,
-        customerEmail: shippingDetails.email || "test@example.com",
+        customerName: session?.user?.name!,
+        customerEmail: session?.user?.email!,
         customerPhone: shippingDetails.phone,
-        shippingAddress: shippingDetails,
+        shippingAddress: shippingDetails.address,
         items: items,
       },
     });
@@ -70,8 +70,8 @@ export async function POST(request: Request) {
     );
 
     // Set default customer info for testing
-    formData.append("cus_name", shippingDetails.name);
-    formData.append("cus_email", shippingDetails.email);
+    formData.append("cus_name", session?.user?.name!);
+    formData.append("cus_email", session?.user?.email!);
     formData.append("cus_add1", shippingDetails.address);
     formData.append("cus_add2", "Test Address 2");
     formData.append("cus_city", shippingDetails.city);
@@ -83,7 +83,7 @@ export async function POST(request: Request) {
     formData.append("shipping_method", "NO");
 
     // Set default shipping info
-    formData.append("ship_name", shippingDetails.name);
+    formData.append("ship_name", session?.user?.name!);
     formData.append("ship_add1", shippingDetails.address);
     formData.append("ship_add2", "Test Address 2");
     formData.append("ship_city", shippingDetails.city);
