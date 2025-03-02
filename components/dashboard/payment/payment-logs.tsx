@@ -1,4 +1,6 @@
+import { PaymentLog } from "@prisma/client";
 import { format } from "date-fns";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -16,17 +18,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-
-type PaymentLog = {
-  id: string;
-  transactionId: string;
-  amount: number;
-  status: "PENDING" | "SUCCESS" | "FAILED" | "CANCELED";
-  customerName: string;
-  customerEmail: string;
-  createdAt: Date;
-  paymentMethod?: string;
-};
 
 interface PaymentLogsProps {
   payments: PaymentLog[];
@@ -59,14 +50,16 @@ export default function PaymentLogs({ payments }: PaymentLogsProps) {
                 <TableCell>{payment.transactionId}</TableCell>
                 <TableCell>
                   <div className="font-medium">{payment.customerName}</div>
-                  <div className="text-sm text-muted-foreground">
+                  <div className="text-muted-foreground text-sm">
                     {payment.customerEmail}
                   </div>
                 </TableCell>
                 <TableCell>{payment.paymentMethod || "N/A"}</TableCell>
                 <TableCell>
                   <Badge
-                    variant={payment.status === "SUCCESS" ? "default" : "secondary"}
+                    variant={
+                      payment.status === "SUCCESS" ? "default" : "secondary"
+                    }
                     className="text-xs"
                   >
                     {payment.status}
