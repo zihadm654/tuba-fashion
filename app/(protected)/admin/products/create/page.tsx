@@ -1,4 +1,3 @@
-import React from "react";
 import { auth } from "@/auth";
 
 import { DashboardHeader } from "@/components/dashboard/header";
