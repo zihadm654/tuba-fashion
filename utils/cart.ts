@@ -19,6 +19,7 @@ interface CartSate {
   addToCart: (product: Product) => void;
   removeFromCart: (id: string) => void;
   updateQty: (type: "increment" | "decrement", id: string) => void;
+  clearCart: () => void;
 }
 
 const useCartStore = create<CartSate>()(
@@ -72,6 +73,10 @@ const useCartStore = create<CartSate>()(
             items: [...get().items],
           });
         }
+      },
+      clearCart: () => {
+        set({ items: [] });
+        toast.success("Cart cleared");
       },
     }),
     {
