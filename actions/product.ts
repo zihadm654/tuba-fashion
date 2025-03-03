@@ -10,7 +10,7 @@ export const getProducts = async () => {
   try {
     const products = await prisma.product.findMany({
       orderBy: {
-        id: "desc",
+        createdAt: "desc",
       },
     });
 

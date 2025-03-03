@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { calculateDiscountedPrice } from "@/utils/calculateDiscount";
 import { Product } from "@prisma/client";
-import { ArrowRight, Star } from "lucide-react";
 
 import BlurImage from "../shared/blur-image";
 import MaxWidthWrapper from "../shared/max-width-wrapper";
@@ -20,23 +19,26 @@ import {
 
 interface ProductPros {
   products: Product[];
+  title: string;
+  link?: string;
+  name?: string;
 }
 
-const Products = ({ products }: ProductPros) => {
+const Products = ({ products, title, link, name }: ProductPros) => {
   const router = useRouter();
   return (
     <section className="py-4">
       <MaxWidthWrapper>
         <div className="mb-6 flex items-center justify-between">
-          <h2 className="pb-3 text-2xl font-bold capitalize">
-            Featured Products
-          </h2>
-          <Button
-            onClick={() => router.push("/products")}
-            className="hover:cursor-pointer"
-          >
-            All Products &rarr;
-          </Button>
+          <h2 className="pb-3 text-2xl font-bold capitalize">{title}</h2>
+          {link && name && (
+            <Button
+              onClick={() => router.push(`${link}`)}
+              className="hover:cursor-pointer"
+            >
+              {name} &rarr;
+            </Button>
+          )}
         </div>
         <section className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           {products?.map((product: Product) => (
@@ -89,12 +91,12 @@ export const ProductCard = ({ product }: { product: Product }) => {
           <div>
             <span className="text-xl">${discountedPrice.toFixed(2)}</span>
             <span className="ml-2 text-gray-500 line-through">
-              ${product.price.toFixed(2)}
+              ৳{product.price.toFixed(2)}
             </span>
           </div>
         ) : (
           <h3 className="bg-primary/10 text-primary ring-primary/10 inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset">
-            ${product.price.toFixed(2)}
+            ৳{product.price.toFixed(2)}
           </h3>
         )}
       </div>

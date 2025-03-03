@@ -36,6 +36,7 @@ export function constructMetadata({
       "Resend",
       "React Email",
       "Stripe",
+      "SSL commercez",
     ],
     authors: [{ name: "zihadm654" }],
     creator: "zihadm654",

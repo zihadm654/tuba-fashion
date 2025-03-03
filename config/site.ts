@@ -4,7 +4,7 @@ import { env } from "@/env.mjs";
 const site_url = env.NEXT_PUBLIC_APP_URL;
 
 export const siteConfig: SiteConfig = {
-  name: "Tuba Fashion",
+  name: "Tuba_Fashion",
   description:
     "Tuba Fasion is a fashion store that sells clothes, tshirt, pants, and more.And it includes kids sections",
   url: site_url,

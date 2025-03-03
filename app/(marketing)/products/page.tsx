@@ -17,7 +17,7 @@ const page = async () => {
     <>
       <BreadcrumbSection end="products" />
       <Suspense fallback={<SkeletonSection />}>
-        <Products products={products?.data ?? []} />
+        <Products products={products?.data ?? []} title="All Products" />
       </Suspense>
     </>
   );

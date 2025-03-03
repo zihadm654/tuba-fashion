@@ -22,7 +22,12 @@ export default async function IndexPage() {
     <>
       <Hero />
       <Suspense fallback={<SkeletonSection />}>
-        <Products products={products.data ?? []} />
+        <Products
+          products={products.data ?? []}
+          title="Featured Products"
+          link="products"
+          name="All Products"
+        />
       </Suspense>
       <Suspense fallback={<SkeletonSection />}>
         <CategoriesSelection />
