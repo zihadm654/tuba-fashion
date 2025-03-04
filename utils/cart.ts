@@ -10,15 +10,16 @@ export interface CartItem {
   price: number;
   discountPercentage: number | null;
   image: string;
-  color: string;
-  size: string;
+  color: string[];
+  size: string[];
+  cartItemId: string; // Add unique identifier for cart items
 }
 
 interface CartSate {
   items: CartItem[];
-  addToCart: (product: Product) => void;
-  removeFromCart: (id: string) => void;
-  updateQty: (type: "increment" | "decrement", id: string) => void;
+  addToCart: (product: Product, selectedColor: string, selectedSize: string) => void;
+  removeFromCart: (cartItemId: string) => void;
+  updateQty: (type: "increment" | "decrement", cartItemId: string) => void;
   clearCart: () => void;
 }
 
@@ -26,51 +27,62 @@ const useCartStore = create<CartSate>()(
   persist(
     (set, get) => ({
       items: [],
-      addToCart: (product) => {
+      addToCart: (product, selectedColor, selectedSize) => {
         const existingProduct = get().items.find(
-          (item) => item.id === product.id,
+          (item) =>
+            item.id === product.id &&
+            item.color[0] === selectedColor &&
+            item.size[0] === selectedSize
         );
-        set({
-          items: existingProduct
-            ? get().items
-            : [
-                ...get().items,
-                {
-                  quantity: 1,
-                  id: product.id,
-                  title: product.title,
-                  price: product.price,
-                  discountPercentage: product.discountPercentage || null,
-                  image: product.images[0],
-                  size: product.size[0],
-                  color: product.color[0],
-                },
-              ],
-        });
+
         if (existingProduct) {
-          toast.error("Product Already exists");
-        } else {
-          toast.success("Product Added successfully");
+          toast.error("This variation already exists in cart");
+          return;
         }
-      },
-      removeFromCart: (id) => {
+
+        const cartItemId = `${product.id}-${selectedColor}-${selectedSize}`;
+        
         set({
-          items: get().items.filter((item) => item.id !== id),
+          items: [
+            ...get().items,
+            {
+              quantity: 1,
+              id: product.id,
+              cartItemId,
+              title: product.title,
+              price: product.price,
+              discountPercentage: product.discountPercentage || null,
+              image: product.images[0],
+              size: [selectedSize],
+              color: [selectedColor],
+            },
+          ],
+        });
+        toast.success("Product Added successfully");
+      },
+      removeFromCart: (cartItemId) => {
+        set({
+          items: get().items.filter((item) => item.cartItemId !== cartItemId),
         });
         toast.success("Item removed");
       },
-      updateQty: (type, id) => {
-        const item = get().items.find((item) => item.id === id);
-        if (!item) {
-          return;
-        }
+      updateQty: (type, cartItemId) => {
+        const item = get().items.find((item) => item.cartItemId === cartItemId);
+        if (!item) return;
+
         if (item.quantity === 1 && type === "decrement") {
-          get().removeFromCart(id);
+          get().removeFromCart(cartItemId);
         } else {
-          item.quantity =
-            type === "decrement" ? item.quantity - 1 : item.quantity + 1;
           set({
-            items: [...get().items],
+            items: get().items.map((item) =>
+              item.cartItemId === cartItemId
+                ? {
+                    ...item,
+                    quantity:
+                      type === "decrement" ? item.quantity - 1 : item.quantity + 1,
+                  }
+                : item
+            ),
           });
         }
       },
@@ -81,8 +93,8 @@ const useCartStore = create<CartSate>()(
     }),
     {
       name: "cart-storage",
-    },
-  ),
+    }
+  )
 );
 
 export default useCartStore;

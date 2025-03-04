@@ -4,7 +4,8 @@ import { useContext, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSelectedLayoutSegment } from "next/navigation";
 import useCartStore from "@/utils/cart";
-import { ShoppingBagIcon } from "lucide-react";
+import { useDebouncedCallback } from "@mantine/hooks";
+import { Loader2, Search, ShoppingBagIcon } from "lucide-react";
 import { useSession } from "next-auth/react";
 
 import { docsConfig } from "@/config/docs";
@@ -13,18 +14,12 @@ import { siteConfig } from "@/config/site";
 import { cn } from "@/lib/utils";
 import { useScroll } from "@/hooks/use-scroll";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DocsSearch } from "@/components/docs/search";
 import { ModalContext } from "@/components/modals/providers";
 import { Icons } from "@/components/shared/icons";
 import MaxWidthWrapper from "@/components/shared/max-width-wrapper";
-
-import {
-  CommandDialog,
-  CommandEmpty,
-  CommandInput,
-  CommandList,
-} from "../ui/command";
 
 interface NavBarProps {
   scroll?: boolean;
@@ -52,12 +47,26 @@ export function NavBar({ scroll = false }: NavBarProps) {
       ? configMap[selectedLayout]
       : null) || marketingConfig.mainNav;
   const items = useCartStore((state) => state.items);
+  // const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  //   if (e.key === "Enter" && searchQuery.trim()) {
+  //     router.push(`/search?title=${encodeURIComponent(searchQuery.trim())}`);
+  //     setSearchQuery("");
+  //   }
+  // };
+  const [loading, setLoading] = useState(false);
 
-  function handleSearchKeyDown(e: React.KeyboardEvent<HTMLInputElement>): void {
-    if (e.key === "Enter" && searchQuery.trim() !== "") {
-      router.push(`/search?query=${encodeURIComponent(searchQuery.trim())}`);
+  const searchProducts = useDebouncedCallback((query: string) => {
+    if (!query.trim()) {
+      router.push("/search");
+      return;
     }
-  }
+    router.push(`/search?title=${encodeURIComponent(query.trim())}`);
+  }, 500);
+
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+    searchProducts(e.target.value);
+  };
 
   return (
     <header
@@ -97,29 +106,21 @@ export function NavBar({ scroll = false }: NavBarProps) {
             </nav>
           ) : null}
         </div>
-        <div className="flex w-full items-center justify-center max-md:ml-2">
-          <Button
-            variant="outline"
-            className="text-muted-foreground relative h-9 w-full justify-start rounded-[0.5rem] text-sm sm:pr-12 md:w-40 lg:w-64"
-            onClick={() => setOpen(true)}
-          >
-            <span className="hidden lg:inline-flex">Search products...</span>
-            <span className="inline-flex lg:hidden">Search...</span>
-            <kbd className="bg-muted pointer-events-none absolute top-2 right-1.5 hidden h-5 items-center gap-1 rounded border px-1.5 font-mono text-[10px] font-medium opacity-100 select-none sm:flex">
-              <span className="text-xs">⌘</span>K
-            </kbd>
-          </Button>
-          <CommandDialog open={open} onOpenChange={setOpen}>
-            <CommandInput
+        {/* search bar for product finding */}
+        <div className="flex w-full max-w-md items-center justify-center max-md:ml-2">
+          <div className="relative w-full max-w-md">
+            <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
+            <Input
+              type="text"
+              placeholder="Search products..."
               value={searchQuery}
-              onValueChange={setSearchQuery}
-              placeholder="Type to search..."
+              onChange={handleSearch}
+              className="w-full pr-4 pl-9"
             />
-            <CommandList>
-              <CommandEmpty>No results found.</CommandEmpty>
-              {/* Add CommandGroup and CommandItem here for search results */}
-            </CommandList>
-          </CommandDialog>
+            {loading && (
+              <Loader2 className="absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 animate-spin" />
+            )}
+          </div>
         </div>
         <div className="flex items-center space-x-6">
           <Link

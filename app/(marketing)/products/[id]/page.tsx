@@ -13,14 +13,15 @@ type Props = {
   params: Promise<{ id: string }>;
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 };
-
+// searchParams: Promise<{ color: string; size: string }>;
 export async function generateMetadata(
   { params, searchParams }: Props,
   parent: ResolvingMetadata,
 ): Promise<Metadata> {
   // read route params
   const id = (await params).id;
-
+  const color = (await searchParams).color;
+  const size = (await searchParams).size;
   // fetch data
   const res = await getProduct(id);
   const product = res.data;
@@ -36,8 +37,11 @@ export async function generateMetadata(
     },
   };
 }
-const page = async ({ params }: { params: Promise<{ id: string }> }) => {
+const page = async ({ params, searchParams }: Props) => {
   const id = (await params).id;
+  const color = (await searchParams).color;
+  const size = (await searchParams).size;
+  console.log(color, size);
   const res = await getProduct(id);
   const product = res.data;
   if (!res && !product) return <SkeletonSection />;
@@ -69,10 +73,10 @@ const page = async ({ params }: { params: Promise<{ id: string }> }) => {
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
                     <span className="text-primary text-3xl font-bold">
-                      ${discountedPrice.toFixed(2)}
+                      ৳{discountedPrice.toFixed(2)}
                     </span>
                     <span className="text-xl text-gray-500 line-through">
-                      ${product.price.toFixed(2)}
+                      ৳{product.price.toFixed(2)}
                     </span>
                   </div>
                   <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-sm font-medium text-green-800 dark:bg-green-900 dark:text-green-100">
@@ -81,7 +85,7 @@ const page = async ({ params }: { params: Promise<{ id: string }> }) => {
                 </div>
               ) : (
                 <span className="text-primary text-3xl font-bold">
-                  ${product?.price.toFixed(2)}
+                  ৳{product?.price.toFixed(2)}
                 </span>
               )}
               <div className="mt-2 flex items-center gap-2">
@@ -97,35 +101,7 @@ const page = async ({ params }: { params: Promise<{ id: string }> }) => {
                 )}
               </div>
             </div>
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <h5 className="text-lg font-medium uppercase">Colors</h5>
-                <div className="flex flex-wrap gap-2">
-                  {product?.color.map((item) => (
-                    <span
-                      key={item}
-                      className="hover:bg-primary/10 hover:text-primary rounded-full bg-gray-100 px-3 py-1 text-sm font-medium text-gray-800 transition-colors dark:bg-gray-800 dark:text-gray-200"
-                    >
-                      {item}
-                    </span>
-                  ))}
-                </div>
-              </div>
-              <div className="space-y-2">
-                <h5 className="text-lg font-medium uppercase">Sizes</h5>
-                <div className="flex flex-wrap gap-2">
-                  {product?.size.map((item) => (
-                    <span
-                      key={item}
-                      className="hover:bg-primary/10 hover:text-primary rounded-full bg-gray-100 px-3 py-1 text-sm font-medium text-gray-800 transition-colors dark:bg-gray-800 dark:text-gray-200"
-                    >
-                      {item}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </div>
-            <Client product={product} />
+            <Client product={product} color={color} size={size} />
           </div>
         </div>
       </MaxWidthWrapper>

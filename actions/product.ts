@@ -6,12 +6,58 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
 import { productSchema, TProduct } from "@/lib/validations/product";
 
-export const getProducts = async () => {
+interface FilterOptions {
+  category?: string;
+  priceRange?: string;
+  sortBy?: string;
+  title?: string;
+}
+
+export const getProducts = async (filters?: FilterOptions) => {
   try {
+    const where: any = {
+      status: "published",
+    };
+
+    if (filters?.title) {
+      where.title = {
+        contains: filters.title,
+        mode: "insensitive",
+      };
+    }
+
+    if (filters?.category && filters.category !== "all") {
+      where.category = filters.category;
+    }
+
+    if (filters?.priceRange && filters.priceRange !== "all") {
+      const [min, max] = filters.priceRange.split("-").map(Number);
+      where.price = {
+        gte: min,
+        ...(max !== undefined && { lte: max }),
+      };
+      if (filters.priceRange === "200-above") {
+        where.price = { gte: 200 };
+      }
+    }
+
+    let orderBy: any = { createdAt: "desc" };
+    if (filters?.sortBy) {
+      switch (filters.sortBy) {
+        case "price_asc":
+          orderBy = { price: "asc" };
+          break;
+        case "price_desc":
+          orderBy = { price: "desc" };
+          break;
+        default:
+          orderBy = { createdAt: "desc" };
+      }
+    }
+
     const products = await prisma.product.findMany({
-      orderBy: {
-        createdAt: "desc",
-      },
+      where,
+      orderBy,
     });
 
     return { success: true, data: products };
@@ -20,6 +66,7 @@ export const getProducts = async () => {
     return { success: false, error: "Failed to fetch product" };
   }
 };
+
 export const getProduct = async (id: string) => {
   try {
     const product = await prisma.product.findUnique({
@@ -34,6 +81,7 @@ export const getProduct = async (id: string) => {
     return { success: false, error: "Failed to fetch product" };
   }
 };
+
 const CATEGORIES = {
   MEN: "men",
   WOMEN: "women",

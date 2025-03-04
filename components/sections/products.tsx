@@ -89,7 +89,7 @@ export const ProductCard = ({ product }: { product: Product }) => {
         <h1 className="text-xl font-semibold">{product.title}</h1>
         {product.discountPercentage ? (
           <div>
-            <span className="text-xl">${discountedPrice.toFixed(2)}</span>
+            <span className="text-xl">৳{discountedPrice.toFixed(2)}</span>
             <span className="ml-2 text-gray-500 line-through">
               ৳{product.price.toFixed(2)}
             </span>
