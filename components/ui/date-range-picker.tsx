@@ -32,7 +32,7 @@ export function DatePickerWithRange({
   disabledDates = [],
   form,
   name,
-  label = "Select Date Range",
+  label,
   error,
 }: DatePickerProps) {
   const handleSelect = React.useCallback(
@@ -53,9 +53,21 @@ export function DatePickerWithRange({
       }
 
       setDate(selectedDate);
+      
+      // Update form values directly
       if (form && name) {
-        form.setValue(name + "Start", from);
-        form.setValue(name + "End", to);
+        if (from) {
+          form.setValue(name + "Start", from);
+        } else {
+          form.setValue(name + "Start", null);
+        }
+        
+        if (to) {
+          form.setValue(name + "End", to);
+        } else {
+          form.setValue(name + "End", null);
+        }
+        
         // Trigger form validation
         form.trigger([name + "Start", name + "End"]);
       }

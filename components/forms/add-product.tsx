@@ -285,7 +285,24 @@ export function AddProduct({ product, userId }: AddProductProps) {
             )}
           />
           <div className="w-full space-y-2">
-            <DatePickerWithRange date={date} setDate={setDate} />
+            <FormField
+              control={form.control}
+              name="discountStart"
+              render={() => (
+                <FormItem className="w-full">
+                  <FormLabel>Discount Period</FormLabel>
+                  <FormControl>
+                    <DatePickerWithRange 
+                      date={date} 
+                      setDate={setDate} 
+                      form={form}
+                      name="discount"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </div>
         </div>
         <div className="flex items-center justify-between gap-3">
