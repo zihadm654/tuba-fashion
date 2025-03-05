@@ -17,13 +17,14 @@ import { SkeletonSection } from "@/components/shared/section-skeleton";
 
 export default async function IndexPage() {
   const products = await getProducts();
+  if (products.success === false) return <div>products not found</div>;
   console.log(products);
   return (
     <>
       <Hero />
       <Suspense fallback={<SkeletonSection />}>
         <Products
-          products={products.data ?? []}
+          products={products?.data ?? []}
           title="Featured Products"
           link="products"
           name="All Products"

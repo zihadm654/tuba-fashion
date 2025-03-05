@@ -8,7 +8,7 @@ import { addProduct, updateProduct } from "@/actions/product";
 import { UploadDropzone } from "@/utils/uploadthing";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Product } from "@prisma/client";
-import { Loader2, PencilLine, X, XIcon } from "lucide-react";
+import { Loader2, PencilLine, X } from "lucide-react";
 import { DateRange } from "react-day-picker";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -46,8 +46,10 @@ export function AddProduct({ product, userId }: AddProductProps) {
   const [images, setImages] = useState<string[]>(product?.images || []);
   const [imageKeys, setImageKeys] = useState<string[]>([]); // Remove product?.imageKeys
   const [loading, setLoading] = useState(false);
-  // const [date, setDate] = useState<DateRange | undefined>();
-  // const [days, setDays] = useState(0);
+  const [date, setDate] = useState<DateRange | undefined>({
+    from: product?.discountStart || undefined,
+    to: product?.discountEnd || undefined,
+  });
 
   const form = useForm<TProduct>({
     resolver: zodResolver(productSchema),
@@ -235,82 +237,99 @@ export function AddProduct({ product, userId }: AddProductProps) {
             </FormItem>
           )}
         />
-        <FormField
-          control={form.control}
-          name="price"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Price</FormLabel>
-              <FormControl>
-                <Input type="number" placeholder="price" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="discountPercentage"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Discount percentage</FormLabel>
-              <FormControl>
-                <Input
-                  type="number"
-                  placeholder="discount percentage"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        {/* discountStart and discountEnd are the dates when the discount will start and end respectivel. with date range */}
-        {/* <DatePickerWithRange
-          date={date}
-          setDate={setDate}
-          disabledDates={disabledDates}
-        /> */}
-        <FormField
-          control={form.control}
-          name="quantity"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Quantity</FormLabel>
-              <FormControl>
-                <Input type="number" placeholder="quantity" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="isFeatured"
-          render={({ field }) => (
-            <FormItem className="flex items-start space-x-3">
-              <FormControl>
-                <Checkbox
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
-                />
-              </FormControl>
-              <div className="space-y-1 leading-none">
-                <FormLabel>Featured</FormLabel>
-                <FormDescription>
-                  You can manage your mobile notifications in the settings
-                </FormDescription>
-              </div>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <div className="flex w-full items-center justify-between space-x-3">
+        <div className="flex items-center justify-between gap-4">
+          <FormField
+            control={form.control}
+            name="price"
+            render={({ field }) => (
+              <FormItem className="w-full">
+                <FormLabel>Price</FormLabel>
+                <FormControl>
+                  <Input min={0} type="number" placeholder="price" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="quantity"
+            render={({ field }) => (
+              <FormItem className="w-full">
+                <FormLabel>Quantity</FormLabel>
+                <FormControl>
+                  <Input type="number" placeholder="quantity" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+        <div className="flex items-center justify-between gap-3">
+          <FormField
+            control={form.control}
+            name="discountPercentage"
+            render={({ field }) => (
+              <FormItem className="w-full">
+                <FormLabel>Discount percentage</FormLabel>
+                <FormControl>
+                  <Input
+                    min={0}
+                    type="number"
+                    placeholder="discount percentage"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <div className="w-full space-y-2">
+            <DatePickerWithRange date={date} setDate={setDate} />
+          </div>
+        </div>
+        <div className="flex items-center justify-between gap-3">
+          <FormField
+            control={form.control}
+            name="isFeatured"
+            render={({ field }) => (
+              <FormItem className="flex w-full items-start space-x-3">
+                <FormControl>
+                  <Checkbox
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+                <div className="space-y-1 leading-none">
+                  <FormLabel>Featured</FormLabel>
+                  <FormDescription>
+                    You can manage product status
+                  </FormDescription>
+                </div>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="febric"
+            render={({ field }) => (
+              <FormItem className="w-full">
+                <FormLabel>Febric</FormLabel>
+                <FormControl>
+                  <Input placeholder="febric" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+        <div className="flex items-center justify-between space-x-3">
           <FormField
             control={form.control}
             name="status"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="w-full">
                 <FormLabel>Status</FormLabel>
                 <FormControl>
                   <Select
@@ -335,7 +354,7 @@ export function AddProduct({ product, userId }: AddProductProps) {
             control={form.control}
             name="category"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="w-full">
                 <FormLabel>Category</FormLabel>
                 <FormControl>
                   <Select
@@ -359,119 +378,107 @@ export function AddProduct({ product, userId }: AddProductProps) {
             )}
           />
         </div>
-        <FormField
-          control={form.control}
-          name="febric"
-          render={({ field }) => (
-            <>
+        {/* size for the product example: m, l, xl,xxl */}
+        <div className="flex items-center justify-between gap-3">
+          <FormField
+            control={form.control}
+            name="color"
+            render={() => (
               <FormItem>
-                <FormLabel>Febric</FormLabel>
-                <FormControl>
-                  <Input placeholder="febric" {...field} />
-                </FormControl>
+                <div className="mb-4">
+                  <FormLabel className="text-base">Available color</FormLabel>
+                  <FormDescription>
+                    Select the available colors you want to display in the
+                    product.
+                  </FormDescription>
+                </div>
+                {colors.map((item) => (
+                  <FormField
+                    key={item.id}
+                    control={form.control}
+                    name="color"
+                    render={({ field }) => {
+                      return (
+                        <FormItem
+                          key={item.id}
+                          className="flex flex-row items-start space-y-0 space-x-3"
+                        >
+                          <FormControl>
+                            <Checkbox
+                              checked={field.value?.includes(item.id)}
+                              onCheckedChange={(checked) => {
+                                return checked
+                                  ? field.onChange([...field.value, item.id])
+                                  : field.onChange(
+                                      field.value?.filter(
+                                        (value) => value !== item.id,
+                                      ),
+                                    );
+                              }}
+                            />
+                          </FormControl>
+                          <FormLabel className="text-sm font-normal">
+                            {item.title}
+                          </FormLabel>
+                        </FormItem>
+                      );
+                    }}
+                  />
+                ))}
                 <FormMessage />
               </FormItem>
-            </>
-          )}
-        />
-        {/* size for the product example: m, l, xl,xxl */}
-        <FormField
-          control={form.control}
-          name="color"
-          render={() => (
-            <FormItem>
-              <div className="mb-4">
-                <FormLabel className="text-base">Available color</FormLabel>
-                <FormDescription>
-                  Select the available colors you want to display in the
-                  product.
-                </FormDescription>
-              </div>
-              {colors.map((item) => (
-                <FormField
-                  key={item.id}
-                  control={form.control}
-                  name="color"
-                  render={({ field }) => {
-                    return (
-                      <FormItem
-                        key={item.id}
-                        className="flex flex-row items-start space-y-0 space-x-3"
-                      >
-                        <FormControl>
-                          <Checkbox
-                            checked={field.value?.includes(item.id)}
-                            onCheckedChange={(checked) => {
-                              return checked
-                                ? field.onChange([...field.value, item.id])
-                                : field.onChange(
-                                    field.value?.filter(
-                                      (value) => value !== item.id,
-                                    ),
-                                  );
-                            }}
-                          />
-                        </FormControl>
-                        <FormLabel className="text-sm font-normal">
-                          {item.title}
-                        </FormLabel>
-                      </FormItem>
-                    );
-                  }}
-                />
-              ))}
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="size"
-          render={() => (
-            <FormItem>
-              <div className="mb-4">
-                <FormLabel className="text-base">Available Sizes</FormLabel>
-                <FormDescription>
-                  Select the available sizes you want to display in the product.
-                </FormDescription>
-              </div>
-              {sizes.map((item) => (
-                <FormField
-                  key={item.id}
-                  control={form.control}
-                  name="size"
-                  render={({ field }) => {
-                    return (
-                      <FormItem
-                        key={item.id}
-                        className="flex flex-row items-start space-y-0 space-x-3"
-                      >
-                        <FormControl>
-                          <Checkbox
-                            checked={field.value?.includes(item.id)}
-                            onCheckedChange={(checked) => {
-                              return checked
-                                ? field.onChange([...field.value, item.id])
-                                : field.onChange(
-                                    field.value?.filter(
-                                      (value) => value !== item.id,
-                                    ),
-                                  );
-                            }}
-                          />
-                        </FormControl>
-                        <FormLabel className="text-sm font-normal">
-                          {item.title}
-                        </FormLabel>
-                      </FormItem>
-                    );
-                  }}
-                />
-              ))}
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="size"
+            render={() => (
+              <FormItem>
+                <div className="mb-4">
+                  <FormLabel className="text-base">Available Sizes</FormLabel>
+                  <FormDescription>
+                    Select the available sizes you want to display in the
+                    product.
+                  </FormDescription>
+                </div>
+                {sizes.map((item) => (
+                  <FormField
+                    key={item.id}
+                    control={form.control}
+                    name="size"
+                    render={({ field }) => {
+                      return (
+                        <FormItem
+                          key={item.id}
+                          className="flex flex-row items-start space-y-0 space-x-3"
+                        >
+                          <FormControl>
+                            <Checkbox
+                              checked={field.value?.includes(item.id)}
+                              onCheckedChange={(checked) => {
+                                return checked
+                                  ? field.onChange([...field.value, item.id])
+                                  : field.onChange(
+                                      field.value?.filter(
+                                        (value) => value !== item.id,
+                                      ),
+                                    );
+                              }}
+                            />
+                          </FormControl>
+                          <FormLabel className="text-sm font-normal">
+                            {item.title}
+                          </FormLabel>
+                        </FormItem>
+                      );
+                    }}
+                  />
+                ))}
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
         {product ? (
           <Button disabled={loading} className="max-w-[150px]">
             {loading ? (

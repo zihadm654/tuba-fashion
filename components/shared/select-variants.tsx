@@ -18,60 +18,62 @@ export default function SelectVariant({
   return (
     <>
       {product.color.length > 0 && (
-        <div className="space-y-2 space-x-2">
-          <div>Color:</div>
-          {product.color.map((x: string) => (
-            <Button
-              asChild
-              variant="outline"
-              className={
-                selectedColor === x ? "border-primary border-2" : "border-2"
-              }
-              key={x}
-            >
-              <Link
-                replace
-                scroll={false}
-                href={`?${new URLSearchParams({
-                  color: x,
-                  size: selectedSize,
-                })}`}
+        <div className="space-y-4">
+          <div className="text-sm font-medium">Color:</div>
+          <div className="flex flex-wrap gap-2">
+            {product.color.map((x: string) => (
+              <Button
+                asChild
+                variant="outline"
+                className={`transition-all duration-200 hover:scale-105 ${selectedColor === x ? "ring-primary ring-2 ring-offset-2" : "hover:border-primary"} `}
                 key={x}
               >
-                <div
-                  style={{ backgroundColor: x }}
-                  className="border-muted-foreground h-4 w-4 rounded-full border"
-                ></div>
-                {x}
-              </Link>
-            </Button>
-          ))}
+                <Link
+                  replace
+                  scroll={false}
+                  href={`?${new URLSearchParams({
+                    color: x,
+                    size: selectedSize,
+                  })}`}
+                  key={x}
+                  className="flex items-center gap-2"
+                >
+                  <div
+                    style={{ backgroundColor: x }}
+                    className="h-5 w-5 rounded-full border shadow-sm transition-transform"
+                  />
+                  <span className="capitalize">{x}</span>
+                </Link>
+              </Button>
+            ))}
+          </div>
         </div>
       )}
       {product.size.length > 0 && (
-        <div className="mt-2 space-y-2 space-x-2">
-          <div>Size:</div>
-          {product.size.map((x: string) => (
-            <Button
-              asChild
-              variant="outline"
-              className={
-                selectedSize === x ? "border-primary border-2" : "border-2"
-              }
-              key={x}
-            >
-              <Link
-                replace
-                scroll={false}
-                href={`?${new URLSearchParams({
-                  color: selectedColor,
-                  size: x,
-                })}`}
+        <div className="mt-6 space-y-4">
+          <div className="text-sm font-medium">Size:</div>
+          <div className="flex flex-wrap gap-2">
+            {product.size.map((x: string) => (
+              <Button
+                asChild
+                variant="outline"
+                className={`min-w-[3rem] transition-all duration-200 hover:scale-105 ${selectedSize === x ? "ring-primary ring-2 ring-offset-2" : "hover:border-primary"} `}
+                key={x}
               >
-                {x}
-              </Link>
-            </Button>
-          ))}
+                <Link
+                  replace
+                  scroll={false}
+                  href={`?${new URLSearchParams({
+                    color: selectedColor,
+                    size: x,
+                  })}`}
+                  className="px-2"
+                >
+                  <span className="font-medium">{x}</span>
+                </Link>
+              </Button>
+            ))}
+          </div>
         </div>
       )}
     </>

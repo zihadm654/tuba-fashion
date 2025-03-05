@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { calculateDiscountedPrice } from "@/utils/calculateDiscount";
 import useCartStore, { CartItem } from "@/utils/cart";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -46,7 +47,9 @@ const shippingFormSchema = z.object({
 const page = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
-  const { items, removeFromCart, updateQty } = useCartStore((state) => state);
+  const { items, removeFromCart, updateQty, clearCart } = useCartStore(
+    (state) => state,
+  );
 
   const subtotal = items?.reduce(
     (total, item) => total + item.price * item.quantity,
@@ -65,8 +68,8 @@ const page = () => {
 
   const discountAmount = subtotal - discountedSubtotal;
   const discountPercentage = ((discountAmount / subtotal) * 100).toFixed(1);
-  const tax = discountedSubtotal * 0.1;
-  const total = discountedSubtotal + tax;
+  // const tax = discountedSubtotal * 0.1;
+  const total = discountedSubtotal;
 
   const form = useForm<z.infer<typeof shippingFormSchema>>({
     resolver: zodResolver(shippingFormSchema),
@@ -137,10 +140,12 @@ const page = () => {
                   You have {items.length} items in your cart
                 </p>
               </div>
-              <Button variant="outline" className="gap-2">
-                <Icons.arrowRight className="h-4 w-4" />
-                Continue Shopping
-              </Button>
+              <Link href="/products">
+                <Button variant="outline" className="gap-2">
+                  <Icons.arrowRight className="h-4 w-4" />
+                  Continue Shopping
+                </Button>
+              </Link>
             </div>
             <Separator />
             <ScrollArea className="max-h-[600px] pr-4">
@@ -232,6 +237,15 @@ const page = () => {
                 })
               )}
             </ScrollArea>
+            <Button
+              onClick={() => clearCart()}
+              variant="ghost"
+              size="icon"
+              className="text-muted-foreground hover:text-destructive"
+            >
+              Clear Cart
+              <Icons.trash className="h-4 w-4" />
+            </Button>
           </div>
 
           <div className="md:col-span-5">
@@ -325,10 +339,10 @@ const page = () => {
                       <span>-${discountAmount.toFixed(2)}</span>
                     </div>
                   )}
-                  <div className="flex justify-between">
+                  {/* <div className="flex justify-between">
                     <p className="text-muted-foreground">Tax (10%)</p>
                     <p className="font-medium">${tax.toFixed(2)}</p>
-                  </div>
+                  </div> */}
                   <Separator />
                   <div className="flex justify-between">
                     <p className="font-medium">Total (Incl. taxes)</p>

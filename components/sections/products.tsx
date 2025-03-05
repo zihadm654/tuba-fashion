@@ -66,24 +66,26 @@ export const ProductCard = ({ product }: { product: Product }) => {
       >
         {product.quantity > 0 ? "In Stock" : "Out of Stock"}
       </Badge>
-      <Carousel className="mx-auto w-full">
-        <CarouselContent>
-          {product.images?.map((item, index) => (
-            <CarouselItem key={index}>
-              <div className="relative h-[330px]">
-                <BlurImage
-                  src={item}
-                  alt="Product Image"
-                  fill
-                  className="h-full w-full rounded-lg object-cover object-center"
-                />
-              </div>
-            </CarouselItem>
-          ))}
-        </CarouselContent>
-        <CarouselPrevious className="ml-16" />
-        <CarouselNext className="mr-16" />
-      </Carousel>
+      <Link href={`/products/${product.id}`}>
+        <Carousel className="mx-auto w-full">
+          <CarouselContent>
+            {product.images?.map((item, index) => (
+              <CarouselItem key={index}>
+                <div className="relative h-[330px]">
+                  <BlurImage
+                    src={item}
+                    alt="Product Image"
+                    fill
+                    className="h-full w-full rounded-lg object-cover object-center"
+                  />
+                </div>
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+          <CarouselPrevious className="ml-16" />
+          <CarouselNext className="mr-16" />
+        </Carousel>
+      </Link>
 
       <div className="mt-2 flex items-center justify-between">
         <h1 className="text-xl font-semibold">{product.title}</h1>

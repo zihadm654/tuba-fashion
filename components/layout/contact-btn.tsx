@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { Mail } from "lucide-react";
 
 import { Icons } from "../shared/icons";
 import MaxWidthWrapper from "../shared/max-width-wrapper";
@@ -15,7 +14,7 @@ const ContactBtn = () => {
           target="_blank"
           rel="noreferrer"
         >
-          <Mail className="size-10 text-white shadow-lg dark:text-black" />
+          <Icons.whatsapp className="size-4 text-white shadow-lg dark:text-black" />
         </Link>
       </div>
     </MaxWidthWrapper>

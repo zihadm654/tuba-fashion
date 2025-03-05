@@ -1,18 +1,22 @@
-import { Users } from "lucide-react";
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface InfoCardProps {
   title: string;
   amount: number;
   growth: number;
+  Icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
 }
-export default function InfoCard({ title, amount, growth }: InfoCardProps) {
+export default function InfoCard({
+  title,
+  amount,
+  growth,
+  Icon,
+}: InfoCardProps) {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium">{title}</CardTitle>
-        <Users className="text-muted-foreground size-4" />
+        <Icon className="text-muted-foreground size-4" />
       </CardHeader>
       <CardContent>
         <div className="text-2xl font-bold">+{amount}</div>

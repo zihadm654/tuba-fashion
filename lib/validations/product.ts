@@ -24,8 +24,8 @@ export const productSchema = z.object({
   isFeatured: z.boolean().default(false),
 });
 export const bannerSchema = z.object({
-  title: z.string(),
-  imageString: z.string(),
+  title: z.string().min(3, "Title must be at least 3 characters long"),
+  imageString: z.string().min(3, "Image must be at least 3 characters long"),
 });
 
 export type TProduct = z.infer<typeof productSchema>;

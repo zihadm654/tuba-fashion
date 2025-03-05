@@ -17,7 +17,7 @@ export interface CartItem {
 
 interface CartSate {
   items: CartItem[];
-  addToCart: (product: Product, selectedColor: string, selectedSize: string) => void;
+  addToCart: (product: Product, color: string, size: string) => void;
   removeFromCart: (cartItemId: string) => void;
   updateQty: (type: "increment" | "decrement", cartItemId: string) => void;
   clearCart: () => void;
@@ -27,12 +27,12 @@ const useCartStore = create<CartSate>()(
   persist(
     (set, get) => ({
       items: [],
-      addToCart: (product, selectedColor, selectedSize) => {
+      addToCart: (product, color, size) => {
         const existingProduct = get().items.find(
           (item) =>
             item.id === product.id &&
-            item.color[0] === selectedColor &&
-            item.size[0] === selectedSize
+            item.color[0] === color &&
+            item.size[0] === size,
         );
 
         if (existingProduct) {
@@ -40,8 +40,8 @@ const useCartStore = create<CartSate>()(
           return;
         }
 
-        const cartItemId = `${product.id}-${selectedColor}-${selectedSize}`;
-        
+        const cartItemId = `${product.id}-${color}-${size}`;
+
         set({
           items: [
             ...get().items,
@@ -53,8 +53,8 @@ const useCartStore = create<CartSate>()(
               price: product.price,
               discountPercentage: product.discountPercentage || null,
               image: product.images[0],
-              size: [selectedSize],
-              color: [selectedColor],
+              size: [size],
+              color: [color],
             },
           ],
         });
@@ -79,9 +79,11 @@ const useCartStore = create<CartSate>()(
                 ? {
                     ...item,
                     quantity:
-                      type === "decrement" ? item.quantity - 1 : item.quantity + 1,
+                      type === "decrement"
+                        ? item.quantity - 1
+                        : item.quantity + 1,
                   }
-                : item
+                : item,
             ),
           });
         }
@@ -93,8 +95,8 @@ const useCartStore = create<CartSate>()(
     }),
     {
       name: "cart-storage",
-    }
-  )
+    },
+  ),
 );
 
 export default useCartStore;

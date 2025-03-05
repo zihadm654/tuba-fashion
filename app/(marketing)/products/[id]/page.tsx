@@ -5,6 +5,8 @@ import { calculateDiscountedPrice } from "@/utils/calculateDiscount";
 import BreadcrumbSection from "@/components/layout/breadcrumb-section";
 import { ImageSlider } from "@/components/shared/image-slider";
 import MaxWidthWrapper from "@/components/shared/max-width-wrapper";
+import ReviewForm from "@/components/shared/review-form";
+import ReviewList from "@/components/shared/review-list";
 import { SkeletonSection } from "@/components/shared/section-skeleton";
 
 import Client from "./Client";
@@ -15,13 +17,11 @@ type Props = {
 };
 // searchParams: Promise<{ color: string; size: string }>;
 export async function generateMetadata(
-  { params, searchParams }: Props,
+  { params }: Props,
   parent: ResolvingMetadata,
 ): Promise<Metadata> {
   // read route params
   const id = (await params).id;
-  const color = (await searchParams).color;
-  const size = (await searchParams).size;
   // fetch data
   const res = await getProduct(id);
   const product = res.data;
@@ -103,6 +103,13 @@ const page = async ({ params, searchParams }: Props) => {
             </div>
             <Client product={product} color={color} size={size} />
           </div>
+        </div>
+
+        {/* Reviews Section */}
+        <div className="mt-12 space-y-8">
+          <h2 className="text-2xl font-bold">Customer Reviews</h2>
+          <ReviewForm productId={id} />
+          <ReviewList productId={id} />
         </div>
       </MaxWidthWrapper>
     </section>

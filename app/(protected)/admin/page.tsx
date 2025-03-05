@@ -6,6 +6,7 @@ import {
   successfulPayments,
 } from "@/actions/payment";
 import { auth } from "@/auth";
+import { TrendingUp, Users } from "lucide-react";
 
 import { constructMetadata } from "@/lib/utils";
 import { AreaChartStacked } from "@/components/charts/area-chart-stacked";
@@ -61,11 +62,13 @@ export default async function AdminPage() {
             title="Customers"
             amount={totalCustomers || 0}
             growth={growth}
+            Icon={Users}
           />
           <InfoCard
             title="Sales"
             amount={currentSales || 0}
             growth={salesGrowth}
+            Icon={TrendingUp}
           />
         </div>
         <AreaChartStacked

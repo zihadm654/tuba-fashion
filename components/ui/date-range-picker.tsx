@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { addDays, format } from "date-fns";
+import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { DateRange } from "react-day-picker";
 
@@ -18,32 +18,70 @@ interface DatePickerProps {
   className?: React.HTMLAttributes<HTMLDivElement>;
   date: DateRange | undefined;
   setDate: React.Dispatch<React.SetStateAction<DateRange | undefined>>;
-  disabledDates: Date[];
+  disabledDates?: Date[];
+  form?: any;
+  name?: string;
+  label?: string;
+  error?: string;
 }
+
 export function DatePickerWithRange({
   className,
   date,
   setDate,
-  disabledDates,
+  disabledDates = [],
+  form,
+  name,
+  label = "Select Date Range",
+  error,
 }: DatePickerProps) {
-  // const [date, setDate] = React.useState<DateRange | undefined>({
-  //   from: new Date(2022, 0, 20),
-  //   to: addDays(new Date(2022, 0, 20), 20),
-  // });
+  const handleSelect = React.useCallback(
+    (selectedDate: DateRange | undefined) => {
+      if (!selectedDate) {
+        setDate(undefined);
+        if (form && name) {
+          form.setValue(name + "Start", null);
+          form.setValue(name + "End", null);
+        }
+        return;
+      }
+
+      const { from, to } = selectedDate;
+      if (from && to && from > to) {
+        // Prevent invalid date ranges
+        return;
+      }
+
+      setDate(selectedDate);
+      if (form && name) {
+        form.setValue(name + "Start", from);
+        form.setValue(name + "End", to);
+        // Trigger form validation
+        form.trigger([name + "Start", name + "End"]);
+      }
+    },
+    [form, name, setDate]
+  );
 
   return (
-    <div className={cn("grid gap-2", className)}>
+    <div className={cn("grid gap-1", className)}>
+      {label && (
+        <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+          {label}
+        </label>
+      )}
       <Popover>
         <PopoverTrigger asChild>
           <Button
             id="date"
-            variant={"outline"}
+            variant={error ? "destructive" : "outline"}
             className={cn(
-              "w-[300px] justify-start text-left font-normal",
+              "w-full justify-start text-left font-normal",
               !date && "text-muted-foreground",
+              error && "border-red-500"
             )}
           >
-            <CalendarIcon />
+            <CalendarIcon className="mr-2 h-4 w-4" />
             {date?.from ? (
               date.to ? (
                 <>
@@ -54,7 +92,7 @@ export function DatePickerWithRange({
                 format(date.from, "LLL dd, y")
               )
             ) : (
-              <span>Pick a date</span>
+              <span>Pick a date range</span>
             )}
           </Button>
         </PopoverTrigger>
@@ -63,14 +101,16 @@ export function DatePickerWithRange({
             initialFocus
             mode="range"
             defaultMonth={date?.from}
-            fromDate={new Date()}
             selected={date}
-            onSelect={setDate}
+            onSelect={handleSelect}
             numberOfMonths={2}
             disabled={disabledDates}
+            fromDate={new Date()}
+            className="rounded-md border shadow"
           />
         </PopoverContent>
       </Popover>
+      {error && <p className="text-sm text-red-500">{error}</p>}
     </div>
   );
 }

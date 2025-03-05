@@ -49,37 +49,22 @@ model Session {
   @@map(name: "sessions")
 }
 
-model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String?   @unique
-  emailVerified DateTime?
-  image         String?
-  createdAt     DateTime  @default(now()) @map(name: "created_at")
-  updatedAt     DateTime  @default(now()) @map(name: "updated_at")
-  role          UserRole  @default(USER)
+model Review {
+  id         String   @id @default(cuid())
+  rating     Int      @db.SmallInt
+  comment    String?
+  userId     String
+  productId  String
+  isVerified Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
-  accounts Account[]
-  sessions Session[]
-  Order    Order[]
-  Product  Product[]
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
-  stripeCustomerId       String?      @unique @map(name: "stripe_customer_id")
-  stripeSubscriptionId   String?      @unique @map(name: "stripe_subscription_id")
-  stripePriceId          String?      @map(name: "stripe_price_id")
-  stripeCurrentPeriodEnd DateTime?    @map(name: "stripe_current_period_end")
-  PaymentLog             PaymentLog[]
-
-  @@map(name: "users")
-}
-
-model VerificationToken {
-  identifier String
-  token      String   @unique
-  expires    DateTime
-
-  @@unique([identifier, token])
-  @@map(name: "verification_tokens")
+  @@index([userId])
+  @@index([productId])
+  @@map(name: "reviews")
 }
 
 model Product {
@@ -101,11 +86,45 @@ model Product {
   febric             String?
   createdAt          DateTime      @default(now())
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  Order Order[]
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reviews Review[]
+  Order   Order[]
 
   @@map(name: "products")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  createdAt     DateTime  @default(now()) @map(name: "created_at")
+  updatedAt     DateTime  @default(now()) @map(name: "updated_at")
+  role          UserRole  @default(USER)
+
+  accounts Account[]
+  sessions Session[]
+  Order    Order[]
+  Product  Product[]
+  reviews  Review[]
+
+  stripeCustomerId       String?      @unique @map(name: "stripe_customer_id")
+  stripeSubscriptionId   String?      @unique @map(name: "stripe_subscription_id")
+  stripePriceId          String?      @map(name: "stripe_price_id")
+  stripeCurrentPeriodEnd DateTime?    @map(name: "stripe_current_period_end")
+  PaymentLog             PaymentLog[]
+
+  @@map(name: "users")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map(name: "verification_tokens")
 }
 
 model Banner {

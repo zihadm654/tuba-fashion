@@ -81,7 +81,14 @@ export const timeAgo = (timestamp: Date, timeOnly?: boolean): string => {
   if (!timestamp) return "never";
   return `${ms(Date.now() - new Date(timestamp).getTime())}${timeOnly ? "" : " ago"}`;
 };
-
+export const formatCurrency = (amount: number) => {
+  return new Intl.NumberFormat("bn-BD", {
+    style: "currency",
+    currency: "BDT",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(amount);
+};
 export async function fetcher<JSON = any>(
   input: RequestInfo,
   init?: RequestInit,
