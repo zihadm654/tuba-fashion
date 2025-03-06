@@ -97,9 +97,12 @@ export const ProductCard = ({ product }: { product: Product }) => {
       )}
 
       {/* Product Image */}
-      <Link href={`/products/${product.id}`} className="block overflow-hidden">
-        <div className="relative h-[280px] overflow-hidden">
-          <Carousel className="mx-auto w-full">
+      <div className="relative h-[280px] overflow-hidden">
+        <Carousel className="mx-auto w-full">
+          <Link
+            href={`/products/${product.id}`}
+            className="block overflow-hidden"
+          >
             <CarouselContent>
               {product.images?.map((item, index) => (
                 <CarouselItem key={index}>
@@ -114,11 +117,11 @@ export const ProductCard = ({ product }: { product: Product }) => {
                 </CarouselItem>
               ))}
             </CarouselContent>
-            <CarouselPrevious className="left-2 size-8 opacity-0 transition-opacity group-hover:opacity-100" />
-            <CarouselNext className="right-2 size-8 opacity-0 transition-opacity group-hover:opacity-100" />
-          </Carousel>
-        </div>
-      </Link>
+          </Link>
+          <CarouselPrevious className="left-2 size-8 opacity-0 transition-opacity group-hover:opacity-100" />
+          <CarouselNext className="right-2 size-8 opacity-0 transition-opacity group-hover:opacity-100" />
+        </Carousel>
+      </div>
 
       {/* Product Details */}
       <div className="p-4">

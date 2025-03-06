@@ -143,7 +143,8 @@ export const addProduct = async (data: TProduct, userId: string) => {
           userId,
         },
       });
-      revalidatePath("/admin/products");
+      revalidatePath("/admin/products", "page");
+      revalidatePath("/", "layout");
       return { success: "product has been created successfully", res };
     } catch (error) {
       return {
@@ -186,7 +187,8 @@ export const updateProduct = async (
       };
     }
   }
-  revalidatePath("/admin/products");
+  revalidatePath("/admin/products", "page");
+  revalidatePath("/", "layout");
 };
 export const deleteProduct = async (id: string) => {
   const session = await auth();
@@ -198,7 +200,8 @@ export const deleteProduct = async (id: string) => {
         id: id,
       },
     });
-    revalidatePath("/admin/products");
+    revalidatePath("/admin/products", "page");
+    revalidatePath("/", "layout");
     return { success: "product has been deleted successfully" };
   } catch (error) {
     return {

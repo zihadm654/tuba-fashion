@@ -85,8 +85,8 @@ export function NavBar({ scroll = false }: NavBarProps) {
             <BlurImage
               src={siteConfig.logo}
               alt="tuba-fasion"
-              height={100}
-              width={50}
+              height={160}
+              width={110}
             />
             <span className="font-urban text-xl font-bold max-md:hidden">
               {siteConfig.name}

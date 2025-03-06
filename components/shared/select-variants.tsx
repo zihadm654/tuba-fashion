@@ -69,7 +69,7 @@ export default function SelectVariant({
                   })}`}
                   className="px-2"
                 >
-                  <span className="font-medium">{x}</span>
+                  <span className="font-medium uppercase">{x}</span>
                 </Link>
               </Button>
             ))}

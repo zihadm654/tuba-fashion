@@ -146,7 +146,7 @@ const page = async ({ params, searchParams }: Props) => {
         </div>
 
         {/* Reviews Section */}
-        <div className="mt-12 space-y-8">
+        <div className="mt-12 max-w-4xl space-y-8">
           <h2 className="text-2xl font-bold">Customer Reviews</h2>
           <ReviewForm productId={id} />
           <ReviewList productId={id} />

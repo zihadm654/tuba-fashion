@@ -48,7 +48,8 @@ export const addBanner = async (data: TBanner) => {
           ...result.data,
         },
       });
-      revalidatePath("/admin/banner");
+      revalidatePath("/admin/banner", "page");
+      revalidatePath("/", "page");
       return { success: "banner has been created successfully", res };
     } catch (error) {
       return {
@@ -74,6 +75,8 @@ export const updateBanner = async (data: TBanner, id: string) => {
           ...result.data,
         },
       });
+      revalidatePath("/admin/banner", "page");
+      revalidatePath("/", "page");
       return { success: "product has been updated successfully", res };
     } catch (error) {
       return {
@@ -81,7 +84,6 @@ export const updateBanner = async (data: TBanner, id: string) => {
       };
     }
   }
-  revalidatePath("/admin/banner");
 };
 export const deleteBanner = async (id: string) => {
   const session = await auth();
@@ -93,7 +95,8 @@ export const deleteBanner = async (id: string) => {
         id: id,
       },
     });
-    revalidatePath("/admin/banner");
+    revalidatePath("/admin/banner", "page");
+    revalidatePath("/", "page");
     return { success: "banner has been deleted successfully" };
   } catch (error) {
     return {

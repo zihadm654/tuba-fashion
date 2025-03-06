@@ -188,10 +188,10 @@ const page = () => {
                               {item.discountPercentage ? (
                                 <div className="flex gap-2">
                                   <p className="text-muted-foreground text-sm line-through">
-                                    ${item.price.toFixed(2)}
+                                    ৳{item.price.toFixed(2)}
                                   </p>
                                   <p className="text-sm text-green-600">
-                                    ${discountedPrice.toFixed(2)}
+                                    ৳{discountedPrice.toFixed(2)}
                                     <span className="ml-1 text-xs">
                                       (-{item.discountPercentage}%)
                                     </span>
@@ -199,7 +199,7 @@ const page = () => {
                                 </div>
                               ) : (
                                 <p className="text-muted-foreground text-sm">
-                                  ${item.price.toFixed(2)}
+                                  ৳{item.price.toFixed(2)}
                                 </p>
                               )}
                             </div>
@@ -268,22 +268,22 @@ const page = () => {
                       Subtotal ({items?.reduce((sum, i) => sum + i.quantity, 0)}{" "}
                       items)
                     </p>
-                    <p className="font-medium">${subtotal.toFixed(2)}</p>
+                    <p className="font-medium">৳{subtotal.toFixed(2)}</p>
                   </div>
                   {discountAmount > 0 && (
                     <div className="flex justify-between text-green-600">
                       <p>Discount ({discountPercentage}%)</p>
-                      <span>-${discountAmount.toFixed(2)}</span>
+                      <span>-৳{discountAmount.toFixed(2)}</span>
                     </div>
                   )}
                   {/* <div className="flex justify-between">
                     <p className="text-muted-foreground">Tax (10%)</p>
-                    <p className="font-medium">${tax.toFixed(2)}</p>
+                    <p className="font-medium">৳{tax.toFixed(2)}</p>
                   </div> */}
                   <Separator />
                   <div className="flex justify-between">
                     <p className="font-medium">Total (Incl. taxes)</p>
-                    <p className="font-medium">${total.toFixed(2)}</p>
+                    <p className="font-medium">৳{total.toFixed(2)}</p>
                   </div>
                   <Button
                     className="mt-6 w-full"
