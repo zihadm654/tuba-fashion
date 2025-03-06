@@ -22,10 +22,9 @@ export const footerLinks: SidebarNavItem[] = [
     title: "Company",
     items: [
       { title: "About", href: "/about" },
-      { title: "Enterprise", href: "#" },
       { title: "Terms", href: "/terms" },
       { title: "Privacy", href: "/privacy" },
-      { title: "Contact Us", href: "/contact" },
+      { title: "Sitemap", href: "/sitemap.xml" },
     ],
   },
   {
@@ -34,15 +33,25 @@ export const footerLinks: SidebarNavItem[] = [
       { title: "Mission & Vision", href: "#" },
       { title: "Return/Exchange & Refund", href: "#" },
       { title: "Shopping Policy", href: "#" },
+      { title: "How to order & Get offer", href: "#" },
     ],
   },
   {
-    title: "Others",
+    title: "Contacts",
     items: [
-      { title: "My Profile", href: "#" },
-      { title: "Sitemap", href: "/sitemap.xml" },
-      { title: "Blog Post", href: "/blogs" },
-      { title: "How to order & Get offer", href: "#" },
+      {
+        title: "Facebook",
+        href: "https://www.facebook.com/share/1ADEp6tVr7/?mibextid=wwXIfr",
+      },
+      { title: "Instagram", href: "https://www.instagram.com/tubafashion2025" },
+      {
+        title: "Tiktok",
+        href: "https://www.tiktok.com/@tuba.fashion.hous?_t=ZS-8uRRCQeEp3x&_r=1",
+      },
+      {
+        title: "Whatsapp",
+        href: "https://wa.me/88001776708038?text=Hey+there,+I+have+a+question!",
+      },
     ],
   },
 ];
