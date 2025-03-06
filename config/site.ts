@@ -9,6 +9,7 @@ export const siteConfig: SiteConfig = {
     "Tuba Fasion is a fashion store that sells clothes, tshirt, pants, and more.And it includes kids sections",
   url: site_url,
   ogImage: `${site_url}/_static/og.jpg`,
+  logo: `/_static/logo.PNG`,
   links: {
     twitter: "https://twitter.com/zihadm654",
     github: "https://github.com/zihadm654/zihadm654",

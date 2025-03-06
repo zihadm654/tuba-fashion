@@ -33,6 +33,8 @@ import {
   X,
 } from "lucide-react";
 
+import { constructMetadata } from "@/lib/utils";
+
 export type Icon = LucideIcon;
 
 export const Icons = {

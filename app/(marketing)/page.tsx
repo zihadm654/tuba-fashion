@@ -33,7 +33,7 @@ export default async function IndexPage() {
       <Suspense fallback={<SkeletonSection />}>
         <CategoriesSelection />
       </Suspense>
-      <PricingFaq />
+      {/* <PricingFaq /> */}
       {/* <HeroLanding />
       <PreviewLanding />
       <Powered />

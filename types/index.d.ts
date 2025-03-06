@@ -9,6 +9,7 @@ export type SiteConfig = {
   url: string;
   ogImage: string;
   mailSupport: string;
+  logo: string;
   links: {
     twitter: string;
     github: string;

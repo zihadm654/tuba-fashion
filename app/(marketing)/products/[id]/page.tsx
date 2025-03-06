@@ -1,6 +1,11 @@
 import type { Metadata, ResolvingMetadata } from "next";
 import { getProduct } from "@/actions/product";
-import { calculateDiscountedPrice } from "@/utils/calculateDiscount";
+import {
+  calculateDiscountedPrice,
+  getRemainingDiscountDays,
+  isDiscountActive,
+} from "@/utils/calculateDiscount";
+import { format } from "date-fns";
 
 import BreadcrumbSection from "@/components/layout/breadcrumb-section";
 import { ImageSlider } from "@/components/shared/image-slider";
@@ -41,10 +46,16 @@ const page = async ({ params, searchParams }: Props) => {
   const id = (await params).id;
   const color = (await searchParams).color;
   const size = (await searchParams).size;
-  console.log(color, size);
   const res = await getProduct(id);
   const product = res.data;
   if (!res && !product) return <SkeletonSection />;
+
+  // Calculate discount information
+  const discountActive = isDiscountActive(
+    product?.discountPercentage ?? undefined,
+    product?.discountStart ? new Date(product.discountStart) : undefined,
+    product?.discountEnd ? new Date(product.discountEnd) : undefined,
+  );
 
   const discountedPrice = calculateDiscountedPrice(
     product?.price ?? 0,
@@ -52,6 +63,20 @@ const page = async ({ params, searchParams }: Props) => {
     product?.discountStart ? new Date(product.discountStart) : undefined,
     product?.discountEnd ? new Date(product.discountEnd) : undefined,
   );
+
+  // Calculate remaining days
+  const remainingDays = getRemainingDiscountDays(
+    product?.discountEnd ? new Date(product.discountEnd) : undefined,
+  );
+
+  // Format discount period dates
+  let discountPeriod = "";
+  if (product?.discountStart && product?.discountEnd) {
+    const startDate = new Date(product.discountStart);
+    const endDate = new Date(product.discountEnd);
+    discountPeriod = `${format(startDate, "MMM dd")} - ${format(endDate, "MMM dd, yyyy")}`;
+  }
+
   return (
     <section className="py-6 transition-all duration-300 ease-in-out">
       <BreadcrumbSection end={product?.title} />
@@ -69,7 +94,7 @@ const page = async ({ params, searchParams }: Props) => {
               <p className="text-lg text-gray-600">{product?.description}</p>
             </div>
             <div className="rounded-lg bg-gray-50 p-4 dark:bg-gray-900">
-              {product?.discountPercentage ? (
+              {product?.discountPercentage && discountActive ? (
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
                     <span className="text-primary text-3xl font-bold">
@@ -79,9 +104,24 @@ const page = async ({ params, searchParams }: Props) => {
                       ৳{product.price.toFixed(2)}
                     </span>
                   </div>
-                  <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-sm font-medium text-green-800 dark:bg-green-900 dark:text-green-100">
-                    Save {product.discountPercentage}%
-                  </span>
+                  <div className="flex flex-wrap gap-2">
+                    <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-sm font-medium text-green-800 dark:bg-green-900 dark:text-green-100">
+                      Save {product.discountPercentage}%
+                    </span>
+
+                    {remainingDays > 0 && (
+                      <span className="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-sm font-medium text-blue-800 dark:bg-blue-900 dark:text-blue-100">
+                        {remainingDays} {remainingDays === 1 ? "day" : "days"}{" "}
+                        left
+                      </span>
+                    )}
+                  </div>
+
+                  {discountPeriod && (
+                    <p className="mt-1 text-sm text-gray-600">
+                      Discount period: {discountPeriod}
+                    </p>
+                  )}
                 </div>
               ) : (
                 <span className="text-primary text-3xl font-bold">

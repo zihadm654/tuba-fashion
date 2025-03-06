@@ -21,6 +21,8 @@ import { ModalContext } from "@/components/modals/providers";
 import { Icons } from "@/components/shared/icons";
 import MaxWidthWrapper from "@/components/shared/max-width-wrapper";
 
+import BlurImage from "../shared/blur-image";
+
 interface NavBarProps {
   scroll?: boolean;
   large?: boolean;
@@ -80,8 +82,13 @@ export function NavBar({ scroll = false }: NavBarProps) {
       >
         <div className="flex gap-6 md:gap-10">
           <Link href="/" className="flex items-center space-x-1.5">
-            <Icons.logo />
-            <span className="font-urban text-xl font-bold">
+            <BlurImage
+              src={siteConfig.logo}
+              alt="tuba-fasion"
+              height={100}
+              width={50}
+            />
+            <span className="font-urban text-xl font-bold max-md:hidden">
               {siteConfig.name}
             </span>
           </Link>

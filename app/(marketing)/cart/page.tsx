@@ -2,7 +2,11 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { calculateDiscountedPrice } from "@/utils/calculateDiscount";
+import {
+  calculateDiscountedPrice,
+  getRemainingDiscountDays,
+  isDiscountActive,
+} from "@/utils/calculateDiscount";
 import useCartStore, { CartItem } from "@/utils/cart";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -16,19 +20,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-import { Textarea } from "@/components/ui/textarea";
+import AddtoCart from "@/components/forms/add-cart";
 import BlurImage from "@/components/shared/blur-image";
 import { Icons } from "@/components/shared/icons";
 import MaxWidthWrapper from "@/components/shared/max-width-wrapper";
@@ -57,11 +51,21 @@ const page = () => {
   );
 
   const discountedSubtotal = items?.reduce((total, item) => {
+    // Calculate discount information
+    const discountActive = isDiscountActive(
+      item?.discountPercentage ?? undefined,
+      item?.discountStart ? new Date(item.discountStart) : undefined,
+      item?.discountEnd ? new Date(item.discountEnd) : undefined,
+    );
     const discountedPrice = calculateDiscountedPrice(
-      item.price,
-      item.discountPercentage ?? undefined,
-      // item.discountStart ? new Date(item.discountStart) : undefined,
-      // item.discountEnd ? new Date(item.discountEnd) : undefined,
+      item?.price ?? 0,
+      item?.discountPercentage ?? undefined,
+      item?.discountStart ? new Date(item.discountStart) : undefined,
+      item?.discountEnd ? new Date(item.discountEnd) : undefined,
+    );
+    // Calculate remaining days
+    const remainingDays = getRemainingDiscountDays(
+      item?.discountEnd ? new Date(item.discountEnd) : undefined,
     );
     return total + discountedPrice * item.quantity;
   }, 0);
@@ -131,7 +135,7 @@ const page = () => {
   return (
     <div className="py-8">
       <MaxWidthWrapper>
-        <div className="grid gap-8 md:grid-cols-12">
+        <div className="grid gap-4 md:grid-cols-12">
           <div className="space-y-6 md:col-span-7">
             <div className="flex items-center justify-between">
               <div>
@@ -142,8 +146,8 @@ const page = () => {
               </div>
               <Link href="/products">
                 <Button variant="outline" className="gap-2">
-                  <Icons.arrowRight className="h-4 w-4" />
                   Continue Shopping
+                  <Icons.arrowRight className="h-4 w-4" />
                 </Button>
               </Link>
             </div>
@@ -156,12 +160,12 @@ const page = () => {
               ) : (
                 items.map((item: CartItem) => {
                   const discountedPrice = calculateDiscountedPrice(
-                    item.price,
-                    item.discountPercentage ?? undefined,
-                    // item.discountStart
-                    //   ? new Date(item.discountStart)
-                    //   : undefined,
-                    // item.discountEnd ? new Date(item.discountEnd) : undefined,
+                    item?.price ?? 0,
+                    item?.discountPercentage ?? undefined,
+                    item?.discountStart
+                      ? new Date(item.discountStart)
+                      : undefined,
+                    item?.discountEnd ? new Date(item.discountEnd) : undefined,
                   );
                   return (
                     <Card
@@ -236,94 +240,27 @@ const page = () => {
                   );
                 })
               )}
+              <Button
+                onClick={() => clearCart()}
+                variant="ghost"
+                size="icon"
+                className="text-muted-foreground hover:text-destructive w-full"
+              >
+                Clear Cart
+                <Icons.trash className="h-4 w-4" />
+              </Button>
             </ScrollArea>
-            <Button
-              onClick={() => clearCart()}
-              variant="ghost"
-              size="icon"
-              className="text-muted-foreground hover:text-destructive"
-            >
-              Clear Cart
-              <Icons.trash className="h-4 w-4" />
-            </Button>
           </div>
 
           <div className="md:col-span-5">
-            <Card>
+            <Card className="px-4">
               <CardHeader className="p-3">
                 <CardTitle className="mb-2 text-center text-2xl font-semibold">
                   Order Summary
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-2">
-                <Form {...form}>
-                  <form className="space-y-4">
-                    <FormField
-                      control={form.control}
-                      name="address"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Full address</FormLabel>
-                          <FormControl>
-                            <Textarea
-                              placeholder="Enter your full address"
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="city"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>City</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Enter your city" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="phone"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Phone Number</FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder="Enter your phone number"
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="postcode"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Post Code</FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder="Enter your post code"
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </form>
-                </Form>
-
+                <AddtoCart form={form} />
                 <Separator className="my-6" />
                 <div className="space-y-4">
                   <div className="flex justify-between">
