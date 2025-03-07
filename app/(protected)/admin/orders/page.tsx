@@ -14,7 +14,6 @@ export const metadata = constructMetadata({
 export default async function OrdersPage() {
   // const user = await getCurrentUser();
   // if (!user || user.role !== "ADMIN") redirect("/login");
-
   return (
     <>
       <DashboardHeader

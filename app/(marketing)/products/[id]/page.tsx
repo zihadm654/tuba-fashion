@@ -1,5 +1,5 @@
 import type { Metadata, ResolvingMetadata } from "next";
-import { getProduct } from "@/actions/product";
+import { getProduct, getProductByCat } from "@/actions/product";
 import {
   calculateDiscountedPrice,
   getRemainingDiscountDays,
@@ -8,6 +8,7 @@ import {
 import { format } from "date-fns";
 
 import BreadcrumbSection from "@/components/layout/breadcrumb-section";
+import Products from "@/components/sections/products";
 import { ImageSlider } from "@/components/shared/image-slider";
 import MaxWidthWrapper from "@/components/shared/max-width-wrapper";
 import ReviewForm from "@/components/shared/review-form";
@@ -48,8 +49,12 @@ const page = async ({ params, searchParams }: Props) => {
   const size = (await searchParams).size;
   const res = await getProduct(id);
   const product = res.data;
+  const productsResponse = await getProductByCat(product?.category!);
+  
+  // Filter out the current product from related products
+  const relatedProducts = productsResponse.data?.filter(p => p.id !== id) || [];
+  
   if (!res && !product) return <SkeletonSection />;
-
   // Calculate discount information
   const discountActive = isDiscountActive(
     product?.discountPercentage ?? undefined,
@@ -151,6 +156,10 @@ const page = async ({ params, searchParams }: Props) => {
           <ReviewForm productId={id} />
           <ReviewList productId={id} />
         </div>
+        {/* Related Products Section */}
+        {relatedProducts.length > 0 && (
+          <Products products={relatedProducts} title="Related Products" />
+        )}
       </MaxWidthWrapper>
     </section>
   );

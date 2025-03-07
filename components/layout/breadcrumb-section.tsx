@@ -8,10 +8,12 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 
+import MaxWidthWrapper from "../shared/max-width-wrapper";
+
 const BreadcrumbSection = ({ end }: { end: string | undefined }) => {
   return (
-    <div className="bg-accent container w-full max-w-6xl border-b border-gray-200">
-      <Breadcrumb>
+    <MaxWidthWrapper className="border-b-2">
+      <Breadcrumb className="px-6">
         <BreadcrumbList>
           <BreadcrumbItem>
             <BreadcrumbLink href="/">Home</BreadcrumbLink>
@@ -26,7 +28,7 @@ const BreadcrumbSection = ({ end }: { end: string | undefined }) => {
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
-    </div>
+    </MaxWidthWrapper>
   );
 };
 

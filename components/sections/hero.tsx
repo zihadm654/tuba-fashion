@@ -27,7 +27,7 @@ export async function Hero() {
   return (
     <section className="py-2">
       <MaxWidthWrapper>
-        <Carousel>
+        <Carousel opts={{ align: "start", loop: true }}>
           <CarouselContent>
             {data.map((item) => (
               <CarouselItem key={item.id}>

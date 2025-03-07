@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { getProducts } from "@/actions/product";
 
 import { infos } from "@/config/landing";
+import { prisma } from "@/lib/db";
 import { PricingFaq } from "@/components/pricing/pricing-faq";
 import BentoGrid from "@/components/sections/bentogrid";
 import { CategoriesSelection } from "@/components/sections/category-section";
