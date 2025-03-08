@@ -21,95 +21,130 @@ export async function POST(request: Request) {
       );
     }
 
+    // Validate shipping details
+    if (
+      !shippingDetails ||
+      !shippingDetails.address ||
+      !shippingDetails.phone
+    ) {
+      return NextResponse.json(
+        { error: "Shipping details are required" },
+        { status: 400 },
+      );
+    }
+
     // Calculate total amount from items
     const total_amount = items.reduce((acc: number, item: CartItem) => {
       const itemPrice = item.price * (1 - (item.discountPercentage || 0) / 100);
       return acc + itemPrice * item.quantity;
     }, 0);
 
-    const tran_id = Math.floor(100000 + Math.random() * 900000).toString();
+    // Generate a more unique transaction ID
+    const tran_id = `TF-${Date.now()}-${Math.floor(1000 + Math.random() * 9000)}`;
 
-    // Create payment log
+    // Create payment log with properly structured data
     await prisma.paymentLog.create({
       data: {
         userId: session.user.id!,
         transactionId: tran_id,
         amount: total_amount,
         status: "PENDING",
-        customerName: session?.user?.name!,
-        customerEmail: session?.user?.email!,
+        customerName: session?.user?.name || "Customer",
+        customerEmail: session?.user?.email || "customer@example.com",
         customerPhone: shippingDetails.phone,
-        shippingAddress: shippingDetails.address,
-        items: items,
+        shippingAddress: {
+          fullName:
+            shippingDetails.fullName || session?.user?.name || "Customer",
+          address: shippingDetails.address,
+          city: shippingDetails.city || "Unknown",
+          postalCode: shippingDetails.postcode || "Unknown",
+          country: shippingDetails.country || "Bangladesh",
+          phone: shippingDetails.phone,
+        },
+        items: items.map((item: CartItem) => ({
+          id: item.id,
+          title: item.title,
+          price: item.price * (1 - (item.discountPercentage || 0) / 100),
+          quantity: item.quantity,
+          color: item.color || null,
+          size: item.size || null,
+          image: item.image || "",
+        })),
       },
     });
 
+    // Rest of your payment gateway integration code
     const init_url = "https://sandbox.sslcommerz.com/gwprocess/v4/api.php";
 
     const formData = new FormData();
     formData.append("store_id", env.STORE_ID);
     formData.append("store_passwd", env.STORE_PASSWORD);
-    formData.append("total_amount", total_amount);
+    formData.append("total_amount", total_amount.toString());
     formData.append("currency", "BDT");
-    formData.append("tran_id", `${tran_id}`);
-    formData.append(
-      "success_url",
-      `${env.NEXT_PUBLIC_APP_URL}/api/success?id=${tran_id}`,
-    );
-    formData.append(
-      "fail_url",
-      `${env.NEXT_PUBLIC_APP_URL}/api/fail?id=${tran_id}`,
-    );
-    formData.append(
-      "cancel_url",
-      `${env.NEXT_PUBLIC_APP_URL}/api/cancel?id=${tran_id}`,
-    );
-    formData.append(
-      "ipn_url",
-      `${env.NEXT_PUBLIC_APP_URL}/api/ipn?id=${tran_id}`,
-    );
+    formData.append("tran_id", tran_id);
 
-    // Set default customer info for testing
-    formData.append("cus_name", session?.user?.name!);
-    formData.append("cus_email", session?.user?.email!);
+    // Use absolute URLs for callbacks
+    const baseUrl = env.NEXT_PUBLIC_APP_URL;
+    formData.append("success_url", `${baseUrl}/api/success?id=${tran_id}`);
+    formData.append("fail_url", `${baseUrl}/api/fail?id=${tran_id}`);
+    formData.append("cancel_url", `${baseUrl}/api/cancel?id=${tran_id}`);
+    formData.append("ipn_url", `${baseUrl}/api/ipn?id=${tran_id}`);
+
+    // Customer info
+    formData.append("cus_name", session?.user?.name || "Customer");
+    formData.append(
+      "cus_email",
+      session?.user?.email || "customer@example.com",
+    );
     formData.append("cus_add1", shippingDetails.address);
-    formData.append("cus_add2", "Test Address 2");
-    formData.append("cus_city", shippingDetails.city);
-    formData.append("cus_state", "Test State");
-    formData.append("cus_postcode", shippingDetails.postcode);
-    formData.append("cus_country", "Bangladesh");
+    formData.append("cus_add2", shippingDetails.address2 || "");
+    formData.append("cus_city", shippingDetails.city || "Unknown");
+    formData.append("cus_state", shippingDetails.state || "Unknown");
+    formData.append("cus_postcode", shippingDetails.postcode || "Unknown");
+    formData.append("cus_country", shippingDetails.country || "Bangladesh");
     formData.append("cus_phone", shippingDetails.phone);
     formData.append("cus_fax", shippingDetails.phone);
     formData.append("shipping_method", "NO");
 
-    // Set default shipping info
-    formData.append("ship_name", session?.user?.name!);
+    // Shipping info
+    formData.append(
+      "ship_name",
+      shippingDetails.fullName || session?.user?.name || "Customer",
+    );
     formData.append("ship_add1", shippingDetails.address);
-    formData.append("ship_add2", "Test Address 2");
-    formData.append("ship_city", shippingDetails.city);
-    formData.append("ship_state", "Test State");
-    formData.append("ship_country", "Bangladesh");
-    formData.append("ship_postcode", shippingDetails.postcode);
+    formData.append("ship_add2", shippingDetails.address2 || "");
+    formData.append("ship_city", shippingDetails.city || "Unknown");
+    formData.append("ship_state", shippingDetails.state || "Unknown");
+    formData.append("ship_country", shippingDetails.country || "Bangladesh");
+    formData.append("ship_postcode", shippingDetails.postcode || "Unknown");
 
-    // Add product details
+    // Product details
     formData.append(
       "product_name",
       items.map((item: any) => item.title).join(", "),
     );
     formData.append("product_category", "Mixed");
     formData.append("product_profile", "general");
-    formData.append("product_amount", total_amount);
+    formData.append("product_amount", total_amount.toString());
 
+    // Make request to payment gateway
     const requestOptions = { method: "POST", body: formData };
-    let SSLRes = await fetch(init_url, requestOptions);
-    let SSLResJSON = await SSLRes.json();
+    const SSLRes = await fetch(init_url, requestOptions);
+    const SSLResJSON = await SSLRes.json();
 
     if (!SSLResJSON.status || SSLResJSON.status === "FAILED") {
+      // Update payment log to FAILED status
+      await prisma.paymentLog.update({
+        where: { transactionId: tran_id },
+        data: { status: "FAILED" },
+      });
+
       return NextResponse.json(
         { error: SSLResJSON.failedreason || "Payment initialization failed" },
         { status: 400 },
       );
     }
+
     // Process the gateways from SSL Commerz response
     const gateways = SSLResJSON.desc || [];
     const processedGateways = gateways.map((gateway: any) => ({
@@ -125,9 +160,11 @@ export async function POST(request: Request) {
       data: {
         status: SSLResJSON.status,
         desc: processedGateways,
+        transactionId: tran_id,
       },
     });
   } catch (e: any) {
+    console.error("Payment initialization error:", e);
     return NextResponse.json({ error: e.message }, { status: 500 });
   }
 }

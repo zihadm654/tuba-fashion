@@ -1,30 +1,45 @@
 import Link from "next/link";
-import { CheckCircle2 } from "lucide-react";
+import { redirect } from "next/navigation";
+import { CheckCircle } from "lucide-react";
 
-const page = () => {
+import { getCurrentUser } from "@/lib/session";
+import { constructMetadata } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import MaxWidthWrapper from "@/components/shared/max-width-wrapper";
+
+export const metadata = constructMetadata({
+  title: "Order Successful – Tuba Fashion",
+  description: "Your order has been successfully placed.",
+});
+
+export default async function SuccessPage() {
+  const user = await getCurrentUser();
+  if (!user) redirect("/login");
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 p-4">
-      <div className="w-full max-w-md transform rounded-lg bg-white p-8 shadow-lg transition-all duration-300 hover:scale-105">
-        <div className="text-center">
-          <div className="flex justify-center">
-            <CheckCircle2 className="mb-4 h-16 w-16 animate-bounce text-green-500" />
-          </div>
-          <h2 className="mb-2 text-2xl font-bold text-gray-800">
-            Payment Successful!
-          </h2>
-          <p className="mb-6 text-gray-600">
-            Your transaction has been completed successfully.
-          </p>
-          <Link
-            className="inline-flex items-center justify-center rounded-md border border-transparent bg-green-600 px-6 py-3 text-base font-medium text-white transition-colors duration-200 hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:outline-none"
-            href="/dashboard/orders"
-          >
-            View Order List
-          </Link>
+    <MaxWidthWrapper className="py-20">
+      <div className="flex flex-col items-center justify-center space-y-6 text-center">
+        <div className="rounded-full bg-green-100 p-3">
+          <CheckCircle className="h-12 w-12 text-green-600" />
+        </div>
+        
+        <h1 className="text-3xl font-bold">Order Successful!</h1>
+        
+        <p className="text-muted-foreground max-w-md">
+          Thank you for your purchase. Your order has been received and is being processed.
+          You will receive an email confirmation shortly.
+        </p>
+        
+        <div className="flex gap-4">
+          <Button asChild>
+            <Link href="/dashboard/orders">View My Orders</Link>
+          </Button>
+          
+          <Button variant="outline" asChild>
+            <Link href="/products">Continue Shopping</Link>
+          </Button>
         </div>
       </div>
-    </div>
+    </MaxWidthWrapper>
   );
-};
-
-export default page;
+}

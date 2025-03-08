@@ -11,10 +11,10 @@ import MaxWidthWrapper from "../shared/max-width-wrapper";
 
 export function CategoriesSelection() {
   return (
-    <section className="bg-gray-50 py-16 sm:py-24">
+    <section className="py-16 sm:py-24">
       <MaxWidthWrapper>
         <div className="mb-8 flex items-center justify-between">
-          <h2 className="relative text-3xl font-bold tracking-tight text-gray-900">
+          <h2 className="relative text-3xl font-bold tracking-tight">
             <span className="relative inline-block">
               Shop by Category
               <span className="bg-primary absolute -bottom-1 left-0 h-1 w-1/3 rounded-full"></span>
@@ -49,12 +49,12 @@ export function CategoriesSelection() {
             <div className="absolute inset-0 flex items-end p-8">
               <Link href="/products" className="w-full">
                 <div className="transform transition-transform duration-300 group-hover:translate-y-[-8px]">
-                  <h3 className="text-xl font-bold text-white drop-shadow-md md:text-2xl">
+                  <h3 className="text-xl font-bold drop-shadow-md md:text-2xl">
                     All Products
                   </h3>
                   <div className="mt-2 flex items-center">
-                    <p className="mr-2 text-sm text-white/90">Shop Now</p>
-                    <span className="inline-block h-px w-5 bg-white/80 transition-all duration-300 group-hover:w-8"></span>
+                    <p className="mr-2 text-sm">Shop Now</p>
+                    <span className="inline-block h-px w-5 transition-all duration-300 group-hover:w-8"></span>
                   </div>
                 </div>
               </Link>
@@ -77,12 +77,12 @@ export function CategoriesSelection() {
             <div className="absolute inset-0 flex items-end p-8">
               <Link href="/collections/men" className="w-full">
                 <div className="transform transition-transform duration-300 group-hover:translate-y-[-8px]">
-                  <h3 className="text-xl font-bold text-white drop-shadow-md">
+                  <h3 className="text-xl font-bold drop-shadow-md">
                     Products for Men
                   </h3>
                   <div className="mt-2 flex items-center">
-                    <p className="mr-2 text-sm text-white/90">Shop Now</p>
-                    <span className="inline-block h-px w-5 bg-white/80 transition-all duration-300 group-hover:w-8"></span>
+                    <p className="mr-2 text-sm">Shop Now</p>
+                    <span className="inline-block h-px w-5 transition-all duration-300 group-hover:w-8"></span>
                   </div>
                 </div>
               </Link>
@@ -105,12 +105,12 @@ export function CategoriesSelection() {
             <div className="absolute inset-0 flex items-end p-8">
               <Link href="/collections/women" className="w-full">
                 <div className="transform transition-transform duration-300 group-hover:translate-y-[-8px]">
-                  <h3 className="text-xl font-bold text-white drop-shadow-md">
+                  <h3 className="text-xl font-bold drop-shadow-md">
                     Products for Women
                   </h3>
                   <div className="mt-2 flex items-center">
-                    <p className="mr-2 text-sm text-white/90">Shop Now</p>
-                    <span className="inline-block h-px w-5 bg-white/80 transition-all duration-300 group-hover:w-8"></span>
+                    <p className="mr-2 text-sm">Shop Now</p>
+                    <span className="inline-block h-px w-5 transition-all duration-300 group-hover:w-8"></span>
                   </div>
                 </div>
               </Link>
