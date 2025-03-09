@@ -11,6 +11,12 @@ type OrderItemInput = {
   price: number;
   color?: string;
   size?: string;
+  productName: string;
+  productSlug: string;
+  productImage: string;
+  category: string;
+  countInStock: number;
+  clientId: string;
 };
 
 type ShippingAddress = {
@@ -26,6 +32,7 @@ export async function createOrder(
   items: OrderItemInput[],
   totalAmount: number,
   shippingAddress: ShippingAddress,
+  paymentMethod: string = "Cash on Delivery",
   paymentId?: string,
 ) {
   try {
@@ -45,20 +52,44 @@ export async function createOrder(
       return { success: false, error: "Amount mismatch" };
     }
 
+    // Set expected delivery date (7 days from now)
+    const expectedDeliveryDate = new Date();
+    expectedDeliveryDate.setDate(expectedDeliveryDate.getDate() + 7);
+
+    // Calculate price breakdown
+    const itemsPrice = calculatedTotal;
+    const shippingPrice = 0; // You may want to adjust this
+    const taxPrice = 0; // You may want to adjust this
+    const totalPrice = itemsPrice + shippingPrice + (taxPrice || 0);
+
     // Create order with items in a transaction
     const order = await prisma.$transaction(async (tx) => {
-      // Create the order
+      // Create the order with all required fields
       const order = await tx.order.create({
         data: {
           userId,
-          amount: totalAmount,
+          amount: totalPrice,
           status: "PROCESSING",
           shippingAddress: shippingAddress,
           paymentId,
+          paymentMethod,
+          paymentResult: {
+            id: paymentId,
+            status: "SUCCESS",
+            email_address: session?.user.email || "",
+          }!,
+          isPaid: !!paymentId, // Set to true if paymentId exists
+          paidAt: paymentId ? new Date() : null,
+          isDelivered: false,
+          expectedDeliveryDate,
+          itemsPrice,
+          shippingPrice,
+          taxPrice,
+          totalPrice,
         },
       });
 
-      // Create order items
+      // Create order items with all required fields
       for (const item of items) {
         await tx.orderItem.create({
           data: {
@@ -68,6 +99,12 @@ export async function createOrder(
             price: item.price,
             color: item.color,
             size: item.size,
+            productName: item.productName,
+            productSlug: item.productSlug,
+            productImage: item.productImage,
+            category: item.category,
+            countInStock: item.countInStock,
+            clientId: item.clientId,
           },
         });
 
@@ -102,16 +139,7 @@ export async function getUserOrders() {
     const orders = await prisma.order.findMany({
       where: { userId },
       include: {
-        orderItems: {
-          include: {
-            product: {
-              select: {
-                title: true,
-                images: true,
-              },
-            },
-          },
-        },
+        orderItems: true, // Include all order item fields
       },
       orderBy: { createdAt: "desc" },
     });
@@ -137,16 +165,7 @@ export async function getOrderById(orderId: string) {
         userId,
       },
       include: {
-        orderItems: {
-          include: {
-            product: {
-              select: {
-                title: true,
-                images: true,
-              },
-            },
-          },
-        },
+        orderItems: true, // Include all order item fields
       },
     });
 

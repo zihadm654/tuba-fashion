@@ -17,6 +17,7 @@ export const productSchema = z.object({
   size: z.array(z.string()).refine((value) => value.some((item) => item), {
     message: "You have to select at least one item.",
   }),
+  tags: z.array(z.string().min(3, "Tag must be at least 3 characters long")),
   febric: z
     .string()
     .min(3, "Febric must be at least 3 characters long")

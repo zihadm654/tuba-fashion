@@ -7,8 +7,8 @@ import { Product } from "@prisma/client";
 import { ShoppingBag } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import SelectVariant from "@/components/shared/select-variants";
 import { Icons } from "@/components/shared/icons";
+import SelectVariant from "@/components/shared/select-variants";
 
 interface Props {
   product: any;
@@ -66,6 +66,17 @@ const Client = ({ product, color, size }: Props) => {
           )}
           Buy Now
         </Button>
+      </div>
+      <div className="flex w-full items-center justify-start gap-4">
+        <h5>Tags:</h5>
+        {product.tags.map((tag: any) => (
+          <span
+            key={tag}
+            className="inline-block rounded px-1 py-1.5 text-sm font-medium"
+          >
+            {tag}
+          </span>
+        ))}
       </div>
     </>
   );

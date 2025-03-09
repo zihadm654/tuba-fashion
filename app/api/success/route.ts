@@ -8,7 +8,7 @@ import { prisma } from "@/lib/db";
 export async function POST(req: Request) {
   try {
     const searchParams = new URL(req.url).searchParams;
-    const transactionId = await searchParams.get("id");
+    const transactionId = searchParams.get("id");
 
     if (!transactionId) {
       return NextResponse.json(
@@ -76,7 +76,7 @@ export async function POST(req: Request) {
         data: { status: "FAILED" },
       });
       return NextResponse.redirect(
-        `${env.NEXT_PUBLIC_APP_URL}/checkout?error=invalid_payment`,
+        `${env.NEXT_PUBLIC_APP_URL}/dashboard/fail`,
         303,
       );
     }
@@ -100,51 +100,97 @@ export async function POST(req: Request) {
       data: { status: "SUCCESS" },
     });
 
-    // Create order
-    const order = await prisma.order.create({
-      data: {
-        userId: paymentLog.userId,
-        amount: Math.round(paymentLog.amount),
-        status: "PROCESSING",
-        shippingAddress: paymentLog.shippingAddress as Prisma.InputJsonValue,
-        paymentId: transactionId,
-      },
-    });
+    try {
+      // Calculate price breakdown
+      const itemsPrice = Math.round(paymentLog.amount);
+      const shippingPrice = 0; // You may want to adjust this based on your business logic
+      const taxPrice = 0; // You may want to adjust this based on your business logic
+      const totalPrice = itemsPrice + shippingPrice + (taxPrice || 0);
 
-    console.log("Order created:", order.id);
+      // Set expected delivery date (e.g., 7 days from now)
+      const expectedDeliveryDate = new Date();
+      expectedDeliveryDate.setDate(expectedDeliveryDate.getDate() + 7);
 
-    // Create order items and update product quantities
-    for (const item of items) {
-      await prisma.orderItem.create({
+      // Create order with all required fields
+      const order = await prisma.order.create({
         data: {
-          orderId: order.id,
-          productId: item.id,
-          quantity: item.quantity,
-          price: item.price,
-          color: item.color || null,
-          size: item.size || null,
+          userId: paymentLog.userId,
+          amount: totalPrice,
+          status: "PROCESSING",
+          shippingAddress: paymentLog.shippingAddress as Prisma.InputJsonValue,
+          paymentId: transactionId,
+          paymentMethod: paymentLog.paymentMethod || "SSL Commerz",
+          paymentResult: {
+            id: transactionId,
+            status: "SUCCESS",
+            email_address: paymentLog.customerEmail,
+          },
+          isPaid: true,
+          paidAt: new Date(),
+          isDelivered: false,
+          expectedDeliveryDate: expectedDeliveryDate,
+          itemsPrice: itemsPrice,
+          shippingPrice: shippingPrice,
+          taxPrice: taxPrice,
+          totalPrice: totalPrice,
         },
       });
 
-      // Update product quantity
-      await prisma.product.update({
-        where: { id: item.id },
-        data: { quantity: { decrement: item.quantity } },
-      });
+      console.log("Order created:", order.id);
+
+      // Create order items and update product quantities
+      for (const item of items) {
+        // Get product details for order history
+        const product = await prisma.product.findUnique({
+          where: { id: item.id },
+        });
+
+        if (!product) {
+          console.warn(`Product not found: ${item.id}`);
+          continue;
+        }
+
+        // Create order item with all required fields
+        await prisma.orderItem.create({
+          data: {
+            orderId: order.id,
+            productId: item.id,
+            quantity: item.quantity,
+            price: item.price,
+            color: item.color || null,
+            size: item.size || null,
+            productName: product.title,
+            productSlug: product.title.toLowerCase().replace(/\s+/g, "-"),
+            productImage: product.images[0] || "",
+            category: product.category,
+            countInStock: product.quantity,
+            clientId: item.id,
+          },
+        });
+
+        // Update product quantity
+        await prisma.product.update({
+          where: { id: item.id },
+          data: { quantity: { decrement: item.quantity } },
+        });
+      }
+
+      return NextResponse.redirect(
+        `${env.NEXT_PUBLIC_APP_URL}/dashboard/success`,
+        303,
+      );
+    } catch (orderError) {
+      console.error("Error creating order:", orderError);
+      return NextResponse.redirect(
+        `${env.NEXT_PUBLIC_APP_URL}/dashboard/cancel`,
+        303,
+      );
     }
-
-    console.log("Order processing completed successfully");
-
-    // Redirect to success page
-    return NextResponse.redirect("/dashboard/success", 303);
-  } catch (error: any) {
-    console.error("Error in payment processing:", error);
-    return NextResponse.json(
-      {
-        error: "Failed to process payment",
-        details: error.message,
-      },
-      { status: 500 },
+  } catch (error) {
+    console.error("Error in GET handler:", error);
+    return NextResponse.redirect(
+      `${env.NEXT_PUBLIC_APP_URL}/dashboard/fail`,
+      303,
     );
   }
 }
@@ -156,7 +202,10 @@ export async function GET(req: Request) {
     const transactionId = searchParams.get("id");
 
     if (!transactionId) {
-      return NextResponse.redirect("/checkout?error=missing_transaction", 303);
+      return NextResponse.redirect(
+        `${env.NEXT_PUBLIC_APP_URL}/dashboard/orders/fail?error=missing_transaction`,
+        303,
+      );
     }
 
     // Find the payment log
@@ -165,15 +214,20 @@ export async function GET(req: Request) {
     });
 
     if (!paymentLog) {
-      return NextResponse.redirect("/checkout?error=payment_not_found", 303);
+      return NextResponse.redirect(
+        `${env.NEXT_PUBLIC_APP_URL}/dashboard/orders/fail?error=payment_not_found`,
+        303,
+      );
     }
 
     // If payment is already successful, redirect to success page
     if (paymentLog.status === "SUCCESS") {
-      return NextResponse.redirect("/dashboard/success", 303);
+      return NextResponse.redirect(
+        `${env.NEXT_PUBLIC_APP_URL}/dashboard/orders/success`,
+        303,
+      );
     }
 
-    // For GET requests, update payment status and create order
     try {
       // Update payment status
       await prisma.paymentLog.update({
@@ -184,47 +238,113 @@ export async function GET(req: Request) {
       // Parse items from payment log
       const items = paymentLog.items as any[];
 
-      // Create order
-      const order = await prisma.order.create({
-        data: {
-          userId: paymentLog.userId,
-          amount: Math.round(paymentLog.amount),
-          status: "PROCESSING",
-          shippingAddress: paymentLog.shippingAddress as Prisma.InputJsonValue,
-          paymentId: transactionId,
-        },
-      });
+      if (!items || !Array.isArray(items) || items.length === 0) {
+        console.error("No items found in payment log");
+        return NextResponse.redirect(
+          `${env.NEXT_PUBLIC_APP_URL}/dashboard/orders/fail?error=no_items`,
+          303,
+        );
+      }
 
-      // Create order items and update product quantities
-      for (const item of items) {
-        await prisma.orderItem.create({
+      // Calculate price breakdown
+      const itemsPrice = Math.round(paymentLog.amount);
+      const shippingPrice = 0;
+      const taxPrice = 0;
+      const totalPrice = itemsPrice + shippingPrice + (taxPrice || 0);
+
+      // Set expected delivery date (e.g., 7 days from now)
+      const expectedDeliveryDate = new Date();
+      expectedDeliveryDate.setDate(expectedDeliveryDate.getDate() + 7);
+
+      // Create order with all required fields using transaction to ensure consistency
+      const order = await prisma.$transaction(async (tx) => {
+        // Create the order first
+        const newOrder = await tx.order.create({
           data: {
-            orderId: order.id,
-            productId: item.id,
-            quantity: item.quantity,
-            price: item.price,
-            color: item.color || null,
-            size: item.size || null,
+            userId: paymentLog.userId,
+            amount: totalPrice,
+            status: "PROCESSING",
+            shippingAddress:
+              paymentLog.shippingAddress as Prisma.InputJsonValue,
+            paymentId: transactionId,
+            paymentMethod: paymentLog.paymentMethod || "SSL Commerz",
+            paymentResult: {
+              id: transactionId,
+              status: "SUCCESS",
+              email_address: paymentLog.customerEmail,
+            },
+            isPaid: true,
+            paidAt: new Date(),
+            isDelivered: false,
+            expectedDeliveryDate: expectedDeliveryDate,
+            itemsPrice: itemsPrice,
+            shippingPrice: shippingPrice,
+            taxPrice: taxPrice,
+            totalPrice: totalPrice,
           },
         });
 
-        // Update product quantity
-        await prisma.product.update({
-          where: { id: item.id },
-          data: { quantity: { decrement: item.quantity } },
-        });
-      }
+        // Process each item
+        for (const item of items) {
+          // Get product details for order history
+          const product = await tx.product.findUnique({
+            where: { id: item.id },
+          });
 
-      return NextResponse.redirect("/dashboard/success", 303);
+          if (!product) {
+            console.warn(`Product not found: ${item.id}`);
+            continue;
+          }
+
+          // Create order item with all required fields
+          await tx.orderItem.create({
+            data: {
+              orderId: newOrder.id,
+              productId: item.id,
+              quantity: item.quantity,
+              price: item.price,
+              color: item.color || null,
+              size: item.size || null,
+              productName: product.title,
+              productSlug: product.title.toLowerCase().replace(/\s+/g, "-"),
+              productImage: product.images[0] || "",
+              category: product.category,
+              countInStock: product.quantity,
+              clientId: item.id,
+            },
+          });
+
+          // Update product quantity
+          await tx.product.update({
+            where: { id: item.id },
+            data: { quantity: { decrement: item.quantity } },
+          });
+        }
+
+        return newOrder;
+      });
+
+      console.log("Order processing completed successfully:", order.id);
+
+      // Redirect to success page
+      return NextResponse.redirect(
+        `${env.NEXT_PUBLIC_APP_URL}/dashboard/orders/success`,
+        303,
+      );
     } catch (orderError) {
       console.error("Error creating order:", orderError);
+      // Fix: Use proper redirect without additional parameters
       return NextResponse.redirect(
-        "/checkout?error=order_creation_failed",
+        `${env.NEXT_PUBLIC_APP_URL}/dashboard/orders/fail?error=order_creation_failed`,
         303,
       );
     }
   } catch (error) {
     console.error("Error in GET handler:", error);
-    return NextResponse.redirect("/checkout?error=processing_failed", 303);
+    // Fix: Use proper redirect without additional parameters
+    return NextResponse.redirect(
+      `${env.NEXT_PUBLIC_APP_URL}/dashboard/orders/fail?error=general_error`,
+      303,
+    );
   }
 }

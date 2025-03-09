@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 
+import { TagsDemo } from "../shared/tag-select";
 import { Checkbox } from "../ui/checkbox";
 import { DatePickerWithRange } from "../ui/date-range-picker";
 import {
@@ -148,7 +149,6 @@ export function AddProduct({ product, userId }: AddProductProps) {
     );
     return () => subscription.unsubscribe();
   }, [form, images]);
-
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 px-4">
@@ -292,9 +292,9 @@ export function AddProduct({ product, userId }: AddProductProps) {
                 <FormItem className="w-full">
                   <FormLabel>Discount Period</FormLabel>
                   <FormControl>
-                    <DatePickerWithRange 
-                      date={date} 
-                      setDate={setDate} 
+                    <DatePickerWithRange
+                      date={date}
+                      setDate={setDate}
                       form={form}
                       name="discount"
                     />
@@ -496,6 +496,7 @@ export function AddProduct({ product, userId }: AddProductProps) {
             )}
           />
         </div>
+        <TagsDemo form={form} />
         {product ? (
           <Button disabled={loading} className="max-w-[150px]">
             {loading ? (
