@@ -78,6 +78,17 @@ const Client = ({ product, color, size }: Props) => {
           </span>
         ))}
       </div>
+      {/* <div className="flex w-full items-center justify-start gap-4">
+        <h5>Categories:</h5>
+        {product..map((tag: any) => (
+          <span
+            key={tag}
+            className="inline-block rounded px-1 py-1.5 text-sm font-medium"
+          >
+            {tag}
+          </span>
+        ))}
+      </div> */}
     </>
   );
 };
