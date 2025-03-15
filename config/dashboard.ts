@@ -53,6 +53,20 @@ export const sidebarLinks: SidebarNavItem[] = [
         authorizeOnly: UserRole.ADMIN,
         // disabled: true,
       },
+      {
+        href: "/admin/brands",
+        icon: "post",
+        title: "Admin Brands",
+        authorizeOnly: UserRole.ADMIN,
+        // disabled: true,
+      },
+      {
+        href: "/admin/categories",
+        icon: "post",
+        title: "Admin Categories",
+        authorizeOnly: UserRole.ADMIN,
+        // disabled: true,
+      },
     ],
   },
   {

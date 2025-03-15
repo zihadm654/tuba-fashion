@@ -10,7 +10,7 @@ export const successfulPayments = async () => {
   if (session?.user.role !== "ADMIN") return { message: "unauthorized" };
 
   try {
-    const payments = await prisma.paymentLog.findMany({
+    const payments = await prisma.payment.findMany({
       where: {
         status: PaymentStatus.SUCCESS,
       },
@@ -26,7 +26,7 @@ export const successfulPayments = async () => {
 export const successfulUserPayments = async () => {
   const session = await auth();
   try {
-    const payments = await prisma.paymentLog.findMany({
+    const payments = await prisma.payment.findMany({
       where: {
         userId: session?.user.id,
         status: PaymentStatus.SUCCESS,
@@ -42,7 +42,7 @@ export const successfulUserPayments = async () => {
 };
 export const failedPayments = async () => {
   try {
-    const payments = await prisma.paymentLog.findMany({
+    const payments = await prisma.payment.findMany({
       where: {
         status: PaymentStatus.FAILED,
       },
@@ -81,7 +81,7 @@ export const getAnalytics = async () => {
           },
         },
       }),
-      prisma.paymentLog.findMany({
+      prisma.payment.findMany({
         where: {
           status: PaymentStatus.SUCCESS,
           createdAt: {
@@ -89,7 +89,7 @@ export const getAnalytics = async () => {
           },
         },
       }),
-      prisma.paymentLog.findMany({
+      prisma.payment.findMany({
         where: {
           status: PaymentStatus.SUCCESS,
           createdAt: {

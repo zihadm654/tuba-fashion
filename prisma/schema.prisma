@@ -55,16 +55,33 @@ model User {
   email         String?   @unique
   emailVerified DateTime?
   image         String?
-  createdAt     DateTime  @default(now()) @map(name: "created_at")
-  updatedAt     DateTime  @default(now()) @map(name: "updated_at")
-  role          UserRole  @default(USER)
 
-  accounts   Account[]
-  sessions   Session[]
-  Order      Order[]
-  Product    Product[]
-  reviews    Review[]
-  PaymentLog PaymentLog[]
+  OTP                   String?
+  emailUnsubscribeToken String? @unique @default(cuid())
+  referralCode          String? @unique
+
+  isBanned          Boolean @default(false)
+  isEmailVerified   Boolean @default(false)
+  isPhoneVerified   Boolean @default(false)
+  isEmailSubscribed Boolean @default(false)
+  isPhoneSubscribed Boolean @default(false)
+
+  cart     Cart?
+  wishlist Product[] @relation("Wishlist")
+
+  createdAt DateTime @default(now()) @map(name: "created_at")
+  updatedAt DateTime @default(now()) @map(name: "updated_at")
+  role      UserRole @default(USER)
+
+  accounts      Account[]
+  sessions      Session[]
+  orders        Order[]
+  addresses     Address[]
+  products      Product[]
+  reviews       Review[]
+  payments      Payment[]
+  notifications Notification[]
+  Error         Error[]
 
   stripeCustomerId       String?   @unique @map(name: "stripe_customer_id")
   stripeSubscriptionId   String?   @unique @map(name: "stripe_subscription_id")
@@ -83,22 +100,32 @@ model VerificationToken {
   @@map(name: "verification_tokens")
 }
 
-model Review {
-  id         String   @id @default(cuid())
-  rating     Int      @db.SmallInt
-  comment    String?
-  userId     String
-  productId  String
-  isVerified Boolean  @default(false)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+model Cart {
+  user   User       @relation(fields: [userId], references: [id])
+  userId String     @id
+  items  CartItem[]
 
-  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
 
-  @@index([userId])
-  @@index([productId])
-  @@map(name: "reviews")
+model CartItem {
+  cart      Cart    @relation(fields: [cartId], references: [userId])
+  cartId    String
+  product   Product @relation(fields: [productId], references: [id])
+  productId String
+  count     Int
+
+  @@unique([cartId, productId], name: "UniqueCartItem")
+}
+
+model Brand {
+  id          String  @id @default(cuid())
+  title       String  @unique
+  description String?
+  logo        String?
+
+  products Product[]
 }
 
 enum ProductStatus {
@@ -107,125 +134,231 @@ enum ProductStatus {
   archived
 }
 
-enum Category {
-  men
-  women
-  kids
-}
-
 model Product {
-  id                 String        @id @default(uuid())
-  userId             String
-  title              String
-  description        String
-  status             ProductStatus
-  price              Int
-  discountPercentage Float? // discount rate in percentage (e.g. 20 means 20% off)
-  discountStart      DateTime? // optional start date for discount
-  discountEnd        DateTime? // optional end date for discount
-  images             String[]
-  category           Category
-  isFeatured         Boolean       @default(false)
-  quantity           Int           @default(0)
-  color              String[]
-  size               String[]
-  tags               String[]
-  febric             String?
-  createdAt          DateTime      @default(now())
+  id          String   @id @default(uuid())
+  userId      String
+  title       String
+  description String
+  images      String[]
+  tags        String[]
+  metdata     Json?
 
-  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  price         Float     @default(100)
+  discount      Float     @default(0)
+  discountStart DateTime? // optional start date for discount
+  discountEnd   DateTime? // optional end date for discount
+  stock         Int       @default(0)
+
+  isPhysical  Boolean       @default(true)
+  isAvailable Boolean       @default(false)
+  isFeatured  Boolean       @default(false)
+  status      ProductStatus
+
+  color  String[]
+  size   String[]
+  febric String?
+
+  orders    OrderItem[]
+  cartItems CartItem[]
+  wishlists User[]      @relation("Wishlist")
   reviews   Review[]
-  Order     Order[]
-  OrderItem OrderItem[]
+  brand     Brand       @relation(fields: [brandId], references: [id])
+  brandId   String
 
+  categories Category[]
+
+  createdAt DateTime @default(now())
+  update    DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // order   Order?  @relation(fields: [orderId], references: [id])
+  // orderId String?
+
+  @@index([brandId])
   @@map(name: "products")
 }
 
-model Banner {
-  id          String @id @default(uuid())
-  title       String
-  imageString String
+model Category {
+  id          String  @id @default(cuid())
+  title       String  @unique
+  description String?
+
+  products Product[]
+  banners  Banner[]
 
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
 
-  @@map(name: "banners")
+model Review {
+  id      String  @id @default(cuid())
+  rating  Int     @db.SmallInt
+  comment String?
+
+  userId    String
+  productId String
+
+  isVerified Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, userId], name: "uniqueProductReview")
+  @@index([userId])
+  @@index([productId])
+  @@map(name: "reviews")
 }
 
 model Order {
-  id              String      @id @default(uuid())
-  status          OrderStatus @default(PENDING)
-  amount          Int
-  shippingAddress Json // Will contain fullName, street, city, postalCode, country, province, phone
-  paymentId       String?     @unique
-  orderItems      OrderItem[]
-
-  // Make userId required and improve relation
-  userId String
-  user   User   @relation(fields: [userId], references: [id])
-
-  // Add payment details
-  paymentMethod String
-  paymentResult Json? // Will contain id, status, email_address
-  isPaid        Boolean   @default(false)
-  paidAt        DateTime?
-
-  // Add shipping details
-  isDelivered          Boolean   @default(false)
-  deliveredAt          DateTime?
-  expectedDeliveryDate DateTime
+  id     String      @id @default(cuid())
+  number Int         @unique @default(autoincrement())
+  status OrderStatus
 
   // Add price breakdown
-  itemsPrice    Int
-  shippingPrice Int
-  taxPrice      Int?
-  totalPrice    Int
+  total    Float @default(100)
+  shipping Float @default(100)
+  payable  Float @default(100)
+  tax      Float @default(100)
+  discount Float @default(0)
 
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  Product   Product[]
+  isPaid      Boolean @default(false)
+  isCompleted Boolean @default(false)
+
+  payments   Payment[]
+  orderItems OrderItem[]
+  refund     Refund?
+
+  // Make userId required and improve relation
+  discountCode   DiscountCode? @relation(fields: [discountCodeId], references: [id])
+  discountCodeId String?
+  address        Address?      @relation(fields: [addressId], references: [id])
+  addressId      String?
+  user           User          @relation(fields: [userId], references: [id])
+  userId         String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([userId])
-  @@index([status])
-  @@index([isPaid])
-  @@index([isDelivered])
+  @@index([addressId])
+  @@index([discountCodeId])
   @@map(name: "orders")
 }
 
 model OrderItem {
-  id       String  @id @default(uuid())
-  quantity Int
-  price    Int
-  color    String?
-  size     String?
-
-  // Add product details for order history
-  productName  String
-  productSlug  String
-  productImage String
-  category     String
-  countInStock Int
-  clientId     String // For client-side reference
-
-  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  order     Order   @relation(fields: [orderId], references: [id])
   orderId   String
   product   Product @relation(fields: [productId], references: [id])
   productId String
+  count     Int
+  price     Float
+  discount  Float
 
-  @@index([orderId])
-  @@index([productId])
-  @@map(name: "order_items")
+  @@unique([orderId, productId], name: "UniqueOrderItem")
 }
 
 enum OrderStatus {
-  PENDING
-  PROCESSING
-  SHIPPED
-  DELIVERED
-  CANCELLED
-  REFUNDED
+  Processing
+  Shipped
+  Delivered
+  ReturnProcessing
+  ReturnCompleted
+  Cancelled
+  RefundProcessing
+  RefundCompleted
+  Denied
 }
 
-// Add these models to your schema
+model Address {
+  id         String @id @default(cuid())
+  country    String @default("IRI")
+  address    String
+  city       String
+  phone      String
+  postalCode String
+
+  user   User    @relation(fields: [userId], references: [id])
+  userId String
+  orders Order[]
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+model Notification {
+  id      String  @id @default(cuid())
+  content String
+  isRead  Boolean @default(false)
+
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model DiscountCode {
+  id                String   @id @default(cuid())
+  code              String   @unique
+  stock             Int      @default(1)
+  description       String?
+  percent           Int
+  maxDiscountAmount Float    @default(1)
+  startDate         DateTime
+  endDate           DateTime
+
+  order Order[]
+
+  createdAt DateTime @default(now())
+}
+
+model Refund {
+  id     String @id @default(cuid())
+  amount Float
+  reason String
+
+  order   Order  @relation(fields: [orderId], references: [id])
+  orderId String @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([orderId])
+}
+
+model Payment {
+  id     String        @id @default(cuid())
+  number Int           @unique @default(autoincrement())
+  status PaymentStatus @default(PENDING)
+
+  refId    String  @unique
+  cardPan  String?
+  cardHash String?
+  fee      Float?
+
+  isSuccessful Boolean @default(false)
+  payable      Float
+
+  provider   PaymentProvider @relation(fields: [providerId], references: [id])
+  providerId String
+  user       User            @relation(fields: [userId], references: [id])
+  userId     String
+  order      Order           @relation(fields: [orderId], references: [id])
+  orderId    String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([providerId])
+  @@index([orderId])
+}
 
 enum PaymentStatus {
   PENDING
@@ -234,23 +367,37 @@ enum PaymentStatus {
   CANCELED
 }
 
-model PaymentLog {
-  id              String        @id @default(cuid())
-  userId          String
-  transactionId   String        @unique
-  amount          Float
-  status          PaymentStatus @default(PENDING)
-  currency        String        @default("BDT")
-  paymentMethod   String?
-  customerName    String
-  customerEmail   String
-  customerPhone   String
-  shippingAddress Json
-  items           Json
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
-  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+model PaymentProvider {
+  id          String  @id @default(cuid())
+  title       String  @unique
+  description String?
+  websiteUrl  String?
+  isActive    Boolean @default(false)
+
+  orders Payment[]
+}
+
+model Banner {
+  id          String @id @default(uuid())
+  title       String
+  imageString String
+
+  createdAt  DateTime  @default(now())
+  Category   Category? @relation(fields: [categoryId], references: [id])
+  categoryId String?
+
+  @@map(name: "banners")
+}
+
+model Error {
+  id String @id @default(cuid())
+
+  error String
+
+  user   User?   @relation(fields: [userId], references: [id])
+  userId String?
+
+  createdAt DateTime @default(now())
 
   @@index([userId])
-  @@index([transactionId])
 }

@@ -1,5 +1,5 @@
 import type { Metadata, ResolvingMetadata } from "next";
-import { getProduct, getProductByCat } from "@/actions/product";
+import { getProduct, getProductsByCat } from "@/actions/product";
 import {
   calculateDiscountedPrice,
   getRemainingDiscountDays,
@@ -21,7 +21,6 @@ type Props = {
   params: Promise<{ id: string }>;
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 };
-// searchParams: Promise<{ color: string; size: string }>;
 export async function generateMetadata(
   { params }: Props,
   parent: ResolvingMetadata,
@@ -47,24 +46,29 @@ const page = async ({ params, searchParams }: Props) => {
   const id = (await params).id;
   const color = (await searchParams).color;
   const size = (await searchParams).size;
+  //product data fetched
   const res = await getProduct(id);
+  if (res.success === false) return null;
+  if (res.success) {
+    return res.data;
+  }
   const product = res.data;
-  const productsResponse = await getProductByCat(product?.category!);
-  
+  const productsResponse = await getProductsByCat(product?.categories[0]?.id!);
   // Filter out the current product from related products
-  const relatedProducts = productsResponse.data?.filter(p => p.id !== id) || [];
-  
+  const relatedProducts =
+    productsResponse.data?.filter((p) => p.id !== id) || [];
+  console.log(relatedProducts, "related products");
   if (!res && !product) return <SkeletonSection />;
   // Calculate discount information
   const discountActive = isDiscountActive(
-    product?.discountPercentage ?? undefined,
+    product?.discount,
     product?.discountStart ? new Date(product.discountStart) : undefined,
     product?.discountEnd ? new Date(product.discountEnd) : undefined,
   );
 
   const discountedPrice = calculateDiscountedPrice(
     product?.price ?? 0,
-    product?.discountPercentage ?? undefined,
+    product?.discount,
     product?.discountStart ? new Date(product.discountStart) : undefined,
     product?.discountEnd ? new Date(product.discountEnd) : undefined,
   );
@@ -99,7 +103,7 @@ const page = async ({ params, searchParams }: Props) => {
               <p className="text-lg text-gray-600">{product?.description}</p>
             </div>
             <div className="rounded-lg bg-gray-50 p-4 dark:bg-gray-900">
-              {product?.discountPercentage && discountActive ? (
+              {product?.discount && discountActive ? (
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
                     <span className="text-primary text-3xl font-bold">
@@ -111,7 +115,7 @@ const page = async ({ params, searchParams }: Props) => {
                   </div>
                   <div className="flex flex-wrap gap-2">
                     <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-sm font-medium text-green-800 dark:bg-green-900 dark:text-green-100">
-                      Save {product.discountPercentage}%
+                      Save {product.discount}%
                     </span>
 
                     {remainingDays > 0 && (
@@ -135,13 +139,13 @@ const page = async ({ params, searchParams }: Props) => {
               )}
               <div className="mt-2 flex items-center gap-2">
                 <span
-                  className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-sm font-medium ${product?.quantity === 0 ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100" : "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100"}`}
+                  className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-sm font-medium ${product?.stock === 0 ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100" : "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100"}`}
                 >
-                  {product?.quantity === 0 ? "Out of Stock" : "In Stock"}
+                  {product?.stock === 0 ? "Out of Stock" : "In Stock"}
                 </span>
-                {(product?.quantity ?? 0) > 0 && (
+                {(product?.stock ?? 0) > 0 && (
                   <span className="text-sm text-gray-600 dark:text-gray-400">
-                    {product?.quantity} units available
+                    {product?.stock} units available
                   </span>
                 )}
               </div>

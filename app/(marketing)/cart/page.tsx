@@ -53,13 +53,13 @@ const page = () => {
   const discountedSubtotal = items?.reduce((total, item) => {
     // Calculate discount information
     const discountActive = isDiscountActive(
-      item?.discountPercentage ?? undefined,
+      item?.discount,
       item?.discountStart ? new Date(item.discountStart) : undefined,
       item?.discountEnd ? new Date(item.discountEnd) : undefined,
     );
     const discountedPrice = calculateDiscountedPrice(
       item?.price ?? 0,
-      item?.discountPercentage ?? undefined,
+      item?.discount,
       item?.discountStart ? new Date(item.discountStart) : undefined,
       item?.discountEnd ? new Date(item.discountEnd) : undefined,
     );
@@ -161,7 +161,7 @@ const page = () => {
                 items.map((item: CartItem) => {
                   const discountedPrice = calculateDiscountedPrice(
                     item?.price ?? 0,
-                    item?.discountPercentage ?? undefined,
+                    item?.discount,
                     item?.discountStart
                       ? new Date(item.discountStart)
                       : undefined,
@@ -185,7 +185,7 @@ const page = () => {
                             </div>
                             <div>
                               <h3 className="font-medium">{item.title}</h3>
-                              {item.discountPercentage ? (
+                              {item.discount ? (
                                 <div className="flex gap-2">
                                   <p className="text-muted-foreground text-sm line-through">
                                     ৳{item.price.toFixed(2)}
@@ -193,7 +193,7 @@ const page = () => {
                                   <p className="text-sm text-green-600">
                                     ৳{discountedPrice.toFixed(2)}
                                     <span className="ml-1 text-xs">
-                                      (-{item.discountPercentage}%)
+                                      (-{item.discount}%)
                                     </span>
                                   </p>
                                 </div>
