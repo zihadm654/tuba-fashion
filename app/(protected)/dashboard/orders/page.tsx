@@ -1,16 +1,14 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { PaymentStatus } from "@prisma/client";
-
-import Link from "next/link";
 import { format } from "date-fns";
 
+import { prisma } from "@/lib/db";
 import { getCurrentUser } from "@/lib/session";
 import { constructMetadata } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { DashboardHeader } from "@/components/dashboard/header";
-import { EmptyPlaceholder } from "@/components/shared/empty-placeholder";
-import { prisma } from "@/lib/db";
 import {
   Table,
   TableBody,
@@ -19,7 +17,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
+import { DashboardHeader } from "@/components/dashboard/header";
+import { EmptyPlaceholder } from "@/components/shared/empty-placeholder";
 
 export const metadata = constructMetadata({
   title: "My Orders – Tuba Fashion",
@@ -49,7 +48,7 @@ export default async function OrdersPage() {
     redirect("/login");
   }
 
-  const successfulPayments = await prisma.paymentLog.findMany({
+  const successfulPayments = await prisma.payment.findMany({
     where: {
       userId: session.user.id,
       // status: PaymentStatus.SUCCESS,
@@ -85,13 +84,14 @@ export default async function OrdersPage() {
         heading="My Orders"
         text="View your order history and track your purchases."
       />
-      
+
       {orders.length === 0 ? (
         <EmptyPlaceholder>
           <EmptyPlaceholder.Icon name="package" />
           <EmptyPlaceholder.Title>No orders yet</EmptyPlaceholder.Title>
           <EmptyPlaceholder.Description>
-            You haven&apos;t placed any orders yet. Start shopping to see your orders here.
+            You haven&apos;t placed any orders yet. Start shopping to see your
+            orders here.
           </EmptyPlaceholder.Description>
           <Button asChild>
             <Link href="/products">Shop Now</Link>
@@ -127,9 +127,16 @@ export default async function OrdersPage() {
                   <TableCell>
                     {order.orderItems.length} item(s)
                     <br />
-                    <span className="text-xs text-muted-foreground">
-                      {order.orderItems.map(item => item.product.title).join(", ").substring(0, 20)}
-                      {order.orderItems.map(item => item.product.title).join(", ").length > 20 ? "..." : ""}
+                    <span className="text-muted-foreground text-xs">
+                      {order.orderItems
+                        .map((item) => item.product.title)
+                        .join(", ")
+                        .substring(0, 20)}
+                      {order.orderItems
+                        .map((item) => item.product.title)
+                        .join(", ").length > 20
+                        ? "..."
+                        : ""}
                     </span>
                   </TableCell>
                   <TableCell className="text-right">
@@ -137,9 +144,7 @@ export default async function OrdersPage() {
                   </TableCell>
                   <TableCell className="text-right">
                     <Button asChild variant="outline" size="sm">
-                      <Link href={`/dashboard/orders/${order.id}`}>
-                        View
-                      </Link>
+                      <Link href={`/dashboard/orders/${order.id}`}>View</Link>
                     </Button>
                   </TableCell>
                 </TableRow>

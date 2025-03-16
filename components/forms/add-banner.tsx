@@ -66,7 +66,7 @@ export function AddBanner({ banner }: AddBannerProps) {
           toast.success(res.success);
           setImage("");
           form.reset();
-          router.push("/admin/banner");
+          router.push("/admin/banners");
         }
       } catch (error) {
         console.log(error);
@@ -176,7 +176,7 @@ export function AddBanner({ banner }: AddBannerProps) {
             ) : (
               <Fragment>
                 <PencilLine className="size-4" />
-                Create Project
+                Create banner
               </Fragment>
             )}
           </Button>

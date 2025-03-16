@@ -59,14 +59,14 @@ export default Products;
 export const ProductCard = ({ product }: { product: Product }) => {
   // Calculate discount information
   const discountActive = isDiscountActive(
-    product?.discountPercentage ?? undefined,
+    product?.discount ?? undefined,
     product?.discountStart ? new Date(product.discountStart) : undefined,
     product?.discountEnd ? new Date(product.discountEnd) : undefined,
   );
 
   const discountedPrice = calculateDiscountedPrice(
     product?.price ?? 0,
-    product?.discountPercentage ?? undefined,
+    product?.discount ?? undefined,
     product?.discountStart ? new Date(product.discountStart) : undefined,
     product?.discountEnd ? new Date(product.discountEnd) : undefined,
   );
@@ -81,18 +81,18 @@ export const ProductCard = ({ product }: { product: Product }) => {
       {/* Stock Badge */}
       <Badge
         className={`absolute top-3 left-3 z-10 ${
-          product.quantity > 0
+          product.stock > 0
             ? "bg-green-500 hover:bg-green-600"
             : "bg-red-500 hover:bg-red-600"
         }`}
       >
-        {product.quantity > 0 ? "In Stock" : "Out of Stock"}
+        {product.stock > 0 ? "In Stock" : "Out of Stock"}
       </Badge>
 
       {/* Discount Badge */}
-      {product?.discountPercentage && discountActive && (
+      {product?.discount && discountActive && (
         <Badge className="bg-primary hover:bg-primary/90 absolute top-3 right-3 z-10">
-          {product.discountPercentage}% OFF
+          {product.discount}% OFF
         </Badge>
       )}
 
@@ -141,7 +141,7 @@ export const ProductCard = ({ product }: { product: Product }) => {
 
         {/* Price Section */}
         <div className="mb-3">
-          {product?.discountPercentage && discountActive ? (
+          {product?.discount && discountActive ? (
             <div className="flex items-center gap-2">
               <span className="text-primary text-xl font-bold">
                 ৳{discountedPrice.toFixed(0)}

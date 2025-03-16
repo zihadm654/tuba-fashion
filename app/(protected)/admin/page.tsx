@@ -1,10 +1,10 @@
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
-import {
-  failedPayments,
-  getAnalytics,
-  successfulPayments,
-} from "@/actions/payment";
+// import {
+//   failedPayments,
+//   getAnalytics,
+//   successfulPayments,
+// } from "@/actions/payment";
 import { auth } from "@/auth";
 import { TrendingUp, Users } from "lucide-react";
 
@@ -23,33 +23,33 @@ export const metadata = constructMetadata({
 export default async function AdminPage() {
   const session = await auth();
   if (!session?.user || session.user.role !== "ADMIN") redirect("/login");
-  const paymentSuccess = await successfulPayments();
-  const paymentFailed = await failedPayments();
-  const analytics = await getAnalytics();
-  const analyticsData = analytics?.data;
+  // const paymentSuccess = await successfulPayments();
+  // const paymentFailed = await failedPayments();
+  // const analytics = await getAnalytics();
+  // const analyticsData = analytics?.data;
 
-  const totalCustomers = analyticsData?.currentCustomers.length || 0;
-  const previousTotal = analyticsData?.previousCustomers.length || 0;
+  // const totalCustomers = analyticsData?.currentCustomers.length || 0;
+  // const previousTotal = analyticsData?.previousCustomers.length || 0;
 
-  const growth =
-    previousTotal > 0
-      ? ((totalCustomers - previousTotal) / previousTotal) * 100
-      : 0;
+  // const growth =
+  //   previousTotal > 0
+  //     ? ((totalCustomers - previousTotal) / previousTotal) * 100
+  //     : 0;
 
-  const currentSales =
-    analyticsData?.currentMonthPayments.reduce(
-      (total, payment) => total + (payment.amount || 0),
-      0,
-    ) || 0;
-  const previousSales =
-    analyticsData?.previousMonthPayments.reduce(
-      (total, payment) => total + (payment.amount || 0),
-      0,
-    ) || 0;
-  const salesGrowth =
-    previousSales > 0
-      ? ((currentSales - previousSales) / previousSales) * 100
-      : 0;
+  // const currentSales =
+  //   analyticsData?.currentMonthPayments.reduce(
+  //     (total, payment) => total + (payment.amount || 0),
+  //     0,
+  //   ) || 0;
+  // const previousSales =
+  //   analyticsData?.previousMonthPayments.reduce(
+  //     (total, payment) => total + (payment.amount || 0),
+  //     0,
+  //   ) || 0;
+  // const salesGrowth =
+  //   previousSales > 0
+  //     ? ((currentSales - previousSales) / previousSales) * 100
+  //     : 0;
   return (
     <>
       <DashboardHeader
@@ -58,7 +58,7 @@ export default async function AdminPage() {
       />
       <div className="flex flex-col gap-5">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          <InfoCard
+          {/* <InfoCard
             title="Customers"
             amount={totalCustomers || 0}
             growth={growth}
@@ -69,23 +69,24 @@ export default async function AdminPage() {
             amount={currentSales || 0}
             growth={salesGrowth}
             Icon={TrendingUp}
-          />
+          /> */}
         </div>
-        <AreaChartStacked
+        {/* <AreaChartStacked
           currentMonthData={analyticsData?.currentMonthPayments || []}
           previousMonthData={analyticsData?.previousMonthPayments || []}
-        />
+        /> */}
         <Suspense fallback={<SkeletonSection />}>
-          <TransactionsList
+          {/*<TransactionsList
             transactions={paymentSuccess?.data || []}
             title="Successful"
           />
+          */}
         </Suspense>
         <Suspense fallback={<SkeletonSection />}>
-          <TransactionsList
+          {/* <TransactionsList
             transactions={paymentFailed?.data || []}
             title="Failed"
-          />
+          /> */}
         </Suspense>
       </div>
     </>

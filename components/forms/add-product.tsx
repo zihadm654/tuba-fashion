@@ -5,15 +5,16 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { imageRemove } from "@/actions/image-remove";
 import { addProduct, updateProduct } from "@/actions/product";
+import { ProductWithIncludes } from "@/types";
 import { UploadDropzone } from "@/utils/uploadthing";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Product } from "@prisma/client";
+import { Brand, Category } from "@prisma/client";
 import { Loader2, PencilLine, X } from "lucide-react";
 import { DateRange } from "react-day-picker";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
-import { categories, colors, sizes } from "@/config/categories";
+import { colors, sizes } from "@/config/categories";
 import { productSchema, TProduct } from "@/lib/validations/product";
 import { Button } from "@/components/ui/button";
 import {
@@ -40,10 +41,18 @@ import {
 import { Textarea } from "../ui/textarea";
 
 interface AddProductProps {
-  product?: Product | null;
+  product?: ProductWithIncludes | null;
   userId: string;
+  categories: Category[];
+  brands: Brand[];
 }
-export function AddProduct({ product, userId }: AddProductProps) {
+
+export function AddProduct({
+  product,
+  userId,
+  categories,
+  brands,
+}: AddProductProps) {
   const [images, setImages] = useState<string[]>(product?.images || []);
   const [imageKeys, setImageKeys] = useState<string[]>([]); // Remove product?.imageKeys
   const [loading, setLoading] = useState(false);
@@ -56,32 +65,30 @@ export function AddProduct({ product, userId }: AddProductProps) {
     resolver: zodResolver(productSchema),
     defaultValues: product
       ? {
-          title: product.title,
-          description: product.description,
-          images: product.images,
-          price: product.price,
-          quantity: product.quantity,
-          status: product.status,
-          category: product.category,
-          color: product.color,
-          size: product.size,
-          isFeatured: product.isFeatured,
-          discountPercentage: product.discountPercentage || 0,
-          discountStart: product.discountStart || undefined,
-          discountEnd: product.discountEnd || undefined,
-          febric: product.febric || undefined,
+          ...product,
+          price: parseFloat(String(product?.price.toFixed(2))),
+          discount: parseFloat(String(product?.discount.toFixed(2))),
+          categories: product.categories.map((cat) => cat.id),
+          brands: product.brand ? [product.brand.id] : [],
+          tags: product.tags,
         }
       : {
           title: "",
           description: "",
           images: [],
-          price: 0,
-          quantity: 0,
+          tags: [],
+          price: 100,
+          discount: 0,
+          stock: 0,
           status: "draft",
-          category: "men",
-          color: ["red", "blue"],
-          size: ["m", "l"],
+          color: [],
+          size: [],
           isFeatured: false,
+          isAvailable: false,
+          isPhysical: true,
+          categories: [],
+          brands: [], // Add this default
+          febric: "",
         },
   });
   const router = useRouter();
@@ -114,9 +121,6 @@ export function AddProduct({ product, userId }: AddProductProps) {
       }
     }
   }
-  // const handleDelete = (index: number) => {
-  //   setImages(images?.filter((_, i) => i !== index));
-  // };
   const handleRemove = async (index: number) => {
     try {
       // For existing products, we might not have imageKeys stored
@@ -253,12 +257,12 @@ export function AddProduct({ product, userId }: AddProductProps) {
           />
           <FormField
             control={form.control}
-            name="quantity"
+            name="stock"
             render={({ field }) => (
               <FormItem className="w-full">
-                <FormLabel>Quantity</FormLabel>
+                <FormLabel>Stock</FormLabel>
                 <FormControl>
-                  <Input type="number" placeholder="quantity" {...field} />
+                  <Input type="number" placeholder="stock" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -268,7 +272,7 @@ export function AddProduct({ product, userId }: AddProductProps) {
         <div className="flex items-center justify-between gap-3">
           <FormField
             control={form.control}
-            name="discountPercentage"
+            name="discount"
             render={({ field }) => (
               <FormItem className="w-full">
                 <FormLabel>Discount percentage</FormLabel>
@@ -329,12 +333,37 @@ export function AddProduct({ product, userId }: AddProductProps) {
           />
           <FormField
             control={form.control}
+            name="isAvailable"
+            render={({ field }) => (
+              <FormItem className="flex w-full items-start space-x-3">
+                <FormControl>
+                  <Checkbox
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+                <div className="space-y-1 leading-none">
+                  <FormLabel>Is Available</FormLabel>
+                  <FormDescription>
+                    You can manage product availability
+                  </FormDescription>
+                </div>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
             name="febric"
             render={({ field }) => (
               <FormItem className="w-full">
-                <FormLabel>Febric</FormLabel>
+                <FormLabel>Fabric</FormLabel>
                 <FormControl>
-                  <Input placeholder="febric" {...field} />
+                  <Input
+                    placeholder="fabric material"
+                    {...field}
+                    value={field.value || ""}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -367,29 +396,36 @@ export function AddProduct({ product, userId }: AddProductProps) {
               </FormItem>
             )}
           />
+          {/* // Update the categories field */}
           <FormField
             control={form.control}
-            name="category"
+            name="categories" // Changed from categoryId to categories
             render={({ field }) => (
               <FormItem className="w-full">
-                <FormLabel>Category</FormLabel>
-                <FormControl>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
+                <FormLabel>Categories</FormLabel>
+                <Select
+                  disabled={loading}
+                  onValueChange={(value) => {
+                    const currentValues = field.value || [];
+                    if (!currentValues.includes(value)) {
+                      field.onChange([...currentValues, value]);
+                    }
+                  }}
+                  value={field.value?.[0] || ""}
+                >
+                  <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="select a category"></SelectValue>
+                      <SelectValue placeholder="Select categories" />
                     </SelectTrigger>
-                    <SelectContent>
-                      {categories?.map((category) => (
-                        <SelectItem key={category.id} value={category.name}>
-                          {category.title}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </FormControl>
+                  </FormControl>
+                  <SelectContent>
+                    {categories?.map((category) => (
+                      <SelectItem key={category.id} value={category.id}>
+                        {category.title}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <FormMessage />
               </FormItem>
             )}
@@ -496,7 +532,39 @@ export function AddProduct({ product, userId }: AddProductProps) {
             )}
           />
         </div>
-        <TagsDemo form={form} />
+        <div className="flex items-center justify-between gap-4">
+          <TagsDemo form={form} />
+          <FormField
+            control={form.control}
+            name="brands"
+            render={({ field }) => (
+              <FormItem className="w-full">
+                <FormLabel>Brand</FormLabel>
+                <Select
+                  disabled={loading}
+                  onValueChange={(value) => {
+                    field.onChange([value]);
+                  }}
+                  value={field.value?.[0] || ""}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select brand" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {brands?.map((brand) => (
+                      <SelectItem key={brand.id} value={brand.id}>
+                        {brand.title}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
         {product ? (
           <Button disabled={loading} className="max-w-[150px]">
             {loading ? (
@@ -521,7 +589,7 @@ export function AddProduct({ product, userId }: AddProductProps) {
             ) : (
               <Fragment>
                 <PencilLine className="size-4" />
-                Create Project
+                Create
               </Fragment>
             )}
           </Button>
