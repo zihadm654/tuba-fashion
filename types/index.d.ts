@@ -1,8 +1,14 @@
-import { User } from "@prisma/client";
+import { Prisma, User } from "@prisma/client";
 import type { Icon } from "lucide-react";
 
 import { Icons } from "@/components/shared/icons";
 
+export type ProductWithIncludes = Prisma.ProductGetPayload<{
+  include: {
+    brand: true;
+    categories: true;
+  };
+}>;
 export type SiteConfig = {
   name: string;
   description: string;
@@ -101,3 +107,14 @@ export type TestimonialType = {
   image: string;
   review: string;
 };
+
+interface CartItem {
+  id: string;
+  title: string;
+  price: number;
+  image: string;
+  quantity: number;
+  discount?: number;
+  discountStart?: Date;
+  discountEnd?: Date;
+}

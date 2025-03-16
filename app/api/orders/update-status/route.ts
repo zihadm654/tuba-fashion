@@ -1,16 +1,15 @@
 import { NextResponse } from "next/server";
-import { getCurrentUser } from "@/lib/session";
+import { OrderStatus } from "@prisma/client";
+
 import { prisma } from "@/lib/db";
+import { getCurrentUser } from "@/lib/session";
 
 export async function POST(req: Request) {
   try {
     const user = await getCurrentUser();
-    
+
     if (!user || user.role !== "ADMIN") {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const formData = await req.formData();
@@ -20,35 +19,38 @@ export async function POST(req: Request) {
     if (!orderId || !status) {
       return NextResponse.json(
         { error: "Order ID and status are required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     // Validate status
-    const validStatuses = ["PENDING", "PROCESSING", "SHIPPED", "DELIVERED", "CANCELLED"];
+    const validStatuses = [
+      "PENDING",
+      "PROCESSING",
+      "SHIPPED",
+      "DELIVERED",
+      "CANCELLED",
+    ];
     if (!validStatuses.includes(status)) {
-      return NextResponse.json(
-        { error: "Invalid status" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Invalid status" }, { status: 400 });
     }
 
     // Update order status
     await prisma.order.update({
       where: { id: orderId },
-      data: { status },
+      data: { status: status as OrderStatus },
     });
 
     // Redirect back to the order page
     return NextResponse.redirect(
       new URL(`/admin/orders/${orderId}`, req.url),
-      303
+      303,
     );
   } catch (error) {
     console.error("Error updating order status:", error);
     return NextResponse.json(
       { error: "Failed to update order status" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

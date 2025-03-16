@@ -8,7 +8,7 @@ export interface CartItem {
   id: string;
   title: string;
   price: number;
-  discountPercentage: number | null;
+  discount: number;
   discountStart: Date | null;
   discountEnd: Date | null;
   image: string;
@@ -53,7 +53,7 @@ const useCartStore = create<CartState>()(
               cartItemId,
               title: product.title,
               price: product.price,
-              discountPercentage: product.discountPercentage || null,
+              discount: product.discount,
               discountStart: product.discountStart || null,
               discountEnd: product.discountEnd || null,
               image: product.images[0],
@@ -151,7 +151,7 @@ const useCartStore = create<CartState>()(
         return get().items.reduce((total, item) => {
           // Calculate price considering discounts
           let itemPrice = item.price;
-          if (item.discountPercentage) {
+          if (item.discount) {
             const now = new Date();
             const discountStart = item.discountStart
               ? new Date(item.discountStart)
@@ -165,7 +165,7 @@ const useCartStore = create<CartState>()(
               (!discountEnd || now <= discountEnd);
 
             if (isDiscountActive) {
-              itemPrice = itemPrice * (1 - item.discountPercentage / 100);
+              itemPrice = itemPrice * (1 - item.discount / 100);
             }
           }
           return total + itemPrice * item.quantity;

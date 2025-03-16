@@ -35,43 +35,43 @@ export async function POST(request: Request) {
 
     // Calculate total amount from items
     const total_amount = items.reduce((acc: number, item: CartItem) => {
-      const itemPrice = item.price * (1 - (item.discountPercentage || 0) / 100);
+      const itemPrice = item.price * (1 - (item.discount || 0) / 100);
       return acc + itemPrice * item.quantity;
     }, 0);
 
     // Generate a more unique transaction ID
-    const tran_id = `TF-${Date.now()}-${Math.floor(1000 + Math.random() * 9000)}`;
+    const refId = `TF-${Date.now()}-${Math.floor(1000 + Math.random() * 9000)}`;
 
     // Create payment log with properly structured data
-    await prisma.paymentLog.create({
-      data: {
-        userId: session.user.id!,
-        transactionId: tran_id,
-        amount: total_amount,
-        status: "PENDING",
-        customerName: session?.user?.name || "Customer",
-        customerEmail: session?.user?.email || "customer@example.com",
-        customerPhone: shippingDetails.phone,
-        shippingAddress: {
-          fullName:
-            shippingDetails.fullName || session?.user?.name || "Customer",
-          address: shippingDetails.address,
-          city: shippingDetails.city || "Unknown",
-          postalCode: shippingDetails.postcode || "Unknown",
-          country: shippingDetails.country || "Bangladesh",
-          phone: shippingDetails.phone,
-        },
-        items: items.map((item: CartItem) => ({
-          id: item.id,
-          title: item.title,
-          price: item.price * (1 - (item.discountPercentage || 0) / 100),
-          quantity: item.quantity,
-          color: item.color || null,
-          size: item.size || null,
-          image: item.image || "",
-        })),
-      },
-    });
+    // await prisma.payment.create({
+    //   data: {
+    //     userId: session.user.id!,
+    //     refId: refId,
+    //     payable: total_amount,
+    //     status: "PENDING",
+    //     customerName: session?.user?.name || "Customer",
+    //     customerEmail: session?.user?.email || "customer@example.com",
+    //     customerPhone: shippingDetails.phone,
+    //     shippingAddress: {
+    //       fullName:
+    //         shippingDetails.fullName || session?.user?.name || "Customer",
+    //       address: shippingDetails.address,
+    //       city: shippingDetails.city || "Unknown",
+    //       postalCode: shippingDetails.postcode || "Unknown",
+    //       country: shippingDetails.country || "Bangladesh",
+    //       phone: shippingDetails.phone,
+    //     },
+    //     items: items.map((item: CartItem) => ({
+    //       id: item.id,
+    //       title: item.title,
+    //       price: item.price * (1 - (item.discount || 0) / 100),
+    //       quantity: item.quantity,
+    //       color: item.color || null,
+    //       size: item.size || null,
+    //       image: item.image || "",
+    //     })),
+    //   },
+    // });
 
     // Rest of your payment gateway integration code
     const init_url = "https://sandbox.sslcommerz.com/gwprocess/v4/api.php";
@@ -81,14 +81,14 @@ export async function POST(request: Request) {
     formData.append("store_passwd", env.STORE_PASSWORD);
     formData.append("total_amount", total_amount.toString());
     formData.append("currency", "BDT");
-    formData.append("tran_id", tran_id);
+    formData.append("tran_id", refId);
 
     // Use absolute URLs for callbacks
     const baseUrl = env.NEXT_PUBLIC_APP_URL;
-    formData.append("success_url", `${baseUrl}/api/success?id=${tran_id}`);
-    formData.append("fail_url", `${baseUrl}/api/fail?id=${tran_id}`);
-    formData.append("cancel_url", `${baseUrl}/api/cancel?id=${tran_id}`);
-    formData.append("ipn_url", `${baseUrl}/api/ipn?id=${tran_id}`);
+    formData.append("success_url", `${baseUrl}/api/success?id=${refId}`);
+    formData.append("fail_url", `${baseUrl}/api/fail?id=${refId}`);
+    formData.append("cancel_url", `${baseUrl}/api/cancel?id=${refId}`);
+    formData.append("ipn_url", `${baseUrl}/api/ipn?id=${refId}`);
 
     // Customer info
     formData.append("cus_name", session?.user?.name || "Customer");
@@ -134,8 +134,8 @@ export async function POST(request: Request) {
 
     if (!SSLResJSON.status || SSLResJSON.status === "FAILED") {
       // Update payment log to FAILED status
-      await prisma.paymentLog.update({
-        where: { transactionId: tran_id },
+      await prisma.payment.update({
+        where: { refId: refId },
         data: { status: "FAILED" },
       });
 
@@ -160,7 +160,7 @@ export async function POST(request: Request) {
       data: {
         status: SSLResJSON.status,
         desc: processedGateways,
-        transactionId: tran_id,
+        transactionId: refId,
       },
     });
   } catch (e: any) {

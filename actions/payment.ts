@@ -1,118 +1,61 @@
 "use server";
 
 import { auth } from "@/auth";
-import { PaymentStatus } from "@prisma/client";
+import { CartItem } from "@/utils/cart";
 
 import { prisma } from "@/lib/db";
 
-export const successfulPayments = async () => {
-  const session = await auth();
-  if (session?.user.role !== "ADMIN") return { message: "unauthorized" };
+interface ShippingDetails {
+  address: string;
+  city: string;
+  phone: string;
+  postcode: string;
+}
 
+export async function createPaymentLog(
+  items: CartItem[],
+  shippingDetails: ShippingDetails,
+  payable: number,
+) {
   try {
-    const payments = await prisma.paymentLog.findMany({
-      where: {
-        status: PaymentStatus.SUCCESS,
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
-    return { success: true, data: payments };
-  } catch (error) {
-    return { success: false, error };
-  }
-};
-export const successfulUserPayments = async () => {
-  const session = await auth();
-  try {
-    const payments = await prisma.paymentLog.findMany({
-      where: {
-        userId: session?.user.id,
-        status: PaymentStatus.SUCCESS,
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
-    return { success: true, data: payments };
-  } catch (error) {
-    return { success: false, error };
-  }
-};
-export const failedPayments = async () => {
-  try {
-    const payments = await prisma.paymentLog.findMany({
-      where: {
-        status: PaymentStatus.FAILED,
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
-    return { success: true, data: payments };
-  } catch (error) {
-    return { success: false, error };
-  }
-};
-export const getAnalytics = async () => {
-  try {
-    const currentDate = new Date();
-    const previousMonth = new Date(
-      currentDate.setMonth(currentDate.getMonth() - 1),
-    );
+    const session = await auth();
+    if (!session?.user) {
+      return { success: false, error: "Unauthorized" };
+    }
 
-    const [
-      currentCustomers,
-      previousCustomers,
-      currentMonthPayments,
-      previousMonthPayments,
-    ] = await Promise.all([
-      prisma.user.findMany({
-        where: {
-          role: "USER",
-        },
-      }),
-      prisma.user.findMany({
-        where: {
-          role: "USER",
-          createdAt: {
-            lt: previousMonth,
-          },
-        },
-      }),
-      prisma.paymentLog.findMany({
-        where: {
-          status: PaymentStatus.SUCCESS,
-          createdAt: {
-            gte: previousMonth,
-          },
-        },
-      }),
-      prisma.paymentLog.findMany({
-        where: {
-          status: PaymentStatus.SUCCESS,
-          createdAt: {
-            lt: previousMonth,
-          },
-        },
-      }),
-    ]);
+    // const paymentLog = await prisma.payment.create({
+    //   data: {
+    //     userId: session.user.id,
+    //     payable,
+    //     items: items as any,
+    //     status: "PENDING",
+    //     refId: `TF-${Date.now()}-${Math.floor(Math.random() * 10000)}`,
+    //     shippingAddress: shippingDetails as any,
+    //     customerEmail: session.user.email || "",
+    //     paymentMethod: "SSL_COMMERZ",
+    //   },
+    // });
 
-    return {
-      success: true,
-      data: {
-        currentCustomers,
-        previousCustomers,
-        currentMonthPayments,
-        previousMonthPayments,
-      },
-    };
+    // return { success: true, data: paymentLog };
   } catch (error) {
-    console.error("Analytics Error:", error);
-    return {
-      success: false,
-      error: "Failed to fetch analytics data",
-    };
+    return { success: false, error: "Failed to create payment log" };
   }
-};
+}
+
+export async function getPaymentLogs() {
+  try {
+    const session = await auth();
+    if (!session?.user) {
+      return { success: false, error: "Unauthorized" };
+    }
+
+    const logs = await prisma.payment.findMany({
+      where: { userId: session.user.id },
+      orderBy: { createdAt: "desc" },
+    });
+
+    return { success: true, data: logs };
+  } catch (error) {
+    return { success: false, error: "Failed to fetch payment logs" };
+  }
+}
