@@ -39,6 +39,7 @@ export async function createPaymentLog(
     // return { success: true, data: paymentLog };
   } catch (error) {
     return { success: false, error: "Failed to create payment log" };
+    return { success: false, error: "Failed to create payment log" };
   }
 }
 
