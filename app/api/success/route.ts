@@ -32,21 +32,21 @@ export async function POST(req: Request) {
           const formDataParams = new URLSearchParams(formData);
           status = formDataParams.get("status") || "VALID";
 
-          console.log("Payment callback received:", {
-            refId,
-            status,
-            val_id: formDataParams.get("val_id"),
-            amount: formDataParams.get("amount"),
-          });
+          // console.log("Payment callback received:", {
+          //   refId,
+          //   status,
+          //   val_id: formDataParams.get("val_id"),
+          //   amount: formDataParams.get("amount"),
+          // });
         } else {
-          console.log("Empty form data received, using default status");
+          // console.log("Empty form data received, using default status");
         }
       } catch (formError) {
-        console.error("Error parsing form data:", formError);
+        // console.error("Error parsing form data:", formError);
         // Continue with default status
       }
     } else {
-      console.log("No form data in request, using transaction ID from URL");
+      // console.log("No form data in request, using transaction ID from URL");
     }
 
     // Find the payment log
@@ -99,7 +99,6 @@ export async function POST(req: Request) {
       where: { id: paymentLog.id },
       data: { status: "SUCCESS" },
     });
-
     try {
       // Calculate price breakdown
       const itemsPrice = Math.round(paymentLog.payable);
@@ -137,8 +136,6 @@ export async function POST(req: Request) {
       });
 
       console.log("Order created:", order.id);
-      console.log("Order created:", order.id);
-
       // Create order items and update product quantities
       // for (const item of items) {
       //   // Get product details for order history
@@ -207,17 +204,12 @@ export async function GET(req: Request) {
         `${env.NEXT_PUBLIC_APP_URL}/dashboard/orders/fail?error=missing_transaction`,
         303,
       );
-      return NextResponse.redirect(
-        `${env.NEXT_PUBLIC_APP_URL}/dashboard/orders/fail?error=missing_transaction`,
-        303,
-      );
     }
 
     // Find the payment log
     // const paymentLog = await prisma.payment.findUnique({
     //   where: { refId },
     // });
-
     // if (!paymentLog) {
     //   return NextResponse.redirect(
     //     `${env.NEXT_PUBLIC_APP_URL}/dashboard/orders/fail?error=payment_not_found`,
@@ -226,6 +218,7 @@ export async function GET(req: Request) {
     // }
 
     // If payment is already successful, redirect to success page
+
     // if (paymentLog.status === "SUCCESS") {
     //   return NextResponse.redirect(
     //     `${env.NEXT_PUBLIC_APP_URL}/dashboard/orders/success`,
@@ -243,6 +236,80 @@ export async function GET(req: Request) {
       // Parse items from payment log
       // const items = paymentLog.items as any[];
 
+      // if (!items || !Array.isArray(items) || items.length === 0) {
+      //   console.error("No items found in payment log");
+      //   return NextResponse.redirect(
+      //     `${env.NEXT_PUBLIC_APP_URL}/dashboard/orders/fail?error=no_items`,
+      //     303,
+      //   );
+      // }
+
+      // // Calculate price breakdown
+      // const itemsPrice = Math.round(paymentLog.payable);
+      // const shippingPrice = 0;
+      // const taxPrice = 0;
+      // const totalPrice = itemsPrice + shippingPrice + (taxPrice || 0);
+
+      // Set expected delivery date (e.g., 7 days from now)
+      // const expectedDeliveryDate = new Date();
+      // expectedDeliveryDate.setDate(expectedDeliveryDate.getDate() + 7);
+
+      // Create order with all required fields using transaction to ensure consistency
+      // const order = await prisma.$transaction(async (tx) => {
+      //   // Create the order first
+      //   const newOrder = await tx.order.create({
+      //     data: {
+      //       userId: paymentLog.userId,
+      //       payable: totalPrice,
+      //       status: "Processing",
+      //       address: paymentLog.shippingAddress as Prisma.InputJsonValue,
+      //       paymentId: transactionId,
+      //       paymentMethod: paymentLog.providerId || "SSL Commerz",
+      //       paymentResult: {
+      //         id: transactionId,
+      //         status: "SUCCESS",
+      //         email_address: paymentLog.customerEmail,
+      //       },
+      //       isPaid: true,
+      //       paidAt: new Date(),
+      //       isDelivered: false,
+      //       expectedDeliveryDate: expectedDeliveryDate,
+      //       itemsPrice: itemsPrice,
+      //       shippingPrice: shippingPrice,
+      //       taxPrice: taxPrice,
+      //       totalPrice: totalPrice,
+      //     },
+      //   });
+
+      //   // Process each item
+      //   for (const item of items) {
+      //     // Get product details for order history
+      //     const product = await tx.product.findUnique({
+      //       where: { id: item.id },
+      //     });
+
+      //     if (!product) {
+      //       console.warn(`Product not found: ${item.id}`);
+      //       continue;
+      //     }
+
+      //     // Create order item with all required fields
+      //     await tx.orderItem.create({
+      //       data: {
+      //         orderId: newOrder.id,
+      //         productId: item.id,
+      //         stock: item.stock,
+      //         price: item.price,
+      //         color: item.color || null,
+      //         size: item.size || null,
+      //         productName: product.title,
+      //         productSlug: product.title.toLowerCase().replace(/\s+/g, "-"),
+      //         productImage: product.images[0] || "",
+      //         category: product.category,
+      //         countInStock: product.stock,
+      //         clientId: item.id,
+      //       },
+      //     });
       // if (!items || !Array.isArray(items) || items.length === 0) {
       //   console.error("No items found in payment log");
       //   return NextResponse.redirect(
@@ -317,7 +384,6 @@ export async function GET(req: Request) {
       //         clientId: item.id,
       //       },
       //     });
-
       //     // Update product quantity
       //     await tx.product.update({
       //       where: { id: item.id },
@@ -335,9 +401,10 @@ export async function GET(req: Request) {
         `${env.NEXT_PUBLIC_APP_URL}/dashboard/orders/success`,
         303,
       );
+      //   return newOrder;
+      // });
     } catch (orderError) {
       console.error("Error creating order:", orderError);
-      // Fix: Use proper redirect without additional parameters
       // Fix: Use proper redirect without additional parameters
       return NextResponse.redirect(
         `${env.NEXT_PUBLIC_APP_URL}/dashboard/orders/fail?error=order_creation_failed`,
@@ -346,11 +413,6 @@ export async function GET(req: Request) {
     }
   } catch (error) {
     console.error("Error in GET handler:", error);
-    // Fix: Use proper redirect without additional parameters
-    return NextResponse.redirect(
-      `${env.NEXT_PUBLIC_APP_URL}/dashboard/orders/fail?error=general_error`,
-      303,
-    );
     // Fix: Use proper redirect without additional parameters
     return NextResponse.redirect(
       `${env.NEXT_PUBLIC_APP_URL}/dashboard/orders/fail?error=general_error`,
