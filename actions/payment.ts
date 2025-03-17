@@ -5,58 +5,116 @@ import { CartItem } from "@/utils/cart";
 
 import { prisma } from "@/lib/db";
 
-interface ShippingDetails {
-  address: string;
-  city: string;
-  phone: string;
-  postcode: string;
-}
+export const successfulPayments = async () => {
+  const session = await auth();
+  if (session?.user.role !== "ADMIN") return { message: "unauthorized" };
 
-export async function createPaymentLog(
-  items: CartItem[],
-  shippingDetails: ShippingDetails,
-  payable: number,
-) {
   try {
-    const session = await auth();
-    if (!session?.user) {
-      return { success: false, error: "Unauthorized" };
-    }
-
-    // const paymentLog = await prisma.payment.create({
-    //   data: {
-    //     userId: session.user.id,
-    //     payable,
-    //     items: items as any,
-    //     status: "PENDING",
-    //     refId: `TF-${Date.now()}-${Math.floor(Math.random() * 10000)}`,
-    //     shippingAddress: shippingDetails as any,
-    //     customerEmail: session.user.email || "",
-    //     paymentMethod: "SSL_COMMERZ",
-    //   },
-    // });
-
-    // return { success: true, data: paymentLog };
+    const payments = await prisma.payment.findMany({
+      where: {
+        status: PaymentStatus.SUCCESS,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+    return { success: true, data: payments };
   } catch (error) {
     return { success: false, error: "Failed to create payment log" };
     return { success: false, error: "Failed to create payment log" };
   }
-}
-
-export async function getPaymentLogs() {
+};
+export const successfulUserPayments = async () => {
+  const session = await auth();
   try {
-    const session = await auth();
-    if (!session?.user) {
-      return { success: false, error: "Unauthorized" };
-    }
-
-    const logs = await prisma.payment.findMany({
-      where: { userId: session.user.id },
-      orderBy: { createdAt: "desc" },
+    const payments = await prisma.payment.findMany({
+      where: {
+        userId: session?.user.id,
+        status: PaymentStatus.SUCCESS,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+    return { success: true, data: payments };
+  } catch (error) {
+    return { success: false, error };
+  }
+};
+export const failedPayments = async () => {
+  try {
+    const payments = await prisma.payment.findMany({
+      where: {
+        status: PaymentStatus.FAILED,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
     });
 
     return { success: true, data: logs };
   } catch (error) {
-    return { success: false, error: "Failed to fetch payment logs" };
+    return { success: false, error };
+  }
+};
+export const getAnalytics = async () => {
+  try {
+    const currentDate = new Date();
+    const previousMonth = new Date(
+      currentDate.setMonth(currentDate.getMonth() - 1),
+    );
+
+    const [
+      currentCustomers,
+      previousCustomers,
+      currentMonthPayments,
+      previousMonthPayments,
+    ] = await Promise.all([
+      prisma.user.findMany({
+        where: {
+          role: "USER",
+        },
+      }),
+      prisma.user.findMany({
+        where: {
+          role: "USER",
+          createdAt: {
+            lt: previousMonth,
+          },
+        },
+      }),
+      prisma.payment.findMany({
+        where: {
+          status: PaymentStatus.SUCCESS,
+          createdAt: {
+            gte: previousMonth,
+          },
+        },
+      }),
+      prisma.payment.findMany({
+        where: {
+          status: PaymentStatus.SUCCESS,
+          createdAt: {
+            lt: previousMonth,
+          },
+        },
+      }),
+    ]);
+
+    return {
+      success: true,
+      data: {
+        currentCustomers,
+        previousCustomers,
+        currentMonthPayments,
+        previousMonthPayments,
+      },
+    };
+  } catch (error) {
+    console.error("Analytics Error:", error);
+    return {
+      success: false,
+      error: "Failed to fetch analytics data",
+    };
   }
 }

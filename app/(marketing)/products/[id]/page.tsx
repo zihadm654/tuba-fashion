@@ -47,15 +47,19 @@ const page = async ({ params, searchParams }: Props) => {
   const color = (await searchParams).color;
   const size = (await searchParams).size;
   //product data fetched
+  //product data fetched
   const res = await getProduct(id);
   if (res.success === false) return null;
+  if (res.success) {
+    return res.data;
+  }
   const product = res.data;
-  console.log(res, "product");
   const productsResponse = await getProductsByCat(product?.categories[0]?.id!);
   // Filter out the current product from related products
   const relatedProducts =
     productsResponse.data?.filter((p) => p.id !== id) || [];
-  if (!res) return <SkeletonSection />;
+  console.log(relatedProducts, "related products");
+  if (!res && !product) return <SkeletonSection />;
   // Calculate discount information
   const discountActive = isDiscountActive(
     product?.discount,
