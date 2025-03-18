@@ -53,7 +53,7 @@ export function DatePickerWithRange({
       }
 
       setDate(selectedDate);
-      
+
       // Update form values directly
       if (form && name) {
         if (from) {
@@ -61,24 +61,24 @@ export function DatePickerWithRange({
         } else {
           form.setValue(name + "Start", null);
         }
-        
+
         if (to) {
           form.setValue(name + "End", to);
         } else {
           form.setValue(name + "End", null);
         }
-        
+
         // Trigger form validation
         form.trigger([name + "Start", name + "End"]);
       }
     },
-    [form, name, setDate]
+    [form, name, setDate],
   );
 
   return (
     <div className={cn("grid gap-1", className)}>
       {label && (
-        <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+        <label className="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
           {label}
         </label>
       )}
@@ -90,7 +90,7 @@ export function DatePickerWithRange({
             className={cn(
               "w-full justify-start text-left font-normal",
               !date && "text-muted-foreground",
-              error && "border-red-500"
+              error && "border-red-500",
             )}
           >
             <CalendarIcon className="mr-2 h-4 w-4" />
