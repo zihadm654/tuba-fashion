@@ -49,16 +49,12 @@ const page = async ({ params, searchParams }: Props) => {
   //product data fetched
   //product data fetched
   const res = await getProduct(id);
-  if (res.success === false) return null;
-  if (res.success) {
-    return res.data;
-  }
   const product = res.data;
-  const productsResponse = await getProductsByCat(product?.categories[0]?.id!);
+  // const productsResponse = await getProductsByCat(product?.categories[0]?.id!);
   // Filter out the current product from related products
-  const relatedProducts =
-    productsResponse.data?.filter((p) => p.id !== id) || [];
-  console.log(relatedProducts, "related products");
+  // const relatedProducts =
+  //   productsResponse.data?.filter((p) => p.id !== id) || [];
+  // console.log(relatedProducts, "related products");
   if (!res && !product) return <SkeletonSection />;
   // Calculate discount information
   const discountActive = isDiscountActive(
@@ -162,9 +158,9 @@ const page = async ({ params, searchParams }: Props) => {
           <ReviewList productId={id} />
         </div>
         {/* Related Products Section */}
-        {relatedProducts.length > 0 && (
+        {/* {relatedProducts.length > 0 && (
           <Products products={relatedProducts} title="Related Products" />
-        )}
+        )} */}
       </MaxWidthWrapper>
     </section>
   );
