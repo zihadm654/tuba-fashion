@@ -32,8 +32,8 @@ export function CategoriesSelection() {
           </Link>
         </div>
 
-        <div className="relative mt-6 grid grid-cols-1 gap-y-8 sm:grid-cols-2 sm:grid-rows-2 sm:gap-x-8 lg:gap-10">
-          <div className="group aspect-w-2 aspect-h-1 sm:aspect-w-1 cursor-pointer overflow-hidden rounded-2xl shadow-lg sm:relative sm:row-span-2">
+        <div className="mt-6 grid grid-cols-1 gap-y-8 sm:grid-cols-2 sm:grid-rows-2 sm:gap-x-8 lg:gap-10">
+          <div className="group aspect-w-2 aspect-h-1 sm:aspect-w-1 relative cursor-pointer overflow-hidden rounded-2xl shadow-lg sm:relative sm:row-span-2">
             <BlurImage
               src={kids}
               height={400}
@@ -57,7 +57,7 @@ export function CategoriesSelection() {
             </div>
           </div>
 
-          <div className="group aspect-w-2 aspect-h-1 sm:aspect-none cursor-pointer overflow-hidden rounded-2xl shadow-lg sm:relative sm:h-full">
+          <div className="group aspect-w-2 aspect-h-1 sm:aspect-none relative cursor-pointer overflow-hidden rounded-2xl shadow-lg sm:relative sm:h-full">
             <BlurImage
               src={men}
               height={400}
@@ -81,7 +81,7 @@ export function CategoriesSelection() {
             </div>
           </div>
 
-          <div className="group aspect-w-2 aspect-h-1 sm:aspect-none cursor-pointer overflow-hidden rounded-2xl shadow-lg sm:relative sm:h-full">
+          <div className="group aspect-w-2 aspect-h-1 sm:aspect-none relative cursor-pointer overflow-hidden rounded-2xl shadow-lg sm:relative sm:h-full">
             <BlurImage
               src={women}
               height={400}

@@ -1,13 +1,12 @@
-import { redirect } from "next/navigation";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { format } from "date-fns";
 
+import { prisma } from "@/lib/db";
 import { getCurrentUser } from "@/lib/session";
 import { constructMetadata } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { DashboardHeader } from "@/components/dashboard/header";
-import { EmptyPlaceholder } from "@/components/shared/empty-placeholder";
-import { prisma } from "@/lib/db";
 import {
   Table,
   TableBody,
@@ -16,7 +15,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
+import { DashboardHeader } from "@/components/dashboard/header";
+import { EmptyPlaceholder } from "@/components/shared/empty-placeholder";
 
 export const metadata = constructMetadata({
   title: "Orders – Tuba Fashion",
@@ -74,7 +74,7 @@ export default async function OrdersPage() {
         heading="Orders"
         text="Check and manage your latest orders."
       />
-      
+
       {orders.length === 0 ? (
         <EmptyPlaceholder>
           <EmptyPlaceholder.Icon name="package" />
@@ -109,7 +109,7 @@ export default async function OrdersPage() {
                   <TableCell>
                     {order.user?.name || "Guest"}
                     <br />
-                    <span className="text-xs text-muted-foreground">
+                    <span className="text-muted-foreground text-xs">
                       {order.user?.email || "No email"}
                     </span>
                   </TableCell>
@@ -124,19 +124,22 @@ export default async function OrdersPage() {
                   <TableCell>
                     {order.orderItems.length} item(s)
                     <br />
-                    <span className="text-xs text-muted-foreground">
-                      {order.orderItems.map(item => item.product.title).join(", ").substring(0, 20)}
-                      {order.orderItems.map(item => item.product.title).join(", ").length > 20 ? "..." : ""}
+                    <span className="text-muted-foreground text-xs">
+                      {order.orderItems
+                        .map((item) => item.product.title)
+                        .join(", ")
+                        .substring(0, 20)}
+                      {order.orderItems
+                        .map((item) => item.product.title)
+                        .join(", ").length > 20
+                        ? "..."
+                        : ""}
                     </span>
                   </TableCell>
-                  <TableCell className="text-right">
-                    ৳{order.amount.toLocaleString()}
-                  </TableCell>
+                  <TableCell className="text-right">৳{order.total}</TableCell>
                   <TableCell className="text-right">
                     <Button asChild variant="outline" size="sm">
-                      <Link href={`/admin/orders/${order.id}`}>
-                        View
-                      </Link>
+                      <Link href={`/admin/orders/${order.id}`}>View</Link>
                     </Button>
                   </TableCell>
                 </TableRow>

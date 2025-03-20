@@ -1,15 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { getProducts } from "@/actions/product";
 import { Product } from "@prisma/client";
+import { Loader2 } from "lucide-react";
 
 import Products from "@/components/sections/products";
 import MaxWidthWrapper from "@/components/shared/max-width-wrapper";
-import { Loader2 } from "lucide-react";
 
-const SearchPage = () => {
+// Component that uses useSearchParams must be wrapped in Suspense
+const SearchContent = () => {
   const searchParams = useSearchParams();
   const searchQuery = searchParams.get("title") || "";
   const [products, setProducts] = useState<Product[]>([]);
@@ -31,22 +32,25 @@ const SearchPage = () => {
             sortBy: "latest",
           }),
           getProducts({
-            title: searchQuery.split(' ').filter(word => word.length > 2).join(' '),
+            title: searchQuery
+              .split(" ")
+              .filter((word) => word.length > 2)
+              .join(" "),
             category: "all",
             sortBy: "latest",
-          })
+          }),
         ]);
 
         const combinedResults = new Map<string, Product>();
 
         if (exactMatch.success && exactMatch.data) {
-          exactMatch.data.forEach(product => {
+          exactMatch.data.forEach((product) => {
             combinedResults.set(product.id, product);
           });
         }
 
         if (partialMatch.success && partialMatch.data) {
-          partialMatch.data.forEach(product => {
+          partialMatch.data.forEach((product) => {
             if (!combinedResults.has(product.id)) {
               combinedResults.set(product.id, product);
             }
@@ -84,6 +88,25 @@ const SearchPage = () => {
         )}
       </MaxWidthWrapper>
     </div>
+  );
+};
+
+// Main page component with Suspense boundary
+const SearchPage = () => {
+  return (
+    <Suspense
+      fallback={
+        <div className="pt-4">
+          <MaxWidthWrapper>
+            <div className="flex justify-center">
+              <Loader2 className="h-6 w-6 animate-spin" />
+            </div>
+          </MaxWidthWrapper>
+        </div>
+      }
+    >
+      <SearchContent />
+    </Suspense>
   );
 };
 

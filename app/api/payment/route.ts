@@ -42,36 +42,91 @@ export async function POST(request: Request) {
     // Generate a more unique transaction ID
     const refId = `TF-${Date.now()}-${Math.floor(1000 + Math.random() * 9000)}`;
 
-    // Create payment log with properly structured data
-    // await prisma.payment.create({
-    //   data: {
-    //     userId: session.user.id!,
-    //     refId: refId,
-    //     payable: total_amount,
-    //     status: "PENDING",
-    //     customerName: session?.user?.name || "Customer",
-    //     customerEmail: session?.user?.email || "customer@example.com",
-    //     customerPhone: shippingDetails.phone,
-    //     shippingAddress: {
-    //       fullName:
-    //         shippingDetails.fullName || session?.user?.name || "Customer",
-    //       address: shippingDetails.address,
-    //       city: shippingDetails.city || "Unknown",
-    //       postalCode: shippingDetails.postcode || "Unknown",
-    //       country: shippingDetails.country || "Bangladesh",
-    //       phone: shippingDetails.phone,
-    //     },
-    //     items: items.map((item: CartItem) => ({
-    //       id: item.id,
-    //       title: item.title,
-    //       price: item.price * (1 - (item.discount || 0) / 100),
-    //       quantity: item.quantity,
-    //       color: item.color || null,
-    //       size: item.size || null,
-    //       image: item.image || "",
-    //     })),
-    //   },
-    // });
+    // Create a new order for this payment
+    const order = await prisma.order.create({
+      data: {
+        user: {
+          connect: {
+            id: session.user.id!,
+          },
+        },
+        status: "Processing",
+        total: total_amount,
+        shipping: 0,
+        payable: total_amount,
+        tax: 0,
+        discount: 0,
+        address: {
+          create: {
+            user: {
+              connect: {
+                id: session.user.id!,
+              },
+            },
+            country: shippingDetails.country || "Bangladesh",
+            address: shippingDetails.address,
+            city: shippingDetails.city || "Unknown",
+            phone: shippingDetails.phone,
+            postalCode: shippingDetails.postcode || "Unknown",
+          },
+        },
+        orderItems: {
+          create: items.map((item: CartItem) => ({
+            count: item.quantity,
+            price: item.price,
+            discount: item.discount || 0,
+            product: {
+              connect: {
+                id: item.id,
+              },
+            },
+          })),
+        },
+      },
+    });
+
+    // Find or create a payment provider for SSL Commerz
+    let paymentProvider = await prisma.paymentProvider.findFirst({
+      where: {
+        title: "SSL Commerz",
+      },
+    });
+
+    if (!paymentProvider) {
+      paymentProvider = await prisma.paymentProvider.create({
+        data: {
+          title: "SSL Commerz",
+          description: "SSL Commerz Payment Gateway",
+          websiteUrl: "https://sslcommerz.com",
+          isActive: true,
+        },
+      });
+    }
+
+    // Create payment record according to the Prisma schema
+    await prisma.payment.create({
+      data: {
+        refId: refId,
+        payable: total_amount,
+        status: "PENDING",
+        isSuccessful: false,
+        user: {
+          connect: {
+            id: session.user.id!,
+          },
+        },
+        provider: {
+          connect: {
+            id: paymentProvider.id,
+          },
+        },
+        order: {
+          connect: {
+            id: order.id,
+          },
+        },
+      },
+    });
 
     // Rest of your payment gateway integration code
     const init_url = "https://sandbox.sslcommerz.com/gwprocess/v4/api.php";

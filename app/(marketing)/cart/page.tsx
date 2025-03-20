@@ -52,11 +52,6 @@ const page = () => {
 
   const discountedSubtotal = items?.reduce((total, item) => {
     // Calculate discount information
-    const discountActive = isDiscountActive(
-      item?.discount,
-      item?.discountStart ? new Date(item.discountStart) : undefined,
-      item?.discountEnd ? new Date(item.discountEnd) : undefined,
-    );
     const discountedPrice = calculateDiscountedPrice(
       item?.price ?? 0,
       item?.discount,

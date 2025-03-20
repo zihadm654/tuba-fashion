@@ -14,8 +14,24 @@ export async function POST(req: Request) {
     // Find and update the payment log status to CANCELED
     await prisma.payment.update({
       where: { refId },
-      data: { status: "CANCELED" },
+      data: {
+        status: "CANCELED",
+        isSuccessful: false,
+      },
     });
+
+    // Also update the order status
+    const payment = await prisma.payment.findUnique({
+      where: { refId },
+      select: { orderId: true },
+    });
+
+    if (payment?.orderId) {
+      await prisma.order.update({
+        where: { id: payment.orderId },
+        data: { status: "Cancelled" },
+      });
+    }
 
     return NextResponse.redirect(new URL("/dashboard/cancel", req.url), 303);
   } catch (error) {

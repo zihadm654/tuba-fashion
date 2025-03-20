@@ -139,9 +139,7 @@ export default async function OrdersPage() {
                         : ""}
                     </span>
                   </TableCell>
-                  <TableCell className="text-right">
-                    ৳{order.amount.toLocaleString()}
-                  </TableCell>
+                  <TableCell className="text-right">৳{order.total}</TableCell>
                   <TableCell className="text-right">
                     <Button asChild variant="outline" size="sm">
                       <Link href={`/dashboard/orders/${order.id}`}>View</Link>

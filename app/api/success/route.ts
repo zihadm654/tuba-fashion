@@ -5,8 +5,24 @@ import { prisma } from "@/lib/db";
 
 export async function POST(req: Request, res: Response) {
   try {
-    const searchParams = new URL(req.url).searchParams;
-    const refId = searchParams.get("refId");
+    // First try to get transaction ID from form data (SSL Commerz sends as tran_id)
+    let refId;
+    try {
+      const formData = await req.formData();
+      refId = formData.get("tran_id") as string;
+    } catch (e) {
+      // If formData parsing fails, try URL parameters
+      console.log("Form data parsing failed, trying URL parameters");
+    }
+
+    // If not found in form data, check URL parameters
+    if (!refId) {
+      const searchParams = new URL(req.url).searchParams;
+      refId =
+        searchParams.get("refId") ||
+        searchParams.get("id") ||
+        searchParams.get("tran_id");
+    }
 
     if (!refId) {
       return NextResponse.json(
@@ -15,9 +31,16 @@ export async function POST(req: Request, res: Response) {
       );
     }
 
-    // Get the payment log first
+    // Get the payment log first with order relation
     const paymentLog = await prisma.payment.findUnique({
       where: { refId },
+      include: {
+        order: {
+          include: {
+            orderItems: true,
+          },
+        },
+      },
     });
 
     if (!paymentLog) {
@@ -38,34 +61,34 @@ export async function POST(req: Request, res: Response) {
         data: { status: PaymentStatus.SUCCESS },
       });
 
-      // Update each product's quantity
-      // for (const item of items) {
-      //   const product = await tx.product.findUnique({
-      //     where: { id: item.productId },
-      //   });
+      // Update each product's stock quantity
+      if (paymentLog.order && paymentLog.order.orderItems) {
+        for (const item of paymentLog.order.orderItems) {
+          const product = await tx.product.findUnique({
+            where: { id: item.productId },
+          });
 
-      //   if (!product) {
-      //     throw new Error(`Product ${item.productId} not found`);
-      //   }
+          if (!product) {
+            throw new Error(`Product ${item.productId} not found`);
+          }
 
-      //   if (product.stock < item.stock) {
-      //     throw new Error(
-      //       `Insufficient stock for product ${item.productId}`,
-      //     );
-      // }
+          if (product.stock < item.count) {
+            throw new Error(`Insufficient stock for product ${item.productId}`);
+          }
 
-      //       await tx.product.update({
-      //         where: { id: item.productId },
-      //         data: {
-      //           stock: {
-      //             decrement: item.stock,
-      //           },
-      //         },
-      //       });
-      //     }
+          await tx.product.update({
+            where: { id: item.productId },
+            data: {
+              stock: {
+                decrement: item.count,
+              },
+            },
+          });
+        }
+      }
     });
 
-    //   return NextResponse.redirect(new URL("/dashboard/success", req.url), 303);
+    return NextResponse.redirect(new URL("/dashboard/success", req.url), 303);
   } catch (error) {
     console.error("Error updating payment log and product quantities:", error);
     return NextResponse.json(

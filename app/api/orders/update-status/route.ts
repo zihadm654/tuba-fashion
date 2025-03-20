@@ -25,11 +25,15 @@ export async function POST(req: Request) {
 
     // Validate status
     const validStatuses = [
-      "PENDING",
-      "PROCESSING",
-      "SHIPPED",
-      "DELIVERED",
-      "CANCELLED",
+      "Processing",
+      "Shipped",
+      "Delivered",
+      "ReturnProcessing",
+      "ReturnCompleted",
+      "Cancelled",
+      "RefundProcessing",
+      "RefundCompleted",
+      "Denied",
     ];
     if (!validStatuses.includes(status)) {
       return NextResponse.json({ error: "Invalid status" }, { status: 400 });

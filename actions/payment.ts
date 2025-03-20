@@ -1,7 +1,7 @@
 "use server";
 
 import { auth } from "@/auth";
-import { CartItem } from "@/utils/cart";
+import { PaymentStatus } from "@prisma/client";
 
 import { prisma } from "@/lib/db";
 
@@ -14,13 +14,16 @@ export const successfulPayments = async () => {
       where: {
         status: PaymentStatus.SUCCESS,
       },
+      include: {
+        user: true,
+        order: true,
+      },
       orderBy: {
         createdAt: "desc",
       },
     });
     return { success: true, data: payments };
   } catch (error) {
-    return { success: false, error: "Failed to create payment log" };
     return { success: false, error: "Failed to create payment log" };
   }
 };
@@ -31,6 +34,10 @@ export const successfulUserPayments = async () => {
       where: {
         userId: session?.user.id,
         status: PaymentStatus.SUCCESS,
+      },
+      include: {
+        user: true,
+        order: true,
       },
       orderBy: {
         createdAt: "desc",
@@ -47,12 +54,16 @@ export const failedPayments = async () => {
       where: {
         status: PaymentStatus.FAILED,
       },
+      include: {
+        user: true,
+        order: true,
+      },
       orderBy: {
         createdAt: "desc",
       },
     });
 
-    return { success: true, data: logs };
+    return { success: true, data: payments };
   } catch (error) {
     return { success: false, error };
   }
@@ -117,4 +128,4 @@ export const getAnalytics = async () => {
       error: "Failed to fetch analytics data",
     };
   }
-}
+};
