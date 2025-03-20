@@ -16,7 +16,7 @@ export const metadata = constructMetadata({
 export default async function AdminPage() {
   const session = await auth();
   if (!session?.user || session.user.role !== "ADMIN") redirect("/login");
-  const successfulPayments = await prisma.paymentLog.findMany({
+  const successfulPayments = await prisma.payment.findMany({
     where: {
       status: PaymentStatus.SUCCESS,
     },
@@ -24,7 +24,7 @@ export default async function AdminPage() {
       createdAt: "desc",
     },
   });
-  const failedPayments = await prisma.paymentLog.findMany({
+  const failedPayments = await prisma.payment.findMany({
     where: {
       status: PaymentStatus.FAILED,
     },
@@ -32,30 +32,12 @@ export default async function AdminPage() {
       createdAt: "desc",
     },
   });
-  const currentDate = new Date();
-  const previousMonth = new Date(currentDate.setMonth(currentDate.getMonth() - 1));
-
-  const [currentCustomers, previousCustomers] = await Promise.all([
-    prisma.user.findMany({
-      where: {
-        role: "USER",
-      },
-    }),
-    prisma.user.findMany({
-      where: {
-        role: "USER",
-        createdAt: {
-          lt: previousMonth
-        }
-      },
-    })
-  ]);
-
-  const totalCustomers = currentCustomers.length;
-  const previousTotal = previousCustomers.length;
-  const growth = previousTotal > 0 
-    ? ((totalCustomers - previousTotal) / previousTotal) * 100
-    : 0;
+  const customers = await prisma.user.findMany({
+    where: {
+      role: "USER",
+    },
+  });
+  const totalCustomers = customers.length;
   return (
     <>
       <DashboardHeader
@@ -64,7 +46,7 @@ export default async function AdminPage() {
       />
       <div className="flex flex-col gap-5">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          <InfoCard title="Sales" amount={totalCustomers} growth={growth} />
+          {/* <InfoCard title="Sales" amount={totalCustomers} growth={growth} /> */}
           {/* <InfoCard />
           <InfoCard />
           <InfoCard /> */}

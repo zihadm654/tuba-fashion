@@ -49,7 +49,7 @@ export const sidebarLinks: SidebarNavItem[] = [
       {
         href: "/admin/banner",
         icon: "post",
-        title: "Admin Banner",
+        title: "Admin Banners",
         authorizeOnly: UserRole.ADMIN,
         // disabled: true,
       },

@@ -32,12 +32,8 @@ export function CategoriesSelection() {
           </Link>
         </div>
 
-        <div className="mt-6 grid grid-cols-1 gap-y-8 sm:grid-cols-2 sm:grid-rows-2 sm:gap-x-8 lg:gap-10">
-          <motion.div
-            whileHover={{ scale: 1.02 }}
-            transition={{ duration: 0.3 }}
-            className="group aspect-w-2 aspect-h-1 sm:aspect-w-1 relative cursor-pointer overflow-hidden rounded-2xl shadow-lg sm:row-span-2"
-          >
+        <div className="relative mt-6 grid grid-cols-1 gap-y-8 sm:grid-cols-2 sm:grid-rows-2 sm:gap-x-8 lg:gap-10">
+          <div className="group aspect-w-2 aspect-h-1 sm:aspect-w-1 cursor-pointer overflow-hidden rounded-2xl shadow-lg sm:relative sm:row-span-2">
             <BlurImage
               src={kids}
               height={400}
@@ -48,7 +44,7 @@ export function CategoriesSelection() {
             <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/30 to-black/70 transition-opacity duration-300 group-hover:via-black/40 group-hover:to-black/80" />
             <div className="absolute inset-0 flex items-end p-8">
               <Link href="/products" className="w-full">
-                <div className="transform transition-transform duration-300 group-hover:translate-y-[-8px]">
+                <div className="transform text-white transition-transform duration-300 group-hover:translate-y-[-8px]">
                   <h3 className="text-xl font-bold drop-shadow-md md:text-2xl">
                     All Products
                   </h3>
@@ -59,13 +55,9 @@ export function CategoriesSelection() {
                 </div>
               </Link>
             </div>
-          </motion.div>
+          </div>
 
-          <motion.div
-            whileHover={{ scale: 1.02 }}
-            transition={{ duration: 0.3 }}
-            className="group aspect-w-2 aspect-h-1 sm:aspect-none cursor-pointer overflow-hidden rounded-2xl shadow-lg sm:relative sm:h-full"
-          >
+          <div className="group aspect-w-2 aspect-h-1 sm:aspect-none cursor-pointer overflow-hidden rounded-2xl shadow-lg sm:relative sm:h-full">
             <BlurImage
               src={men}
               height={400}
@@ -76,7 +68,7 @@ export function CategoriesSelection() {
             <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/30 to-black/70 transition-opacity duration-300 group-hover:via-black/40 group-hover:to-black/80" />
             <div className="absolute inset-0 flex items-end p-8">
               <Link href="/collections/men" className="w-full">
-                <div className="transform transition-transform duration-300 group-hover:translate-y-[-8px]">
+                <div className="transform text-white transition-transform duration-300 group-hover:translate-y-[-8px]">
                   <h3 className="text-xl font-bold drop-shadow-md">
                     Products for Men
                   </h3>
@@ -87,13 +79,9 @@ export function CategoriesSelection() {
                 </div>
               </Link>
             </div>
-          </motion.div>
+          </div>
 
-          <motion.div
-            whileHover={{ scale: 1.02 }}
-            transition={{ duration: 0.3 }}
-            className="group aspect-w-2 aspect-h-1 sm:aspect-none cursor-pointer overflow-hidden rounded-2xl shadow-lg sm:relative sm:h-full"
-          >
+          <div className="group aspect-w-2 aspect-h-1 sm:aspect-none cursor-pointer overflow-hidden rounded-2xl shadow-lg sm:relative sm:h-full">
             <BlurImage
               src={women}
               height={400}
@@ -104,7 +92,7 @@ export function CategoriesSelection() {
             <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/30 to-black/70 transition-opacity duration-300 group-hover:via-black/40 group-hover:to-black/80" />
             <div className="absolute inset-0 flex items-end p-8">
               <Link href="/collections/women" className="w-full">
-                <div className="transform transition-transform duration-300 group-hover:translate-y-[-8px]">
+                <div className="transform text-white transition-transform duration-300 group-hover:translate-y-[-8px]">
                   <h3 className="text-xl font-bold drop-shadow-md">
                     Products for Women
                   </h3>
@@ -115,7 +103,7 @@ export function CategoriesSelection() {
                 </div>
               </Link>
             </div>
-          </motion.div>
+          </div>
         </div>
       </MaxWidthWrapper>
     </section>

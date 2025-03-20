@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 
 import { prisma } from "@/lib/db";
 import {
@@ -9,6 +10,7 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carosuel";
 
+import BlurImage from "../shared/blur-image";
 import MaxWidthWrapper from "../shared/max-width-wrapper";
 
 async function getData() {
@@ -29,19 +31,21 @@ export async function Hero() {
       <MaxWidthWrapper>
         <Carousel opts={{ align: "start", loop: true }}>
           <CarouselContent>
-            {data.map((item) => (
+            {data?.map((item) => (
               <CarouselItem key={item.id}>
                 <div className="relative h-[60vh] lg:h-[80vh]">
-                  <Image
+                  <BlurImage
                     alt="Banner Image"
                     src={item.imageString}
                     fill
                     className="h-full w-full rounded-xl object-cover"
                   />
                   <div className="bg-opacity-75 absolute top-6 left-6 rounded-xl bg-black p-6 text-white shadow-lg transition-transform hover:scale-105">
-                    <h1 className="text-xl font-bold lg:text-4xl">
-                      {item.title}
-                    </h1>
+                    <Link href="/products" className="block overflow-hidden">
+                      <h1 className="text-xl font-bold lg:text-4xl">
+                        {item.title}
+                      </h1>
+                    </Link>
                   </div>
                 </div>
               </CarouselItem>

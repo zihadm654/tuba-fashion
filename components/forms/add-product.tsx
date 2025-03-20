@@ -309,7 +309,7 @@ export function AddProduct({
             />
           </div>
         </div>
-        <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center justify-between gap-3 max-md:flex-col">
           <FormField
             control={form.control}
             name="isFeatured"
@@ -532,7 +532,7 @@ export function AddProduct({
             )}
           />
         </div>
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center justify-between gap-4 max-md:flex-col">
           <TagsDemo form={form} />
           <FormField
             control={form.control}
