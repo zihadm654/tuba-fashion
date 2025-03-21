@@ -53,8 +53,8 @@ export const addBrand = async (data: TBrand) => {
           ...result.data,
         },
       });
-      // revalidatePath("/admin/banner", "page");
-      // revalidatePath("/", "page");
+      revalidatePath("/admin/banner", "page");
+      revalidatePath("/", "page");
       return { success: "brand has been created successfully", res };
     } catch (error) {
       return {
@@ -80,8 +80,8 @@ export const updateBrand = async (data: TBrand, id: string) => {
           ...result.data,
         },
       });
-      // revalidatePath("/admin/banner", "page");
-      // revalidatePath("/", "page");
+      revalidatePath("/admin/banner", "page");
+      revalidatePath("/", "page");
       return { success: "brand has been updated successfully", res };
     } catch (error) {
       return {
@@ -100,8 +100,8 @@ export const deleteBrand = async (id: string) => {
         id: id,
       },
     });
-    //  revalidatePath("/admin/banner", "page");
-    //  revalidatePath("/", "page");
+    revalidatePath("/admin/banner", "page");
+    revalidatePath("/", "page");
     return { success: "brand has been deleted successfully" };
   } catch (error) {
     return {

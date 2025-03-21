@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { PaymentWithIncludes } from "@/types";
 import { Payment } from "@prisma/client";
 import { format } from "date-fns";
 import { ArrowUpRight } from "lucide-react";
@@ -22,7 +23,7 @@ import {
 } from "@/components/ui/table";
 
 interface TransactionProps {
-  transactions: Payment[];
+  transactions: PaymentWithIncludes[];
   title: string;
 }
 export default function TransactionsList({
@@ -60,9 +61,9 @@ export default function TransactionsList({
             {transactions.map((transaction) => (
               <TableRow key={transaction.id}>
                 <TableCell>
-                  {/* <div className="font-medium">{transaction.customerName}</div> */}
+                  <div className="font-medium">{transaction.user.name}</div>
                   <div className="text-muted-foreground hidden text-sm md:inline">
-                    {/* {transaction.customerEmail} */}
+                    {transaction.user.email}
                   </div>
                 </TableCell>
                 <TableCell className="hidden xl:table-column">
@@ -77,7 +78,7 @@ export default function TransactionsList({
                   {format(new Date(transaction.createdAt), "MMM dd, yyyy")}
                 </TableCell>
                 <TableCell className="text-right">
-                  ${transaction.payable}
+                  ৳{transaction.payable}
                 </TableCell>
               </TableRow>
             ))}

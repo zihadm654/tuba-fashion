@@ -12,7 +12,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { items, shippingDetails } = await request.json();
+    const { items, addressId, discountCodeId } = await request.json();
 
     if (!items || !Array.isArray(items) || items.length === 0) {
       return NextResponse.json(
@@ -21,14 +21,22 @@ export async function POST(request: Request) {
       );
     }
 
-    // Validate shipping details
-    if (
-      !shippingDetails ||
-      !shippingDetails.address ||
-      !shippingDetails.phone
-    ) {
+    // Validate address ID
+    if (!addressId) {
       return NextResponse.json(
-        { error: "Shipping details are required" },
+        { error: "Shipping address is required" },
+        { status: 400 },
+      );
+    }
+
+    // Get the address from the database
+    const address = await prisma.address.findUnique({
+      where: { id: addressId },
+    });
+
+    if (!address) {
+      return NextResponse.json(
+        { error: "Invalid shipping address" },
         { status: 400 },
       );
     }
@@ -56,6 +64,12 @@ export async function POST(request: Request) {
         payable: total_amount,
         tax: 0,
         discount: 0,
+        ...(discountCodeId
+          ? { discountCode: { connect: { id: discountCodeId } } }
+          : {}),
+        ...(discountCodeId
+          ? { discountCode: { connect: { id: discountCodeId } } }
+          : {}),
         address: {
           create: {
             user: {
@@ -63,11 +77,11 @@ export async function POST(request: Request) {
                 id: session.user.id!,
               },
             },
-            country: shippingDetails.country || "Bangladesh",
-            address: shippingDetails.address,
-            city: shippingDetails.city || "Unknown",
-            phone: shippingDetails.phone,
-            postalCode: shippingDetails.postcode || "Unknown",
+            country: address.country || "Bangladesh",
+            address: address.address,
+            city: address.city || "Unknown",
+            phone: address.phone,
+            postalCode: address.postalCode || "Unknown",
           },
         },
         orderItems: {
@@ -151,27 +165,24 @@ export async function POST(request: Request) {
       "cus_email",
       session?.user?.email || "customer@example.com",
     );
-    formData.append("cus_add1", shippingDetails.address);
-    formData.append("cus_add2", shippingDetails.address2 || "");
-    formData.append("cus_city", shippingDetails.city || "Unknown");
-    formData.append("cus_state", shippingDetails.state || "Unknown");
-    formData.append("cus_postcode", shippingDetails.postcode || "Unknown");
-    formData.append("cus_country", shippingDetails.country || "Bangladesh");
-    formData.append("cus_phone", shippingDetails.phone);
-    formData.append("cus_fax", shippingDetails.phone);
+    formData.append("cus_add1", address.address);
+    formData.append("cus_add2", "");
+    formData.append("cus_city", address.city || "Unknown");
+    formData.append("cus_state", address.city || "Unknown");
+    formData.append("cus_postcode", address.postalCode || "Unknown");
+    formData.append("cus_country", address.country || "Bangladesh");
+    formData.append("cus_phone", address.phone);
+    formData.append("cus_fax", address.phone);
     formData.append("shipping_method", "NO");
 
     // Shipping info
-    formData.append(
-      "ship_name",
-      shippingDetails.fullName || session?.user?.name || "Customer",
-    );
-    formData.append("ship_add1", shippingDetails.address);
-    formData.append("ship_add2", shippingDetails.address2 || "");
-    formData.append("ship_city", shippingDetails.city || "Unknown");
-    formData.append("ship_state", shippingDetails.state || "Unknown");
-    formData.append("ship_country", shippingDetails.country || "Bangladesh");
-    formData.append("ship_postcode", shippingDetails.postcode || "Unknown");
+    formData.append("ship_name", session?.user?.name || "Customer");
+    formData.append("ship_add1", address.address);
+    formData.append("ship_add2", "");
+    formData.append("ship_city", address.city || "Unknown");
+    formData.append("ship_state", address.city || "Unknown");
+    formData.append("ship_country", address.country || "Bangladesh");
+    formData.append("ship_postcode", address.postalCode || "Unknown");
 
     // Product details
     formData.append(

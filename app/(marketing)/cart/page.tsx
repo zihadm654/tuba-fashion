@@ -8,9 +8,6 @@ import {
   isDiscountActive,
 } from "@/utils/calculateDiscount";
 import useCartStore, { CartItem } from "@/utils/cart";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -20,30 +17,30 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-import AddtoCart from "@/components/forms/add-cart";
+import AddressSelector from "@/components/forms/address-selector";
 import BlurImage from "@/components/shared/blur-image";
 import { Icons } from "@/components/shared/icons";
 import MaxWidthWrapper from "@/components/shared/max-width-wrapper";
 
-const shippingFormSchema = z.object({
-  city: z.string().min(2, { message: "City is required" }),
-  phone: z.coerce
-    .number()
-    .min(10, { message: "Please enter a valid phone number" }),
-  postcode: z.coerce
-    .number()
-    .min(1, { message: "Please enter a valid phone number" }),
-  address: z.string().min(5, { message: "Please enter a complete address" }),
-});
-
 const page = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
-  const { items, removeFromCart, updateQty, clearCart } = useCartStore(
-    (state) => state,
-  );
+  const [selectedAddressId, setSelectedAddressId] = useState<string>();
+  const [discountCodeInput, setDiscountCodeInput] = useState("");
+  const {
+    items,
+    removeFromCart,
+    updateQty,
+    clearCart,
+    discountCode,
+    discountCodeError,
+    isApplyingDiscount,
+    applyDiscountCode,
+    removeDiscountCode,
+  } = useCartStore((state) => state);
 
   const subtotal = items?.reduce(
     (total, item) => total + item.price * item.quantity,
@@ -65,20 +62,23 @@ const page = () => {
     return total + discountedPrice * item.quantity;
   }, 0);
 
-  const discountAmount = subtotal - discountedSubtotal;
-  const discountPercentage = ((discountAmount / subtotal) * 100).toFixed(1);
-  // const tax = discountedSubtotal * 0.1;
-  const total = discountedSubtotal;
+  const productDiscountAmount = subtotal - discountedSubtotal;
+  const productDiscountPercentage = (
+    (productDiscountAmount / subtotal) *
+    100
+  ).toFixed(1);
 
-  const form = useForm<z.infer<typeof shippingFormSchema>>({
-    resolver: zodResolver(shippingFormSchema),
-    defaultValues: {
-      address: "",
-      city: "",
-      phone: 0,
-      postcode: 0,
-    },
-  });
+  // Calculate coupon discount if applicable
+  let couponDiscountAmount = 0;
+  if (discountCode && discountedSubtotal > 0) {
+    couponDiscountAmount = Math.min(
+      discountedSubtotal * (discountCode.percent / 100),
+      discountCode.maxDiscountAmount,
+    );
+  }
+
+  // const tax = (discountedSubtotal - couponDiscountAmount) * 0.1;
+  const total = discountedSubtotal - couponDiscountAmount;
 
   const [method, setMethod] = useState([
     {
@@ -94,8 +94,11 @@ const page = () => {
   const handleCloseDialog = () => setShowPaymentDialog(false);
 
   const handlePaymentOption = async () => {
-    const isValid = await form.trigger();
-    if (!isValid) return;
+    // Check if an address is selected
+    if (!selectedAddressId) {
+      alert("Please select or add a shipping address");
+      return;
+    }
 
     try {
       setIsLoading(true);
@@ -106,7 +109,8 @@ const page = () => {
         },
         body: JSON.stringify({
           items,
-          shippingDetails: form.getValues(),
+          addressId: selectedAddressId,
+          discountCodeId: discountCode?.id,
         }),
       });
       const data = await response.json();
@@ -126,6 +130,16 @@ const page = () => {
 
   const PayNow = (PayURL: string) => {
     window.location.replace(PayURL);
+  };
+
+  const handleApplyDiscountCode = async () => {
+    if (!discountCodeInput.trim()) return;
+    await applyDiscountCode(discountCodeInput.trim());
+  };
+
+  const handleRemoveDiscountCode = () => {
+    removeDiscountCode();
+    setDiscountCodeInput("");
   };
   return (
     <div className="py-8">
@@ -255,7 +269,10 @@ const page = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-2">
-                <AddtoCart form={form} />
+                <AddressSelector
+                  onAddressSelect={setSelectedAddressId}
+                  selectedAddressId={selectedAddressId}
+                />
                 <Separator className="my-6" />
                 <div className="space-y-4">
                   <div className="flex justify-between">
@@ -265,12 +282,70 @@ const page = () => {
                     </p>
                     <p className="font-medium">৳{subtotal.toFixed(2)}</p>
                   </div>
-                  {discountAmount > 0 && (
+                  {productDiscountAmount > 0 && (
                     <div className="flex justify-between text-green-600">
-                      <p>Discount ({discountPercentage}%)</p>
-                      <span>-৳{discountAmount.toFixed(2)}</span>
+                      <p>Product Discount ({productDiscountPercentage}%)</p>
+                      <span>-৳{productDiscountAmount.toFixed(2)}</span>
                     </div>
                   )}
+
+                  {/* Discount Code Section */}
+                  <div className="space-y-2">
+                    <Separator />
+                    <div className="flex items-center gap-2">
+                      <Input
+                        placeholder="Enter discount code"
+                        value={discountCodeInput}
+                        onChange={(e) => setDiscountCodeInput(e.target.value)}
+                        disabled={!!discountCode || isApplyingDiscount}
+                        className="flex-1"
+                      />
+                      {discountCode ? (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={handleRemoveDiscountCode}
+                          className="whitespace-nowrap"
+                        >
+                          Remove
+                        </Button>
+                      ) : (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={handleApplyDiscountCode}
+                          disabled={
+                            !discountCodeInput.trim() || isApplyingDiscount
+                          }
+                          className="whitespace-nowrap"
+                        >
+                          {isApplyingDiscount ? (
+                            <>
+                              <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
+                              Applying...
+                            </>
+                          ) : (
+                            "Apply"
+                          )}
+                        </Button>
+                      )}
+                    </div>
+                    {discountCodeError && (
+                      <p className="text-destructive text-xs">
+                        {discountCodeError}
+                      </p>
+                    )}
+                    {discountCode && (
+                      <div className="flex justify-between text-sm text-green-600">
+                        <p>
+                          Code: {discountCode.code} ({discountCode.percent}%)
+                        </p>
+                        <span>-৳{couponDiscountAmount.toFixed(2)}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Tax section (commented out) */}
                   {/* <div className="flex justify-between">
                     <p className="text-muted-foreground">Tax (10%)</p>
                     <p className="font-medium">৳{tax.toFixed(2)}</p>
@@ -297,11 +372,11 @@ const page = () => {
           </div>
         </div>
         <Dialog open={showPaymentDialog} onOpenChange={handleCloseDialog}>
-          <DialogContent className="max-w-5xl max-md:max-w-md">
+          <DialogContent className="max-w-6xl max-md:max-w-md">
             <DialogHeader>
               <DialogTitle>Select Payment Method</DialogTitle>
             </DialogHeader>
-            <div className="grid grid-cols-7 gap-4 p-4 max-md:grid-cols-4">
+            <div className="grid grid-cols-5 gap-4 p-4 max-md:grid-cols-4">
               {method?.map((item, i) => (
                 <Card
                   key={i}

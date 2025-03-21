@@ -55,7 +55,7 @@ export const BrandForm: React.FC<BrandFormProps> = ({ initialData }) => {
           toast.success(res.success);
           // setImages([]);
           form.reset();
-          router.push("/admin/brands");
+          router.push("/admin/brand");
         }
       } catch (error) {
         console.log(error);

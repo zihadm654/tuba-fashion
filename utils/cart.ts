@@ -17,20 +17,35 @@ export interface CartItem {
   cartItemId: string;
 }
 
+export interface DiscountCodeInfo {
+  id: string;
+  code: string;
+  percent: number;
+  maxDiscountAmount: number;
+}
+
 interface CartState {
   items: CartItem[];
+  discountCode: DiscountCodeInfo | null;
+  discountCodeError: string | null;
+  isApplyingDiscount: boolean;
   addToCart: (product: Product, color: string, size: string) => void;
   removeFromCart: (id: string) => void;
   updateQty: (type: "increment" | "decrement", id: string) => void;
   clearCart: () => void;
   getTotalItems: () => number;
   getTotalPrice: () => number;
+  applyDiscountCode: (code: string) => Promise<void>;
+  removeDiscountCode: () => void;
 }
 
 const useCartStore = create<CartState>()(
   persist(
     (set, get) => ({
       items: [],
+      discountCode: null,
+      discountCodeError: null,
+      isApplyingDiscount: false,
 
       addToCart: (product, color, size) => {
         try {
@@ -148,7 +163,8 @@ const useCartStore = create<CartState>()(
       },
 
       getTotalPrice: () => {
-        return get().items.reduce((total, item) => {
+        // Calculate subtotal with product discounts
+        const subtotal = get().items.reduce((total, item) => {
           // Calculate price considering discounts
           let itemPrice = item.price;
           if (item.discount) {
@@ -170,6 +186,70 @@ const useCartStore = create<CartState>()(
           }
           return total + itemPrice * item.quantity;
         }, 0);
+
+        // Apply discount code if available
+        const discountCode = get().discountCode;
+        if (!discountCode) return subtotal;
+
+        // Calculate discount amount based on percentage
+        let discountAmount = subtotal * (discountCode.percent / 100);
+
+        // Cap discount at maxDiscountAmount if specified
+        if (
+          discountCode.maxDiscountAmount > 0 &&
+          discountAmount > discountCode.maxDiscountAmount
+        ) {
+          discountAmount = discountCode.maxDiscountAmount;
+        }
+
+        return subtotal - discountAmount;
+      },
+
+      applyDiscountCode: async (code) => {
+        try {
+          set({ isApplyingDiscount: true, discountCodeError: null });
+
+          const response = await fetch("/api/discount/validate", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ code }),
+          });
+
+          const data = await response.json();
+
+          if (!response.ok) {
+            set({
+              discountCodeError: data.error || "Failed to apply discount code",
+              isApplyingDiscount: false,
+              discountCode: null,
+            });
+            toast.error(data.error || "Failed to apply discount code");
+            return;
+          }
+
+          set({
+            discountCode: data.data,
+            discountCodeError: null,
+            isApplyingDiscount: false,
+          });
+          toast.success("Discount code applied successfully");
+        } catch (error) {
+          console.error("Error applying discount code:", error);
+          set({
+            discountCodeError:
+              "An error occurred while applying the discount code",
+            isApplyingDiscount: false,
+            discountCode: null,
+          });
+          toast.error("An error occurred while applying the discount code");
+        }
+      },
+
+      removeDiscountCode: () => {
+        set({ discountCode: null, discountCodeError: null });
+        toast.info("Discount code removed");
       },
     }),
     {

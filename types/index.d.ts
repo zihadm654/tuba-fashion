@@ -9,6 +9,12 @@ export type ProductWithIncludes = Prisma.ProductGetPayload<{
     categories: true;
   };
 }>;
+export type PaymentWithIncludes = Prisma.PaymentGetPayload<{
+  include: {
+    user: true;
+    order: true;
+  };
+}>;
 export type SiteConfig = {
   name: string;
   description: string;
