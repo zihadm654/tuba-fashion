@@ -20,6 +20,7 @@ export const env = createEnv({
     //sslcommerce
     STORE_ID: z.string().min(1),
     STORE_PASSWORD: z.string().min(1),
+    PAYMENT_GATEWAY: z.string().min(1),
   },
   client: {
     NEXT_PUBLIC_APP_URL: z.string().min(1),
@@ -55,5 +56,6 @@ export const env = createEnv({
     //sslcommerce
     STORE_ID: process.env.STORE_ID,
     STORE_PASSWORD: process.env.STORE_PASSWORD,
+    PAYMENT_GATEWAY: process.env.PAYMENT_GATEWAY,
   },
 });

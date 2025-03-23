@@ -67,9 +67,6 @@ export async function POST(request: Request) {
         ...(discountCodeId
           ? { discountCode: { connect: { id: discountCodeId } } }
           : {}),
-        ...(discountCodeId
-          ? { discountCode: { connect: { id: discountCodeId } } }
-          : {}),
         address: {
           create: {
             user: {
@@ -143,7 +140,7 @@ export async function POST(request: Request) {
     });
 
     // Rest of your payment gateway integration code
-    const init_url = "https://sandbox.sslcommerz.com/gwprocess/v4/api.php";
+    const init_url = env.PAYMENT_GATEWAY;
 
     const formData = new FormData();
     formData.append("store_id", env.STORE_ID);
