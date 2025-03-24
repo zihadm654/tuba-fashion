@@ -4,12 +4,7 @@ import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
 
 import { prisma } from "@/lib/db";
-import {
-  addressSchema,
-  bannerSchema,
-  TAddress,
-  TBanner,
-} from "@/lib/validations/product";
+import { addressSchema, TAddress } from "@/lib/validations/product";
 
 export const getAddressess = async () => {
   try {
@@ -41,7 +36,7 @@ export const getAdress = async (id: string) => {
 };
 export const addAddress = async (data: TAddress) => {
   const session = await auth();
-  if (session?.user.role !== "ADMIN") return { message: "unauthorized" };
+  if (!session?.user) return { message: "unauthorized" };
 
   const result = addressSchema.safeParse(data);
   await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -54,8 +49,7 @@ export const addAddress = async (data: TAddress) => {
           userId: session?.user.id!,
         },
       });
-      // revalidatePath("/admin/banner", "page");
-      // revalidatePath("/", "page");
+      revalidatePath("/cart", "page");
       return { success: "address has been created successfully", res };
     } catch (error) {
       return {
@@ -66,7 +60,7 @@ export const addAddress = async (data: TAddress) => {
 };
 export const updateAddress = async (data: TAddress, id: string) => {
   const session = await auth();
-  if (session?.user.role !== "ADMIN") return { message: "unauthorized" };
+  if (!session?.user) return { message: "unauthorized" };
 
   const result = addressSchema.safeParse(data);
   await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -82,7 +76,7 @@ export const updateAddress = async (data: TAddress, id: string) => {
         },
       });
       // revalidatePath("/admin/banner", "page");
-      // revalidatePath("/", "page");
+      revalidatePath("/cart", "page");
       return { success: "address has been updated successfully", res };
     } catch (error) {
       return {
@@ -93,7 +87,7 @@ export const updateAddress = async (data: TAddress, id: string) => {
 };
 export const deleteAddress = async (id: string) => {
   const session = await auth();
-  if (session?.user.role !== "ADMIN") return { message: "unauthorized" };
+  if (!session?.user) return { message: "unauthorized" };
 
   try {
     const res = await prisma.address.delete({
@@ -102,7 +96,7 @@ export const deleteAddress = async (id: string) => {
       },
     });
     //  revalidatePath("/admin/banner", "page");
-    //  revalidatePath("/", "page");
+    revalidatePath("/cart", "page");
     return { success: "address has been deleted successfully" };
   } catch (error) {
     return {

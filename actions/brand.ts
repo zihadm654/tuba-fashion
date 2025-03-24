@@ -95,17 +95,53 @@ export const deleteBrand = async (id: string) => {
   if (session?.user.role !== "ADMIN") return { message: "unauthorized" };
 
   try {
+    // First check if the brand exists
+    const brand = await prisma.brand.findUnique({
+      where: { id },
+    });
+
+    if (!brand) {
+      return { error: "Brand not found" };
+    }
+
+    // Check if any products are using this brand
+    const productsUsingBrand = await prisma.product.findMany({
+      where: { brandId: id },
+      select: { id: true },
+    });
+
+    if (productsUsingBrand.length > 0) {
+      return {
+        error:
+          "Cannot delete brand because it is associated with products. Please reassign or delete those products first.",
+        productsCount: productsUsingBrand.length,
+      };
+    }
+
+    // If no products are using this brand, proceed with deletion
     const res = await prisma.brand.delete({
       where: {
         id: id,
       },
     });
+
     revalidatePath("/admin/banner", "page");
     revalidatePath("/", "page");
     return { success: "brand has been deleted successfully" };
-  } catch (error) {
+  } catch (error: any) {
+    console.error("Error deleting brand:", error);
+
+    // Provide more specific error messages based on error type
+    if (error.code === "P2025") {
+      return { error: "Brand not found" };
+    } else if (error.code === "P2003") {
+      return {
+        error: "Cannot delete brand because it is referenced by products",
+      };
+    }
+
     return {
-      error: error,
+      error: "Failed to delete brand: " + (error.message || String(error)),
     };
   }
 };

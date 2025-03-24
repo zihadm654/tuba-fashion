@@ -17,11 +17,11 @@ import {
 import { Input } from "../ui/input";
 
 const DEMO_SUGGESTIONS = [
-  { id: "casual-shirt", label: "Casual Shirt" },
-  { id: "men-shirt", label: "Men Shirt" },
+  { id: "casual", label: "Casual" },
+  { id: "t-shirt", label: "T-Shirt" },
   { id: "half-sleeve", label: "Half Sleeve" },
   { id: "full-sleeve", label: "Full Sleeve" },
-  { id: "pant", label: "Pant" },
+  { id: "panjabi", label: "Panjabi" },
 ];
 
 export function TagsDemo({ form }: any) {

@@ -32,7 +32,7 @@ export default function WishlistPage() {
     try {
       const result = await getUserWishlists();
       if (result.success) {
-        setWishlistItems(result.data.wishlist);
+        setWishlistItems(result?.data.wishlist);
       }
     } catch (error) {
       toast.error("Failed to load wishlist");

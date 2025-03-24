@@ -15,7 +15,7 @@ export const columns: ColumnDef<Product>[] = [
       <DataTableColumnHeader column={column} title="id" />
     ),
     cell: ({ row }) => (
-      <div className="truncate font-medium capitalize">
+      <div className="max-w-48 truncate font-medium capitalize">
         {row.getValue("id")}
       </div>
     ),
@@ -52,21 +52,21 @@ export const columns: ColumnDef<Product>[] = [
       );
     },
   },
-  {
-    accessorKey: "category",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Category" />
-    ),
-    cell: ({ row }) => {
-      return (
-        <div className="flex max-w-[500px] space-x-2">
-          <span className="truncate font-medium capitalize">
-            {row.getValue("category")}
-          </span>
-        </div>
-      );
-    },
-  },
+  // {
+  //   accessorKey: "category",
+  //   header: ({ column }) => (
+  //     <DataTableColumnHeader column={column} title="Category" />
+  //   ),
+  //   cell: ({ row }) => {
+  //     return (
+  //       <div className="flex max-w-[500px] space-x-2">
+  //         <span className="truncate font-medium capitalize">
+  //           {row.getValue("category")}
+  //         </span>
+  //       </div>
+  //     );
+  //   },
+  // },
   {
     accessorKey: "images",
     header: ({ column }) => (

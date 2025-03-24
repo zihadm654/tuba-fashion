@@ -46,13 +46,13 @@ export function DataTableToolbar<TData>({
           }}
           className="h-8 w-[150px] lg:w-[250px]"
         />
-        {link === "products" && table.getColumn("category") && (
+        {/* {link === "products" && table.getColumn("categories") && (
           <DataTableFacetedFilter
-            column={table.getColumn("category")}
-            title="Category"
+            column={table.getColumn("categories")}
+            title="Categories"
             options={categories.map((category) => ({ name: category.name }))}
           />
-        )}
+        )} */}
         {isFiltered && (
           <Button
             variant="ghost"

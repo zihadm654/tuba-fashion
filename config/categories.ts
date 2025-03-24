@@ -17,6 +17,10 @@ export const categories = [
 ] as const;
 export const sizes = [
   {
+    title: "S",
+    id: "s",
+  },
+  {
     title: "M",
     id: "m",
   },
@@ -34,6 +38,18 @@ export const sizes = [
   },
 ] as const;
 export const colors = [
+  {
+    title: "MAGENTA",
+    id: "magenta",
+  },
+  {
+    title: "WHITE",
+    id: "white",
+  },
+  {
+    title: "BLACK",
+    id: "black",
+  },
   {
     title: "RED",
     id: "red",

@@ -372,18 +372,18 @@ const page = () => {
           </div>
         </div>
         <Dialog open={showPaymentDialog} onOpenChange={handleCloseDialog}>
-          <DialogContent className="max-w-6xl max-md:max-w-md">
+          <DialogContent className="max-h-screen max-w-1/3 max-md:max-w-md">
             <DialogHeader>
               <DialogTitle>Select Payment Method</DialogTitle>
             </DialogHeader>
-            <div className="grid grid-cols-5 gap-4 p-4 max-md:grid-cols-4">
+            <div className="grid grid-cols-6 gap-4 scroll-auto p-4">
               {method?.map((item, i) => (
                 <Card
                   key={i}
                   className="cursor-pointer transition-shadow hover:shadow-md"
                   onClick={() => PayNow(item.redirectGatewayURL)}
                 >
-                  <CardContent className="flex items-center justify-center p-4">
+                  <CardContent className="flex items-center justify-center p-2">
                     <img
                       className="h-auto w-full object-contain"
                       src={item.logo}

@@ -185,7 +185,8 @@ export const addProduct = async (data: TProduct, userId: string) => {
             connect: result.data.categories.map((id) => ({ id })),
           },
         },
-        include: { // Include relations in response
+        include: {
+          // Include relations in response
           brand: true,
           categories: true,
         },
@@ -250,7 +251,8 @@ export const updateProduct = async (
             set: result.data.categories.map((id) => ({ id })),
           },
         },
-        include: { // Include relations in response
+        include: {
+          // Include relations in response
           brand: true,
           categories: true,
         },
@@ -272,17 +274,95 @@ export const deleteProduct = async (id: string) => {
   if (session?.user.role !== "ADMIN") return { message: "unauthorized" };
 
   try {
-    const res = await prisma.product.delete({
-      where: {
-        id: id,
-      },
+    // First check if the product exists
+    const product = await prisma.product.findUnique({
+      where: { id },
     });
-    revalidatePath("/admin/products", "page");
+
+    if (!product) {
+      return { error: "Product not found" };
+    }
+
+    // First check if product is referenced in any orders
+    const orderItems = await prisma.orderItem.findMany({
+      where: { productId: id },
+    });
+
+    if (orderItems.length > 0) {
+      // Instead of preventing deletion, archive the product
+      const archivedProduct = await prisma.product.update({
+        where: { id },
+        data: {
+          status: "archived",
+          isAvailable: false,
+        },
+      });
+
+      revalidatePath("/admin/products");
+      revalidatePath("/", "layout");
+
+      return {
+        success: "Product has been archived because it is referenced in orders",
+        info: "The product was archived instead of deleted because it is referenced in orders.",
+      };
+    }
+
+    // Use a transaction to ensure data integrity
+    const result = await prisma.$transaction(async (tx) => {
+      // Find all users who have this product in their wishlist
+      const usersWithProductInWishlist = await tx.user.findMany({
+        where: {
+          wishlist: {
+            some: { id },
+          },
+        },
+        select: { id: true },
+      });
+
+      // Remove product from all wishlists one by one
+      for (const user of usersWithProductInWishlist) {
+        await tx.user.update({
+          where: { id: user.id },
+          data: {
+            wishlist: {
+              disconnect: { id },
+            },
+          },
+        });
+      }
+
+      // Delete related cart items
+      await tx.cartItem.deleteMany({
+        where: { productId: id },
+      });
+
+      // Finally delete the product
+      return tx.product.delete({
+        where: { id },
+      });
+    });
+
+    revalidatePath("/admin/products");
     revalidatePath("/", "layout");
+    revalidatePath("/wishlist");
+    revalidatePath("/cart");
+
     return { success: "product has been deleted successfully" };
-  } catch (error) {
+  } catch (error: any) {
+    console.error("Error deleting product:", error);
+
+    // Provide more specific error messages based on error type
+    if (error.code === "P2025") {
+      return { error: "Product not found" };
+    } else if (error.code === "P2003") {
+      return {
+        error:
+          "Cannot delete product because it is referenced by other records",
+      };
+    }
+
     return {
-      error: error,
+      error: "Failed to delete product: " + (error.message || String(error)),
     };
   }
 };

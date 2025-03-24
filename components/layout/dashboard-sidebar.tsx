@@ -72,7 +72,7 @@ export function DashboardSidebar({ links }: DashboardSidebarProps) {
           >
             <div className="flex h-full max-h-screen flex-1 flex-col gap-2">
               <div className="flex h-14 items-center p-4 lg:h-[60px]">
-                {isSidebarExpanded ? <ProjectSwitcher /> : null}
+                {/* {isSidebarExpanded ? <ProjectSwitcher /> : null} */}
 
                 <Button
                   variant="ghost"
@@ -167,9 +167,9 @@ export function DashboardSidebar({ links }: DashboardSidebarProps) {
                 ))}
               </nav>
 
-              <div className="mt-auto xl:p-4">
+              {/* <div className="mt-auto xl:p-4">
                 {isSidebarExpanded ? <UpgradeCard /> : null}
-              </div>
+              </div> */}
             </div>
           </aside>
         </ScrollArea>
@@ -256,9 +256,9 @@ export function MobileSheetSidebar({ links }: DashboardSidebarProps) {
                   </section>
                 ))}
 
-                <div className="mt-auto">
+                {/* <div className="mt-auto">
                   <UpgradeCard />
-                </div>
+                </div> */}
               </nav>
             </div>
           </ScrollArea>
