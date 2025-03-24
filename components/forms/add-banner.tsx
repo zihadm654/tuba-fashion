@@ -66,7 +66,7 @@ export function AddBanner({ banner }: AddBannerProps) {
           toast.success(res.success);
           setImage("");
           form.reset();
-          router.push("/admin/banners");
+          router.push("/admin/banner");
         }
       } catch (error) {
         console.log(error);

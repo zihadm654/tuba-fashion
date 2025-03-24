@@ -27,9 +27,11 @@ export default async function SettingsPage() {
         <UserNameForm
           user={{ id: session?.user.id, name: session.user.name || "" }}
         />
-        {/* {session.user.role === "USER" && ( */}
-        <UserRoleForm user={{ id: session.user.id, role: session.user.role }} />
-        {/* )} */}
+        {session.user.role === "ADMIN" && (
+          <UserRoleForm
+            user={{ id: session.user.id, role: session.user.role }}
+          />
+        )}
         <DeleteAccountSection />
       </div>
     </>

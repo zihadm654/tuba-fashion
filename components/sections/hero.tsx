@@ -40,11 +40,12 @@ export async function Hero() {
                     fill
                     className="h-full w-full rounded-xl object-cover"
                   />
-                  <div className="bg-opacity-75 absolute top-6 left-6 rounded-xl bg-black p-6 text-white shadow-lg transition-transform hover:scale-105">
+                  <div className="bg-opacity-75 absolute bottom-10 left-6 rounded-xl p-4 text-black shadow-lg transition-transform hover:scale-105">
                     <Link href="/products" className="block overflow-hidden">
-                      <h1 className="text-xl font-bold lg:text-4xl">
+                      {/* <h1 className="text-lg font-bold lg:text-4xl">
                         {item.title}
-                      </h1>
+                      </h1> */}
+                      Shop Now
                     </Link>
                   </div>
                 </div>
