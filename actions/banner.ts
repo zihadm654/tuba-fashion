@@ -48,8 +48,8 @@ export const addBanner = async (data: TBanner) => {
           ...result.data,
         },
       });
-      revalidatePath("/admin/banner", "page");
-      revalidatePath("/", "page");
+      revalidatePath("/admin/banner");
+      revalidatePath("/", "layout");
       return { success: "banner has been created successfully", res };
     } catch (error) {
       return {
