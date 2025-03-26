@@ -11,7 +11,7 @@ export async function getCategories() {
     const categories = await prisma.category.findMany({
       include: {
         banners: true,
-        products: true,
+        // products: true,
       },
     });
     return { success: true, data: categories };
@@ -69,6 +69,7 @@ export async function addCategory(data: TCategory) {
     });
 
     revalidatePath("/admin/categories");
+    revalidatePath("/", "layout");
     return { success: true, data: category };
   } catch (error) {
     console.error("[CATEGORY_CREATE]", error);

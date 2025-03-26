@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { getCategories } from "@/actions/category";
 import { getProducts } from "@/actions/product";
 
 import { infos } from "@/config/landing";
@@ -18,8 +19,10 @@ import { SkeletonSection } from "@/components/shared/section-skeleton";
 
 export default async function IndexPage() {
   const products = await getProducts();
+  const categories = await getCategories();
   if (products.success === false) return <div>products not found</div>;
-  console.log(products);
+  if (categories.success === false) return <div>products not found</div>;
+  console.log(products, "data");
   return (
     <>
       <Hero />
@@ -32,7 +35,7 @@ export default async function IndexPage() {
         />
       </Suspense>
       <Suspense fallback={<SkeletonSection />}>
-        <CategoriesSelection />
+        <CategoriesSelection categories={categories.data ?? []} />
       </Suspense>
       {/* <PricingFaq /> */}
       {/* <HeroLanding />

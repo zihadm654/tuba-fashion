@@ -9,6 +9,11 @@ export type ProductWithIncludes = Prisma.ProductGetPayload<{
     categories: true;
   };
 }>;
+export type CategoriWithIncludes = Prisma.CategoryGetPayload<{
+  include: {
+    banners: true;
+  };
+}>;
 export type PaymentWithIncludes = Prisma.PaymentGetPayload<{
   include: {
     user: true;

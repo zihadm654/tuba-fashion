@@ -25,7 +25,7 @@ export const columns: ColumnDef<CategoryColumn>[] = [
   {
     id: "actions",
     cell: ({ row }) => (
-      <Link href={`/categories/${row.original.id}`}>
+      <Link href={`/admin/categories/${row.original.id}`}>
         <Button size="icon" variant="outline">
           <EditIcon className="h-4" />
         </Button>
