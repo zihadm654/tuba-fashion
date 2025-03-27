@@ -1,10 +1,9 @@
 import { getBanners } from "@/actions/banner";
 
 import { constructMetadata } from "@/lib/utils";
+import { columns } from "@/components/dashboard/banner/columns";
 import { DataTable } from "@/components/dashboard/data-table/data-table";
 import { DashboardHeader } from "@/components/dashboard/header";
-
-import { columns } from "./_components/columns";
 
 export const metadata = constructMetadata({
   title: "Banner - Tuba Fasion",

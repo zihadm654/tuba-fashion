@@ -1,7 +1,6 @@
 import { prisma } from "@/lib/db";
+import { columns } from "@/components/dashboard/brands/columns";
 import { DataTable } from "@/components/dashboard/data-table/data-table";
-
-import { columns } from "./_components/columns";
 
 export default async function BrandsPage() {
   const brands = await prisma.brand.findMany({
@@ -10,5 +9,5 @@ export default async function BrandsPage() {
     },
   });
 
-  return <DataTable columns={columns} data={brands} link="brand" />;
+  return <DataTable columns={columns} data={brands} link="brands" />;
 }

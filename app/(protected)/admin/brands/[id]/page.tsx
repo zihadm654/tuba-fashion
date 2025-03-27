@@ -1,7 +1,6 @@
 import { prisma } from "@/lib/db";
 import { DashboardHeader } from "@/components/dashboard/header";
-
-import { BrandForm } from "./components/brand-form";
+import { BrandForm } from "@/components/forms/brand-form";
 
 const BrandPage = async ({ params }: { params: Promise<{ id: string }> }) => {
   const id = (await params).id;

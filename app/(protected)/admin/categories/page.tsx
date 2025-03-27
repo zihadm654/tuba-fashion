@@ -1,10 +1,7 @@
 import { getCategories } from "@/actions/category";
 
-import { prisma } from "@/lib/db";
+import { columns } from "@/components/dashboard/categories/columns";
 import { DataTable } from "@/components/dashboard/data-table/data-table";
-
-import { columns } from "./_components/columns";
-import { CategoriesClient, CategoryColumn } from "./components/table";
 
 export default async function CategoriesPage() {
   const categories = await getCategories();
