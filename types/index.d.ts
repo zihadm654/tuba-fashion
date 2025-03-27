@@ -9,7 +9,7 @@ export type ProductWithIncludes = Prisma.ProductGetPayload<{
     categories: true;
   };
 }>;
-export type CategoriWithIncludes = Prisma.CategoryGetPayload<{
+export type CategoryWithIncludes = Prisma.CategoryGetPayload<{
   include: {
     banners: true;
   };

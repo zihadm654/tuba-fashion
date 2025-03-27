@@ -1,15 +1,13 @@
 "use client";
 
-// import { AlertModal } from '@/components/modals/alert-modal'
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { addCategory, updateCategory } from "@/actions/category";
+import { CategoryWithIncludes } from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Banner, Category } from "@prisma/client";
-import { Trash } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import * as z from "zod";
 
 import { categorySchema, TCategory } from "@/lib/validations/product";
 import { Button } from "@/components/ui/button";
@@ -21,7 +19,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-// import { Heading } from '@/components/ui/heading'
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -30,10 +27,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
 
 interface CategoryFormProps {
-  initialData: Category | null;
+  initialData: CategoryWithIncludes | null;
   banners: Banner[];
 }
 
