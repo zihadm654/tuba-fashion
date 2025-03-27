@@ -39,10 +39,8 @@ export default function SelectVariant({
                   className="flex items-center gap-2"
                 >
                   <div
-                    style={{ backgroundColor: x }}
-                    className="h-5 w-5 rounded-full border shadow-sm transition-transform"
+                    className={`size-6 rounded-full border shadow-sm transition-transform ${x}`}
                   />
-                  <span className="capitalize">{x}</span>
                 </Link>
               </Button>
             ))}

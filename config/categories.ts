@@ -39,31 +39,59 @@ export const sizes = [
 ] as const;
 export const colors = [
   {
-    title: "MAGENTA",
-    id: "magenta",
+    title: "Black",
+    id: "bg-black",
   },
   {
-    title: "WHITE",
-    id: "white",
+    title: "White",
+    id: "bg-white",
   },
   {
-    title: "BLACK",
-    id: "black",
+    title: "Navy",
+    id: "bg-navy-600",
   },
   {
-    title: "RED",
-    id: "red",
+    title: "Gray",
+    id: "bg-gray-500",
   },
   {
-    title: "GREEN",
-    id: "green",
+    title: "Charcoal",
+    id: "bg-gray-800",
   },
   {
-    title: "YELLOW",
-    id: "yellow",
+    title: "Beige",
+    id: "bg-neutral-100",
   },
   {
-    title: "BLUE",
-    id: "blue",
+    title: "Olive",
+    id: "bg-olive-500",
+  },
+  {
+    title: "Red",
+    id: "bg-red-600",
+  },
+  {
+    title: "Royal Blue",
+    id: "bg-blue-600",
+  },
+  {
+    title: "Forest Green",
+    id: "bg-green-700",
+  },
+  {
+    title: "Pink",
+    id: "bg-pink-500",
+  },
+  {
+    title: "Purple",
+    id: "bg-purple-700",
+  },
+  {
+    title: "Yellow",
+    id: "bg-yellow-400",
+  },
+  {
+    title: "Brown",
+    id: "bg-red-700",
   },
 ] as const;

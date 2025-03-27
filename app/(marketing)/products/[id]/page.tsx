@@ -47,14 +47,23 @@ const page = async ({ params, searchParams }: Props) => {
   const color = (await searchParams).color;
   const size = (await searchParams).size;
   //product data fetched
-  //product data fetched
   const res = await getProduct(id);
   const product = res.data;
-  // const productsResponse = await getProductsByCat(product?.categories[0]?.id!);
-  // Filter out the current product from related products
-  // const relatedProducts =
-  //   productsResponse.data?.filter((p) => p.id !== id) || [];
-  // console.log(relatedProducts, "related products");
+  console.log(product, "product");
+
+  // Get related products only if the product has categories
+  let relatedProducts: any[] = [];
+  if (product?.categories && product.categories.length > 0) {
+    // Use the category title instead of ID for fetching related products
+    const productsResponse = await getProductsByCat(
+      product.categories[0].title,
+    );
+    // Filter out the current product from related products
+    if (productsResponse.success && productsResponse.data) {
+      relatedProducts = productsResponse.data.filter((p) => p.id !== id);
+    }
+  }
+  console.log(relatedProducts, "related products");
   if (!res && !product) return <SkeletonSection />;
   // Calculate discount information
   const discountActive = isDiscountActive(
@@ -158,9 +167,9 @@ const page = async ({ params, searchParams }: Props) => {
           <ReviewList productId={id} />
         </div>
         {/* Related Products Section */}
-        {/* {relatedProducts.length > 0 && (
+        {relatedProducts.length > 0 && (
           <Products products={relatedProducts} title="Related Products" />
-        )} */}
+        )}
       </MaxWidthWrapper>
     </section>
   );
