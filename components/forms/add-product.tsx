@@ -432,7 +432,7 @@ export function AddProduct({
           />
         </div>
         {/* size for the product example: m, l, xl,xxl */}
-        <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center justify-between gap-3 max-md:flex-col">
           <FormField
             control={form.control}
             name="color"
